@@ -37,23 +37,24 @@ export default function ResourcesPage() {
   return (
     <div className="space-y-8">
       <PageHead title="진로체험·자료" desc="진로체험 신청부터 학교·대입 정보까지, 공식 사이트를 목적별로 모았어요. 체험을 다녀오면 마이로드에 기록해 두세요." />
-      <div className="grid gap-3 md:grid-cols-3">
-        <Link href="/industry" className="card bg-emerald-50 transition hover:border-emerald-300">
-          <div className="text-2xl">🏭</div>
-          <div className="mt-1 font-bold">경남 산업 진로 지도</div>
-          <p className="text-sm text-slate-600">조선·항공우주·기계·나노 등 우리 지역 산업과 연결된 직업과 학교</p>
-        </Link>
-        <Link href="/plan" className="card bg-brand-50 transition hover:border-brand-300">
-          <div className="text-2xl">📝</div>
-          <div className="mt-1 font-bold">체험 후 기록하기</div>
-          <p className="text-sm text-slate-600">계기 → 한 일 → 알게 된 점 → 다음 걸음 4단계 성찰 기록</p>
-        </Link>
-        <Link href="/portfolio" className="card bg-amber-50 transition hover:border-amber-300">
-          <div className="text-2xl">🗂️</div>
-          <div className="mt-1 font-bold">포트폴리오 작성</div>
-          <p className="text-sm text-slate-600">진로활동·학업설계·독서 포트폴리오를 작성하고 인쇄해요</p>
-        </Link>
-      </div>
+      <section>
+        <h2 className="mb-3 text-lg font-bold">마이로드 진로 자료실</h2>
+        <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-3">
+          {[
+            { href: "/future", t: "미래 신산업 진로 탐색", d: "8대 신산업 퀴즈 20문항 · 미래 트렌드 친화도 15문항 · 진로·학업 로드맵" },
+            { href: "/transition", t: "고3 진로 전환기 10차시", d: "수능 이후 대학 생활·근로·금융·안전까지 수업 자료와 체크리스트" },
+            { href: "/guide", t: "진로·학업설계 가이드북", d: "학생·보호자·교사가 함께 읽는 5장 안내서" },
+            { href: "/industry", t: "경남 산업 진로 지도", d: "조선·항공우주·기계·나노 등 지역 산업과 연결된 직업·학교" },
+            { href: "/portfolio", t: "포트폴리오 작성", d: "진로활동·192학점 로드맵·독서 포트폴리오, 제출용 보고서" },
+            { href: "/plan", t: "체험 후 기록하기", d: "계기 → 한 일 → 알게 된 점 → 다음 걸음 4단계 성찰" },
+          ].map((c) => (
+            <Link key={c.href} href={c.href} className="card transition hover:border-brand-300">
+              <div className="font-bold">{c.t}</div>
+              <p className="mt-1 text-sm text-slate-600">{c.d}</p>
+            </Link>
+          ))}
+        </div>
+      </section>
       {GROUPS.map((g) => (
         <section key={g.t}>
           <h2 className="mb-3 text-lg font-bold">{g.t}</h2>

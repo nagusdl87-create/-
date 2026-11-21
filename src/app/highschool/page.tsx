@@ -5,7 +5,7 @@ import { useStore } from "@/lib/store";
 import { HS_QUIZ, HS_TYPES } from "@/data/highschools";
 import { JOB_MAP, type HsTypeId } from "@/data/jobs";
 import { ADMISSION_RULES, ADMISSION_SCHEDULE, dday, GN_SCHOOLS, KIND_INFO, OFFICIAL, parsePeriod, scheduleToIcs, ZONES } from "@/data/gn";
-import { CalendarPlus } from "lucide-react";
+import { ArrowLeftRight, CalendarPlus, Star } from "lucide-react";
 import Link from "next/link";
 import { hsQuizResult } from "@/lib/match";
 import { NextStep, PageHead } from "@/components/ui";
@@ -13,6 +13,8 @@ import { NextStep, PageHead } from "@/components/ui";
 export default function HighschoolPage() {
   const { state, update, ready } = useStore();
   const [compare, setCompare] = useState<HsTypeId[]>(["general", "vocational"]);
+  const [roundF, setRoundF] = useState<"전체" | "전기" | "후기">("전체");
+  const [openType, setOpenType] = useState<HsTypeId | null>(null);
   const favJobs = state.favorites.map((id) => JOB_MAP[id]).filter(Boolean);
   const answered = Object.keys(state.hsQuiz).length;
   const quizDone = answered === HS_QUIZ.length;
@@ -96,27 +98,37 @@ export default function HighschoolPage() {
         </div>
       </div>
 
-      <h2 className="mb-3 mt-8 text-lg font-bold">고교 유형 한눈에 보기</h2>
-      <p className="mb-3 text-sm text-slate-500">⭐ 관심 표시 · ⇄ 비교 담기(최대 3개)</p>
+      <div className="mb-3 mt-10 flex flex-wrap items-end justify-between gap-2">
+        <div>
+          <h2 className="text-lg font-bold">고교 유형별 심층 분석</h2>
+          <p className="text-sm text-slate-500">관심 표시(별) · 비교 담기(최대 3개) · 자세히 보기로 특장점과 유의사항을 확인하세요.</p>
+        </div>
+        <div className="flex gap-1.5">
+          {(["전체", "전기", "후기"] as const).map((r) => (
+            <button key={r} aria-pressed={roundF === r} className={`chip px-3 py-1.5 ${roundF === r ? "chip-on" : ""}`} onClick={() => setRoundF(r)}>
+              {r}
+            </button>
+          ))}
+        </div>
+      </div>
       <div className="grid gap-3 md:grid-cols-2">
-        {HS_TYPES.map((h) => {
+        {HS_TYPES.filter((h) => roundF === "전체" || h.round === roundF || (roundF === "전기" && h.round === "별도")).map((h) => {
           const interested = state.hsInterest.includes(h.id);
           const inCompare = compare.includes(h.id);
+          const open = openType === h.id;
           return (
-            <div key={h.id} id={h.id} className={`card scroll-mt-20 ${interested ? "border-amber-300" : ""}`}>
+            <div key={h.id} id={h.id} className={`card scroll-mt-20 ${interested ? "border-sun-400" : ""}`}>
               <div className="flex items-start justify-between gap-2">
                 <div>
-                  <div className="text-lg font-extrabold">
-                    {h.emoji} {h.name}
-                  </div>
-                  <span className="chip mt-1">{h.round === "별도" ? "별도 일정(가장 빠름)" : `${h.round} 지원(일반적)`}</span>
+                  <div className="text-lg font-bold">{h.name}</div>
+                  <span className="chip mt-1">{h.round === "별도" ? "별도 일정(가장 빠름)" : `${h.round} 지원`}</span>
                 </div>
                 <div className="flex gap-1.5">
-                  <button aria-pressed={interested} aria-label="관심 표시" onClick={() => toggleInterest(h.id)} className={`grid h-9 w-9 place-items-center rounded-full border ${interested ? "border-amber-300 bg-amber-50" : "border-slate-200"}`}>
-                    {interested ? "⭐" : "☆"}
+                  <button aria-pressed={interested} aria-label="관심 표시" onClick={() => toggleInterest(h.id)} className={`grid h-9 w-9 place-items-center rounded-full border ${interested ? "border-sun-400 bg-sun-100" : "border-slate-200"}`}>
+                    <Star className={`h-4 w-4 ${interested ? "fill-sun-400 text-sun-500" : "text-slate-400"}`} />
                   </button>
-                  <button aria-pressed={inCompare} aria-label="비교 담기" onClick={() => toggleCompare(h.id)} className={`grid h-9 w-9 place-items-center rounded-full border text-sm font-bold ${inCompare ? "border-brand-400 bg-brand-50 text-brand-700" : "border-slate-200 text-slate-500"}`}>
-                    ⇄
+                  <button aria-pressed={inCompare} aria-label="비교 담기" onClick={() => toggleCompare(h.id)} className={`grid h-9 w-9 place-items-center rounded-full border ${inCompare ? "border-brand-400 bg-brand-50 text-brand-700" : "border-slate-200 text-slate-400"}`}>
+                    <ArrowLeftRight className="h-4 w-4" />
                   </button>
                 </div>
               </div>
@@ -127,9 +139,31 @@ export default function HighschoolPage() {
                   <li key={g}>• {g}</li>
                 ))}
               </ul>
+              {open && (
+                <dl className="mt-4 space-y-3 border-t border-slate-100 pt-4 text-sm">
+                  {h.features && (
+                    <div>
+                      <dt className="font-semibold">주요 특장점</dt>
+                      <dd className="mt-1 grid gap-1 sm:grid-cols-2">
+                        {h.features.map((f) => (
+                          <span key={f} className="rounded-lg bg-slate-50 px-2 py-1">✓ {f}</span>
+                        ))}
+                      </dd>
+                    </div>
+                  )}
+                  {h.student && <div><dt className="font-semibold">추천 학생상</dt><dd className="text-slate-700">{h.student}</dd></div>}
+                  {h.signature && <div><dt className="font-semibold">시그니처 교육과정</dt><dd className="text-slate-700">{h.signature}</dd></div>}
+                  {h.strategy && <div><dt className="font-semibold">대입·진로 전략</dt><dd className="text-slate-700">{h.strategy}</dd></div>}
+                  {h.caution && <div className="rounded-xl bg-sun-100/70 p-3"><dt className="font-semibold text-amber-900">지원 전 유의사항</dt><dd className="text-amber-900">{h.caution}</dd></div>}
+                  <div><dt className="font-semibold">입학 방법 · 졸업 후</dt><dd className="text-slate-700">{h.admission} {h.afterGrad}</dd></div>
+                </dl>
+              )}
+              <button className="mt-3 text-sm font-semibold text-brand-700" aria-expanded={open} onClick={() => setOpenType(open ? null : h.id)}>
+                {open ? "접기" : "심층 분석 자세히 보기"}
+              </button>
               {favJobs.some((j) => j.hsTypes.includes(h.id)) && (
                 <div className="mt-3 rounded-lg bg-brand-50 px-2.5 py-1.5 text-xs text-brand-800">
-                  ❤️ 찜한 직업 연결:{" "}
+                  찜한 직업 연결:{" "}
                   {favJobs
                     .filter((j) => j.hsTypes.includes(h.id))
                     .map((j) => j.name)
@@ -140,6 +174,23 @@ export default function HighschoolPage() {
           );
         })}
       </div>
+
+      <section className="card mt-6">
+        <h2 className="text-lg font-bold">실패 없는 고등학교 선택 3단계</h2>
+        <ol className="mt-3 grid gap-3 md:grid-cols-3">
+          {[
+            { t: "1. 나의 적성·진로 분석", d: "흥미 탐색과 공식 진로검사로 나를 알고, 위 퀴즈로 맞는 학교 유형을 좁혀요.", href: "/discover", cta: "나 알기" },
+            { t: "2. 학교별 교육과정 확인", d: "관심 학교의 편제표(개설 과목)와 학과, 특색 과정을 비교해요. 학교 누리집·고입정보포털에서 확인할 수 있어요.", href: "/schools", cta: "경남 고교 찾기" },
+            { t: "3. 통학 거리와 생활 점검", d: "매일 다니는 길이에요. 편도 40~50분이 넘으면 피로가 쌓이기 쉬워요. 기숙사·통학버스 여부도 확인하세요.", href: "/schools", cta: "거리·길찾기" },
+          ].map((s) => (
+            <li key={s.t} className="rounded-2xl bg-slate-50 p-4">
+              <div className="font-semibold">{s.t}</div>
+              <p className="mt-1 text-sm text-slate-600">{s.d}</p>
+              <Link href={s.href} className="mt-2 inline-block text-sm font-semibold text-brand-700">{s.cta} →</Link>
+            </li>
+          ))}
+        </ol>
+      </section>
 
       {compare.length > 0 && (
         <div className="card mt-6 overflow-x-auto p-0">

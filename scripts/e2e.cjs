@@ -56,9 +56,9 @@ async function answerDiscover(p) {
   await p.fill('input[aria-label="석차"]', '21'); await p.fill('input[aria-label="수강자 수"]', '200');
   console.log('calc avg:', await p.locator('#calc .text-4xl').innerText(), '| rank text:', await p.locator('#calc p:has-text("상위")').innerText());
   await p.screenshot({ path: D + '06-calc.png' });
-  await p.goto(B + '/portfolio'); await p.click('text=예시 불러오기'); await p.click('text=📄 제출용 보기'); await p.waitForTimeout(200);
+  await p.goto(B + '/portfolio'); await p.click('text=예시 불러오기'); await p.click('text=제출용 보고서'); await p.waitForTimeout(200);
   await p.screenshot({ path: D + '07-portfolio.png', fullPage: true });
-  await p.goto(B + '/tests'); await p.click('button:has-text("탐구형(I)")'); await p.click('button:has-text("관습형(C)")');
+  await p.goto(B + '/tests'); await p.click('role=tab >> text=결과 연결하기'); await p.click('button:has-text("탐구형(I)")'); await p.click('button:has-text("관습형(C)")');
   await p.goto(B + '/plan'); await p.locator('input[type=checkbox]').first().click();
   await p.goto(B); await p.waitForTimeout(300); await p.screenshot({ path: D + '08-home-hs.png', fullPage: true });
   console.log('hs progress:', await p.locator('main svg[aria-label^="진행"]').first().getAttribute('aria-label'));
@@ -81,7 +81,7 @@ async function answerDiscover(p) {
   await m.screenshot({ path: D + '10-schools.png' });
   console.log('schools list count:', await m.locator('main ul li [role=button]').count());
   await m.goto(B + '/highschool#gn'); await m.waitForTimeout(400); await m.screenshot({ path: D + '11-gn-admission.png', fullPage: true });
-  await m.goto(B + '/subjects'); await m.click('text=🌳 과목 위계도'); await m.click('button:has-text("미적분Ⅰ")');
+  await m.goto(B + '/subjects'); await m.click('role=tab >> text=과목 위계도'); await m.click('button:has-text("미적분Ⅰ")');
   await m.waitForSelector('[role=dialog]'); await m.screenshot({ path: D + '12-subject-modal.png' });
   await m.goto(B + '/search?q=' + encodeURIComponent('항공')); await m.waitForTimeout(300);
   console.log('search 항공:', (await m.innerText('main')).match(/검색 결과 \d+건/)?.[0]);
@@ -109,11 +109,28 @@ async function answerDiscover(p) {
     console.log('shared curriculum banner:', (await sp.locator('text=공유받은 편제표').count()) > 0);
   }
 
+  // ── 새 기능 점검
+  {
+    const np = await ctx.newPage(); watch(np, 'new');
+    await np.goto(B + '/future'); await np.waitForTimeout(300);
+    await np.locator('main .card button').filter({ hasText: '기계학습' }).click();
+    console.log('future quiz feedback:', (await np.locator('text=💡').first().innerText()).slice(0, 30));
+    await np.goto(B + '/guide#ch2'); await np.waitForTimeout(300);
+    await np.click('role=tab >> text=3단계');
+    console.log('guide step3:', await np.locator('article h3').first().innerText());
+    await np.goto(B + '/subjects'); await np.click('role=tab >> text=내신 산출 방법');
+    await np.fill('#ns-rank', '21'); console.log('naesin:', await np.locator('text=석차등급(5등급)').locator('..').innerText());
+    await np.goto(B + '/portfolio'); await np.click('role=tab >> text=192학점 로드맵'); await np.click('text=예시 불러오기'); await np.click('role=tab >> text=3단계 · 192학점 설계');
+    console.log('roadmap embeds planner:', await np.locator('text=교과(군)별 필수 이수 학점').count() > 0);
+    await np.goto(B + '/'); await np.waitForTimeout(300); await np.fill('input[aria-label="통합 검색"] >> nth=-1', '항공');
+    await np.waitForTimeout(200); console.log('live search:', await np.locator('[aria-label="통합 검색 결과"] button').first().innerText());
+  }
+
   // ── 모든 페이지 모바일 점검
   const mc = await b.newContext({ viewport: { width: 390, height: 844 }, deviceScaleFactor: 2 });
   const mp = await mc.newPage(); watch(mp, 'mobile');
   await mp.goto(B); await mp.click('text=고등학생이에요');
-  const routes = ['/', '/discover', '/jobs', '/jobs/shipbuilding', '/majors', '/majors/medicine', '/path', '/credits', '/credits/school', '/subjects', '/schools', '/highschool', '/admission', '/industry', '/tests', '/resources', '/guide', '/portfolio', '/plan', '/report', '/explore', '/tools', '/search?q=로봇', '/nope'];
+  const routes = ['/', '/discover', '/jobs', '/jobs/shipbuilding', '/majors', '/majors/medicine', '/path', '/credits', '/credits/school', '/subjects', '/schools', '/highschool', '/admission', '/industry', '/tests', '/resources', '/guide', '/future', '/transition', '/portfolio', '/plan', '/report', '/explore', '/tools', '/search?q=로봇', '/nope'];
   for (const r of routes) {
     const res = await mp.goto(B + r); await mp.waitForTimeout(r === '/schools' ? 1200 : 250);
     const ov = await mp.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);

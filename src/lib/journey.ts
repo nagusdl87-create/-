@@ -1,7 +1,7 @@
 import type { LucideIcon } from "lucide-react";
 import {
   BookMarked, BookOpen, Briefcase, Calculator, ClipboardCheck, Compass, Factory, FolderOpen, GraduationCap,
-  Lightbulb, ListChecks, MapPinned, Percent, Route, School, Target, Backpack,
+  Lightbulb, ListChecks, MapPinned, Percent, Route, School, Target, Backpack, Rocket,
 } from "lucide-react";
 import type { Stage } from "@/data/plan";
 
@@ -41,5 +41,7 @@ export const TOOLS: NavItem[] = [
   { href: "/portfolio", label: "포트폴리오", icon: FolderOpen, desc: "진로활동 · 학업설계서 · 독서" },
   { href: "/tests", label: "진로검사·상담", icon: ClipboardCheck, desc: "공식 심리검사 · 상담 창구" },
   { href: "/resources", label: "진로체험·자료", icon: Backpack, desc: "꿈길 체험 · 공식 자료 모음" },
+  { href: "/future", label: "미래 신산업 탐색", icon: Rocket, desc: "신산업 퀴즈 · 트렌드 친화도 · 로드맵" },
+  { href: "/transition", label: "고3 진로 전환기", icon: GraduationCap, desc: "수능 이후 10차시 수업 자료" },
   { href: "/guide", label: "진로·학업설계 가이드", icon: BookMarked, desc: "5장 가이드북 (학생·보호자·교사)" },
 ];

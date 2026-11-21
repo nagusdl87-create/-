@@ -58,8 +58,13 @@ export function analyze(plan: Record<Sem, string[]>, track: TrackId | "") {
 
   // 국영수 상한
   const basic = g("국어") + g("수학") + g("영어");
-  if (basic > CREDIT_RULES.basicCap) checks.push({ level: "warn", text: `국어·수학·영어 합계가 ${basic}학점으로 상한 81학점을 넘었어요.` });
+  if (basic > CREDIT_RULES.basicCap) checks.push({ level: "warn", text: `국어·수학·영어 합계가 ${basic}학점(국어 ${g("국어")}·수학 ${g("수학")}·영어 ${g("영어")})으로 상한 81학점을 넘었어요. 총 ${basic - CREDIT_RULES.basicCap}학점을 줄여야 해요.` });
   else checks.push({ level: "ok", text: `국어·수학·영어 합계 ${basic}학점 (상한 81학점 이내)` });
+
+  // 체육 매 학기 편성
+  const filledSems = SEMS.filter((s) => (plan[s] ?? []).length > 0);
+  const noPE = filledSems.filter((s) => !(plan[s] ?? []).some((e) => parseEntry(e).subject?.group === "체육"));
+  if (filledSems.length === 6 && noPE.length) checks.push({ level: "warn", text: `체육은 매 학기 편성하는 것이 원칙이에요. ${noPE.map((s) => SEM_LABEL[s]).join(", ")}에 체육 과목이 없어요.` });
 
   // 학기 균형
   SEMS.forEach((sem) => {
@@ -133,6 +138,11 @@ export function autoFill(plan: Record<Sem, string[]>, track: TrackId): Record<Se
     return false;
   };
   const two = new Set(["체육2", "운동과 건강", "스포츠 생활1", "스포츠 생활2", "스포츠 문화", "미술 창작", "음악 연주와 창작", "미술과 매체", "음악과 미디어", "음악 감상과 비평", "미술 감상과 비평", "진로와 직업"]);
+  // 체육은 매 학기: 2·3학년 각 학기에 체육 과목 하나씩 먼저 배치
+  const pe = ["체육2", "운동과 건강", "스포츠 생활1", "스포츠 생활2", "스포츠 문화"].filter((n) => !has(n));
+  for (const s of later) {
+    if (!next[s].some((e) => parseEntry(e).subject?.group === "체육") && pe.length) next[s].push(entry(pe.shift()!, 2));
+  }
   for (const name of wanted) place(name, two.has(name) ? 2 : undefined);
 
   // 필수 이수 학점이 부족한 교과(군) 채우기

@@ -7,6 +7,7 @@ import { SEM_LABEL } from "@/lib/credits";
 import { GRADE5, SUNEUNG_2028 } from "@/data/subjects";
 import { OFFICIAL } from "@/data/gn";
 import { PageHead } from "@/components/ui";
+import { NaesinSimulator } from "@/components/Naesin";
 
 const CHANGES = [
   { t: "통합형 수능", d: "국어·수학 선택과목이 없어지고 모든 수험생이 같은 과목으로 시험을 봐요. 사회·과학탐구는 문·이과 구분 없이 통합사회와 통합과학을 모두 응시해요." },
@@ -74,6 +75,11 @@ export default function AdmissionPage() {
           출처: 교육부 2028 대입제도 개편 확정안(2023.12.). 예시 문항과 세부 사항은{" "}
           <a className="underline" href={OFFICIAL.suneung.url} target="_blank" rel="noreferrer">한국교육과정평가원</a>에서 확인하세요.
         </p>
+      </section>
+
+      <section>
+        <h2 className="mb-3 text-lg font-bold">실시간 5등급 내신 시뮬레이터</h2>
+        <NaesinSimulator />
       </section>
 
       <Calculator />

@@ -202,7 +202,7 @@ export const CREDIT_RULES = {
     { area: "국어", groups: ["국어"], min: 8 },
     { area: "수학", groups: ["수학"], min: 8 },
     { area: "영어", groups: ["영어"], min: 8 },
-    { area: "사회(한국사 6 포함)", groups: ["사회"], min: 16 },
+    { area: "사회(한국사 6 포함)", groups: ["사회"], min: 14 },
     { area: "과학", groups: ["과학"], min: 10 },
     { area: "체육", groups: ["체육"], min: 10 },
     { area: "예술", groups: ["예술"], min: 10 },

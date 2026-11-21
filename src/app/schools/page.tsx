@@ -39,6 +39,20 @@ export default function SchoolsPage() {
   const [sel, setSel] = useState<string | null>(null);
   const [geo, setGeo] = useState<{ lat: number; lng: number; label: string } | null>(null);
   const [geoErr, setGeoErr] = useState("");
+  const [addr, setAddr] = useState("");
+  const [addrRes, setAddrRes] = useState<{ name: string; lat: number; lng: number }[]>([]);
+  const searchAddr = async (q: string) => {
+    if (!q.trim()) return;
+    setGeoErr("");
+    try {
+      const r = await fetch(`https://nominatim.openstreetmap.org/search?format=json&countrycodes=kr&limit=5&accept-language=ko&q=${encodeURIComponent(q.includes("경남") || q.includes("경상남도") ? q : `경상남도 ${q}`)}`);
+      const j = (await r.json()) as { display_name: string; lat: string; lon: string }[];
+      setAddrRes(j.map((x) => ({ name: x.display_name.split(",").slice(0, 3).join(","), lat: Number(x.lat), lng: Number(x.lon) })));
+      if (!j.length) setGeoErr("검색 결과가 없어요. 동 이름이나 도로명으로 다시 찾아보세요.");
+    } catch {
+      setGeoErr("주소 검색에 실패했어요. 잠시 후 다시 시도하거나 내 중학교를 선택하세요.");
+    }
+  };
 
   const middle = GN_MIDDLE.find((m) => m.name === state.profile.middle);
   const origin = geo ?? (middle ? { lat: middle.lat, lng: middle.lng, label: middle.name } : null);
@@ -149,8 +163,43 @@ export default function SchoolsPage() {
           >
             📍 현재 위치
           </button>
+          <form
+            className="flex gap-1.5"
+            onSubmit={(e) => {
+              e.preventDefault();
+              searchAddr(addr);
+            }}
+          >
+            <input className="input w-48 py-1.5 text-sm" placeholder="주소·동 이름 (예: 상남동)" value={addr} onChange={(e) => setAddr(e.target.value)} aria-label="출발지 주소 검색" />
+            <button className="btn-ghost py-1.5">찾기</button>
+          </form>
+          <div className="flex flex-wrap gap-1">
+            {["창원시청", "진주시청", "김해시청", "양산시청", "거제시청", "통영시청"].map((q) => (
+              <button key={q} className="chip" onClick={() => searchAddr(q)}>
+                {q.replace("시청", "")}
+              </button>
+            ))}
+          </div>
           {origin && <span className="text-xs text-slate-500">‘{origin.label}’에서 가까운 순 (직선거리)</span>}
           {geoErr && <span className="text-xs text-rose-600">{geoErr}</span>}
+          {addrRes.length > 0 && (
+            <ul className="w-full space-y-1">
+              {addrRes.map((a) => (
+                <li key={a.name + a.lat}>
+                  <button
+                    className="w-full rounded-lg px-2 py-1 text-left text-xs hover:bg-slate-50"
+                    onClick={() => {
+                      setGeo({ lat: a.lat, lng: a.lng, label: a.name.split(",")[0] });
+                      setAddrRes([]);
+                    }}
+                  >
+                    📍 {a.name}
+                  </button>
+                </li>
+              ))}
+              <li className="px-2 text-[10px] text-slate-400">주소 검색: © OpenStreetMap 기여자 (Nominatim)</li>
+            </ul>
+          )}
         </div>
       </div>
 
@@ -297,7 +346,7 @@ function Detail({ s, d, origin, onClose }: { s: GnSchool; d: number | null; orig
         </div>
       )}
       {voc && <p className="mt-2 text-xs text-emerald-700">이 일반고에는 특성화과({voc.dept})가 있어 해당 학과는 전기에 선발해요.</p>}
-      {d !== null && <p className="mt-2 text-sm">📏 {origin?.label}에서 직선 약 <b>{d.toFixed(1)}km</b></p>}
+      {d !== null && <Commute d={d} label={origin?.label ?? ""} />}
       {inds.length > 0 && (
         <div className="mt-3 rounded-xl bg-emerald-50 p-3 text-sm">
           <div className="text-xs font-bold text-emerald-800">경남 산업 연계</div>
@@ -317,13 +366,49 @@ function Detail({ s, d, origin, onClose }: { s: GnSchool; d: number | null; orig
         <button className={`btn ${on ? "bg-amber-100 text-amber-900" : "btn-ghost"}`} onClick={() => update((st) => ({ ...st, favSchools: toggleIn(st.favSchools, s.id) }))}>
           {on ? "⭐ 저장됨" : "☆ 관심 학교 저장"}
         </button>
-        <a className="btn-ghost" href={kakao} target="_blank" rel="noreferrer">🧭 길찾기</a>
+        <a className="btn-ghost" href={kakao} target="_blank" rel="noreferrer">🧭 카카오맵 길찾기</a>
+        <a className="btn-ghost" href={`https://map.naver.com/p/search/${encodeURIComponent(s.name)}`} target="_blank" rel="noreferrer">네이버 지도</a>
         {s.home && <a className="btn-ghost" href={s.home} target="_blank" rel="noreferrer">🏠 학교 누리집</a>}
         {s.hischool && <a className="btn-ghost" href={s.hischool} target="_blank" rel="noreferrer">📄 고입정보포털</a>}
         <a className="btn-ghost" href={OFFICIAL.schoolinfo.url} target="_blank" rel="noreferrer">📊 학교알리미</a>
         {s.tel && <a className="btn-ghost" href={`tel:${s.tel}`}>☎ {s.tel}</a>}
       </div>
       <p className="mt-2 text-xs text-slate-400">교육과정 편제표(개설 과목)는 학교 누리집 또는 고입정보포털에서 확인한 뒤 192학점 설계에 반영해 보세요.</p>
+    </div>
+  );
+}
+
+// 직선거리 기반 통학 추정 (도로 우회 계수 1.3 적용, 참고용)
+function Commute({ d, label }: { d: number; label: string }) {
+  const road = d * 1.3;
+  const walkMin = Math.round((road / 4.5) * 60);
+  const steps = Math.round(road * 1300);
+  const kcal = Math.round(road * 50);
+  const carMin = Math.max(3, Math.round((road / 28) * 60));
+  const busMin = Math.max(8, Math.round((road / 18) * 60 + 8));
+  const verdict = walkMin <= 25 ? "걸어서 다닐 만해요" : busMin <= 40 ? "대중교통 권장" : "통학 시간이 길어요 (기숙사·통학버스 확인)";
+  return (
+    <div className="mt-3 rounded-xl border border-slate-200 p-3">
+      <div className="text-xs font-semibold text-slate-500">{label}에서 통학 추정 · 직선 {d.toFixed(1)}km</div>
+      <div className="mt-2 grid grid-cols-3 gap-2 text-center text-sm">
+        <div className="rounded-lg bg-slate-50 p-2">
+          <div className="text-xs text-slate-500">도보</div>
+          <b>약 {walkMin}분</b>
+          <div className="text-[11px] text-slate-500">{steps.toLocaleString()}보 · {kcal}kcal</div>
+        </div>
+        <div className="rounded-lg bg-slate-50 p-2">
+          <div className="text-xs text-slate-500">버스·대중교통</div>
+          <b>약 {busMin}분</b>
+          <div className="text-[11px] text-slate-500">대기·환승 포함 추정</div>
+        </div>
+        <div className="rounded-lg bg-slate-50 p-2">
+          <div className="text-xs text-slate-500">승용차</div>
+          <b>약 {carMin}분</b>
+          <div className="text-[11px] text-slate-500">출근 시간 제외</div>
+        </div>
+      </div>
+      <p className="mt-2 text-xs text-brand-700">{verdict}</p>
+      <p className="text-[11px] text-slate-400">실제 노선·시간은 아래 길찾기(카카오맵·네이버 지도)에서 확인하세요. 배정과는 무관한 참고 정보예요.</p>
     </div>
   );
 }

@@ -11,6 +11,8 @@ import { TERMS_BY_STAGE, type Stage } from "@/data/plan";
 import { dday, GN_SCHOOLS, upcomingSchedule } from "@/data/gn";
 import { MAJOR_MAP } from "@/data/majors";
 import { HubList, ProgressRing } from "@/components/ui";
+import { LiveSearch } from "@/components/LiveSearch";
+import { CREDIT_RULES } from "@/data/subjects";
 
 const FLOW = [
   { icon: Compass, t: "흥미·가치관 알기", d: "5분 흥미 탐색" },
@@ -55,8 +57,43 @@ function StagePicker() {
   );
 }
 
+const POPULAR_MAJORS = ["cs", "medicine", "ai", "semiconductor", "business", "biology"];
+
 function Hubs() {
   return (
+    <>
+    <section>
+      <LiveSearch />
+    </section>
+    <section>
+      <h2 className="mb-3 text-lg font-bold text-slate-900">인기 학과별 핵심 권장과목</h2>
+      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+        {POPULAR_MAJORS.map((id) => MAJOR_MAP[id]).filter(Boolean).map((m) => (
+          <Link key={m.id} href={`/majors/${m.id}`} className="card p-4 transition hover:border-brand-300">
+            <div className="font-semibold text-slate-900">{m.name}</div>
+            <div className="mt-2 flex flex-wrap gap-1">
+              {m.core.map((s) => (
+                <span key={s} className="rounded-md bg-brand-50 px-1.5 py-0.5 text-xs font-medium text-brand-800">{s}</span>
+              ))}
+            </div>
+          </Link>
+        ))}
+      </div>
+    </section>
+    <section className="grid gap-3 sm:grid-cols-4">
+      {[
+        ["192학점", "졸업 기준", "교과 174 + 창체 18"],
+        [`${CREDIT_RULES.basicCap}학점`, "국·수·영 상한", "교과의 50% − 한국사"],
+        [`${CREDIT_RULES.required}학점`, "필수 이수", "교과(군)별 최소 학점 합"],
+        ["5등급제", "고교 내신", "1등급 상위 10%"],
+      ].map(([v, t, d]) => (
+        <Link key={t} href="/credits#standards" className="card p-4 transition hover:border-brand-300">
+          <div className="text-xs font-semibold text-slate-500">{t}</div>
+          <div className="text-xl font-bold text-slate-900">{v}</div>
+          <div className="text-xs text-slate-500">{d}</div>
+        </Link>
+      ))}
+    </section>
     <section className="grid gap-8 md:grid-cols-2">
       <div>
         <h2 className="mb-3 text-lg font-bold text-slate-900">탐색 백과</h2>
@@ -67,6 +104,7 @@ function Hubs() {
         <HubList items={TOOLS} />
       </div>
     </section>
+    </>
   );
 }
 
