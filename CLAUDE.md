@@ -3,6 +3,19 @@
 경상남도 중·고등학생용 진로·학업 설계 웹앱. 대구광역시교육청 플랫폼(dgcareer.vercel.app)의 모든 요소를 참고해 더 나은 방향으로 만드는 프로젝트다.
 새 컴퓨터에서 이어 작업할 때는 `docs/DEVELOPMENT.md`, 남은 일은 `docs/ROADMAP.md`, 원본 분석은 `docs/reference/dgcareer-inventory.md`를 본다.
 
+## 새 세션을 시작하면 (다른 컴퓨터·새 대화)
+
+이전 대화 기록은 넘어오지 않는다. 맥락은 이 파일과 `docs/`에 있다. 작업 전에:
+1. `git pull`로 최신 상태를 받고 `git log --oneline -10`으로 최근 작업을 확인한다.
+2. `docs/ROADMAP.md`에서 완료 항목과 "다음 우선순위"를 읽는다.
+3. `npm ci && npm run validate && npm run build`로 환경이 정상인지 확인한다.
+4. 사용자에게 다음 작업 후보를 짧게 제안하고, 정해지면 진행한다.
+5. 작업을 마치면 `docs/ROADMAP.md`를 갱신하고 커밋한 뒤 `main`에 push한다(자동 배포). 사용자가 원하지 않으면 push하지 않는다.
+
+- 저장소: https://github.com/nagusdl87-create/- · 사이트: https://my-job-c1e50.web.app · Firebase 프로젝트: `my-job-c1e50`
+- 배포 키(서비스 계정 JSON)는 GitHub Secrets에만 있다. 키 파일을 요청하거나 저장소·대화에 넣지 않는다.
+- 사용자는 Windows를 쓴다. 명령 안내는 PowerShell 기준으로 한다.
+
 ## 명령어
 
 ```bash
