@@ -37,6 +37,8 @@ git push                 # main에 push하면 자동 배포
 
 ## 2. Firebase Hosting 배포
 
+현재 연결된 프로젝트: `my-job-c1e50` → https://my-job-c1e50.web.app (GitHub 저장소 `nagusdl87-create/-`의 `main`에 push하면 자동 배포)
+
 ### 2-1. Firebase 프로젝트 만들기 (한 번)
 1. https://console.firebase.google.com 에서 **프로젝트 추가** (예: `myroad-gn`). Google Analytics는 꺼도 됩니다.
 2. 왼쪽 메뉴 **빌드 → Hosting → 시작하기**를 누릅니다 (CLI 안내 화면은 건너뛰어도 됩니다).
