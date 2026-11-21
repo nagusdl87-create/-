@@ -4,12 +4,15 @@ import { SITE_DESC, SITE_NAME, SITE_URL } from "@/lib/site";
 import { StoreProvider } from "@/lib/store";
 import { Nav } from "@/components/Nav";
 import { ScrollTop } from "@/components/ScrollTop";
+import { CreditLine } from "@/components/Credit";
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
   title: { default: `${SITE_NAME} — 중·고등학생 진로·학업 설계`, template: `%s — ${SITE_NAME}` },
   description: SITE_DESC,
   applicationName: SITE_NAME,
+  authors: [{ name: "윤용현 (삼천포여자중학교)" }],
+  creator: "윤용현",
   appleWebApp: { capable: true, title: "마이로드", statusBarStyle: "default" },
   icons: { apple: "/apple-touch-icon.png" },
   openGraph: { type: "website", locale: "ko_KR", siteName: SITE_NAME, title: `${SITE_NAME} — 진로·학업 설계`, description: SITE_DESC, images: [{ url: "/og.png", width: 1200, height: 630 }] },
@@ -52,6 +55,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                 </a>
               ))}
             </nav>
+            <CreditLine className="text-slate-600" />
             <p>흥미 탐색 결과는 표준화된 심리검사가 아닙니다. 입력한 내용은 서버로 보내지 않고 이 기기의 브라우저에만 저장됩니다.</p>
           </footer>
           <ScrollTop />

@@ -12,6 +12,7 @@ import { dday, GN_SCHOOLS, upcomingSchedule } from "@/data/gn";
 import { MAJOR_MAP } from "@/data/majors";
 import { HubList, ProgressRing } from "@/components/ui";
 import { LiveSearch } from "@/components/LiveSearch";
+import { CreditCard } from "@/components/Credit";
 import { CREDIT_RULES } from "@/data/subjects";
 
 const FLOW = [
@@ -160,6 +161,7 @@ export default function Home() {
           <StagePicker />
         </section>
         <Hubs />
+        <CreditCard />
       </div>
     );
   }
@@ -360,6 +362,7 @@ export default function Home() {
       </section>
 
       <Hubs />
+      <CreditCard />
     </div>
   );
 }
