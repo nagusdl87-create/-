@@ -106,7 +106,7 @@ export default function AdmissionPage() {
 
       <section className="grid gap-3 md:grid-cols-2">
         <div className="card">
-          <h2 className="font-bold">📌 대학별 권장과목 확인하기</h2>
+          <h2 className="font-bold">대학별 권장과목 확인하기</h2>
           <p className="mt-1 text-sm text-slate-600">
             주요 대학들은 학과별 핵심·권장 과목을 발표하고 있어요. 마이로드의 학과 백과에서 일반적인 권장과목을 보고, 지원할 대학의 실제 발표 자료로 꼭 확인하세요.
           </p>
@@ -116,7 +116,7 @@ export default function AdmissionPage() {
           </div>
         </div>
         <div className="card">
-          <h2 className="font-bold">☎ 대입 상담 받기</h2>
+          <h2 className="font-bold">대입 상담 받기</h2>
           <ul className="mt-2 space-y-2 text-sm text-slate-700">
             <li>
               <b>학교 진로전담교사·담임 선생님</b> — 학교생활기록부와 과목 선택을 가장 잘 아는 분이에요.
@@ -153,7 +153,7 @@ function Calculator() {
 
   return (
     <section id="calc" className="scroll-mt-20">
-      <h2 className="mb-3 text-lg font-bold">🧾 5등급 내신 계산기</h2>
+      <h2 className="mb-3 text-lg font-bold">5등급 내신 계산기</h2>
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-[1.4fr_0.6fr] [&>*]:min-w-0">
         <div className="card">
           <form

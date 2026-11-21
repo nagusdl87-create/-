@@ -106,7 +106,7 @@ export default function SchoolCurriculumPage() {
       <div className="grid gap-4 lg:grid-cols-2">
         <section className="card">
           <div className="flex items-center justify-between">
-            <h2 className="font-bold">🔒 학교 지정 과목</h2>
+            <h2 className="font-bold">학교 지정 과목</h2>
             <span className="text-xs text-slate-500">{cr.fixed}학점</span>
           </div>
           <p className="mt-1 text-xs text-slate-500">모든 학생이 듣는 과목이에요.</p>
@@ -115,7 +115,7 @@ export default function SchoolCurriculumPage() {
 
         <section className="card">
           <div className="flex items-center justify-between">
-            <h2 className="font-bold">🧩 선택군</h2>
+            <h2 className="font-bold">선택군</h2>
             <span className="text-xs text-slate-500">{cr.groups}학점</span>
           </div>
           <p className="mt-1 text-xs text-slate-500">“선택군 A 중 2과목”처럼 학생이 고르는 과목 묶음이에요.</p>

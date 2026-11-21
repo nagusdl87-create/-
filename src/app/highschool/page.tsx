@@ -4,7 +4,8 @@ import { useState } from "react";
 import { useStore } from "@/lib/store";
 import { HS_QUIZ, HS_TYPES } from "@/data/highschools";
 import { JOB_MAP, type HsTypeId } from "@/data/jobs";
-import { ADMISSION_RULES, ADMISSION_SCHEDULE, GN_SCHOOLS, KIND_INFO, OFFICIAL, ZONES } from "@/data/gn";
+import { ADMISSION_RULES, ADMISSION_SCHEDULE, dday, GN_SCHOOLS, KIND_INFO, OFFICIAL, parsePeriod, scheduleToIcs, ZONES } from "@/data/gn";
+import { CalendarPlus } from "lucide-react";
 import Link from "next/link";
 import { hsQuizResult } from "@/lib/match";
 import { NextStep, PageHead } from "@/components/ui";
@@ -34,7 +35,7 @@ export default function HighschoolPage() {
 
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-[1.1fr_0.9fr] [&>*]:min-w-0">
         <div className="card">
-          <h2 className="font-bold">🧩 나에게 맞는 고교 유형 퀴즈</h2>
+          <h2 className="font-bold">나에게 맞는 고교 유형 퀴즈</h2>
           <p className="mt-1 text-xs text-slate-500">
             {answered}/{HS_QUIZ.length} 응답{favJobs.length > 0 && " · 찜한 직업도 함께 반영돼요"}
           </p>
@@ -65,7 +66,7 @@ export default function HighschoolPage() {
         </div>
 
         <div className="card">
-          <h2 className="font-bold">📊 비교해 볼 만한 유형</h2>
+          <h2 className="font-bold">비교해 볼 만한 유형</h2>
           {answered === 0 && favJobs.length === 0 ? (
             <p className="mt-3 text-sm text-slate-500">퀴즈에 답하면 결과가 여기에 나타나요.</p>
           ) : (
@@ -143,7 +144,7 @@ export default function HighschoolPage() {
       {compare.length > 0 && (
         <div className="card mt-6 overflow-x-auto p-0">
           <table className="w-full min-w-[640px] text-left text-sm">
-            <caption className="p-4 text-left font-bold">⇄ 나란히 비교</caption>
+            <caption className="p-4 text-left font-bold">나란히 비교</caption>
             <thead>
               <tr className="border-y border-slate-200 bg-slate-50">
                 <th className="w-28 p-3 text-xs text-slate-500">항목</th>
@@ -264,15 +265,37 @@ function GnAdmission() {
       </div>
 
       <div className="card">
-        <div className="font-bold">📅 2027학년도 전형 일정</div>
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <div className="font-bold">2027학년도 전형 일정</div>
+          <button
+            className="btn-ghost py-1.5"
+            onClick={() => {
+              const a = document.createElement("a");
+              a.href = URL.createObjectURL(new Blob([scheduleToIcs()], { type: "text/calendar;charset=utf-8" }));
+              a.download = "경남-고입-일정-2027.ics";
+              a.click();
+              URL.revokeObjectURL(a.href);
+            }}
+          >
+            <CalendarPlus className="h-4 w-4" aria-hidden /> 내 캘린더에 추가 (.ics)
+          </button>
+        </div>
         <ol className="mt-3 space-y-2">
-          {ADMISSION_SCHEDULE.map((x) => (
-            <li key={x.who} className="grid gap-1 rounded-xl border border-slate-100 p-3 text-sm sm:grid-cols-[60px_1fr_auto] sm:items-center">
-              <span className={`w-fit rounded px-1.5 py-0.5 text-[11px] font-bold text-white ${x.round === "전기" ? "bg-emerald-600" : x.round === "후기" ? "bg-brand-600" : "bg-slate-500"}`}>{x.round}</span>
-              <span className="font-semibold">{x.who}</span>
-              <span className="text-xs text-slate-500">원서 {x.apply} · 발표 {x.result}</span>
-            </li>
-          ))}
+          {ADMISSION_SCHEDULE.map((x) => {
+            const per = parsePeriod(x.apply);
+            const dd = per ? dday(per.start) : null;
+            const over = per ? per.end < new Date() : false;
+            return (
+              <li key={x.who} className={`grid gap-1 rounded-xl border border-slate-100 p-3 text-sm sm:grid-cols-[60px_1fr_auto_72px] sm:items-center ${over ? "opacity-50" : ""}`}>
+                <span className={`w-fit rounded px-1.5 py-0.5 text-[11px] font-bold text-white ${x.round === "전기" ? "bg-emerald-600" : x.round === "후기" ? "bg-brand-600" : "bg-slate-500"}`}>{x.round}</span>
+                <span className="font-semibold">{x.who}</span>
+                <span className="text-xs text-slate-500">원서 {x.apply} · 발표 {x.result}</span>
+                <span className={`w-fit rounded-lg px-2 py-0.5 text-xs font-bold sm:justify-self-end ${over ? "bg-slate-100 text-slate-500" : dd !== null && dd <= 0 ? "bg-sun-100 text-amber-800" : "bg-brand-50 text-brand-700"}`}>
+                  {over ? "마감" : dd !== null && dd <= 0 ? "접수 중" : `D-${dd}`}
+                </span>
+              </li>
+            );
+          })}
         </ol>
         <p className="mt-3 text-xs text-slate-400">
           일정은 바뀔 수 있어요. 학교별 세부 일정은 해당 학교 누리집에서 확인하세요.{" "}

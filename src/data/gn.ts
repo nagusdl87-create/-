@@ -130,3 +130,49 @@ export const OFFICIAL = {
   suneung: { name: "한국교육과정평가원 (수능)", url: "https://www.suneung.re.kr/" },
   ebsi: { name: "EBSi", url: "https://www.ebsi.co.kr/" },
 };
+
+// "2026. 7. 13. ~ 7. 17." → 시작·끝 날짜 (연도가 생략된 끝 날짜는 시작 연도 사용)
+export function parsePeriod(s: string): { start: Date; end: Date } | null {
+  const m = s.match(/(\d{4})\.\s*(\d{1,2})\.\s*(\d{1,2})\.?(?:\s*~\s*(?:(\d{4})\.\s*)?(\d{1,2})\.\s*(\d{1,2})\.?)?/);
+  if (!m) return null;
+  const y = Number(m[1]);
+  const start = new Date(y, Number(m[2]) - 1, Number(m[3]));
+  const end = m[5] ? new Date(m[4] ? Number(m[4]) : y, Number(m[5]) - 1, Number(m[6]), 23, 59) : new Date(y, Number(m[2]) - 1, Number(m[3]), 23, 59);
+  return { start, end };
+}
+
+// 오늘 기준 다가오는(또는 진행 중인) 원서 접수 일정
+export function upcomingSchedule(now = new Date()) {
+  return ADMISSION_SCHEDULE.map((x) => ({ ...x, period: parsePeriod(x.apply) }))
+    .filter((x) => x.period && x.period.end >= now)
+    .sort((a, b) => a.period!.start.getTime() - b.period!.start.getTime());
+}
+
+export function dday(target: Date, now = new Date()) {
+  const a = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
+  const b = new Date(target.getFullYear(), target.getMonth(), target.getDate()).getTime();
+  return Math.round((b - a) / 86400000);
+}
+
+// 원서 접수 기간을 캘린더 파일(.ics)로 만들기 (종일 일정)
+export function scheduleToIcs(): string {
+  const d = (x: Date) => `${x.getFullYear()}${String(x.getMonth() + 1).padStart(2, "0")}${String(x.getDate()).padStart(2, "0")}`;
+  const esc = (s: string) => s.replace(/[\\,;]/g, (c) => "\\" + c).replace(/\n/g, "\\n");
+  const stamp = new Date().toISOString().replace(/[-:]/g, "").replace(/\.\d+Z$/, "Z");
+  const events = ADMISSION_SCHEDULE.map((x, i) => {
+    const p = parsePeriod(x.apply);
+    if (!p) return "";
+    const endNext = new Date(p.end.getFullYear(), p.end.getMonth(), p.end.getDate() + 1);
+    return [
+      "BEGIN:VEVENT",
+      `UID:myroad-gn-2027-${i}@myroad`,
+      `DTSTAMP:${stamp}`,
+      `DTSTART;VALUE=DATE:${d(p.start)}`,
+      `DTEND;VALUE=DATE:${d(endNext)}`,
+      `SUMMARY:${esc(`[경남 고입 ${x.round}] ${x.who.split("—")[0].trim()} 원서 접수`)}`,
+      `DESCRIPTION:${esc(`원서 ${x.apply} / 발표 ${x.result}\n학교별 세부 일정은 학교 누리집과 경남교육청 고입포털에서 확인하세요.`)}`,
+      "END:VEVENT",
+    ].join("\r\n");
+  }).filter(Boolean);
+  return ["BEGIN:VCALENDAR", "VERSION:2.0", "PRODID:-//myroad-gn//admission//KO", "CALSCALE:GREGORIAN", "X-WR-CALNAME:경남 고입 일정 (2027학년도)", ...events, "END:VCALENDAR"].join("\r\n");
+}

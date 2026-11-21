@@ -77,7 +77,7 @@ export default function PathPage() {
 
           <div className="grid gap-4 md:grid-cols-2">
             <div className="card">
-              <h2 className="font-bold">🔁 꿈이 바뀌어도 든든한 과목</h2>
+              <h2 className="font-bold">꿈이 바뀌어도 든든한 과목</h2>
               <p className="mt-1 text-xs text-slate-500">찜한 직업 여러 개에 공통으로 도움이 되는 고교 과목이에요. 진로가 바뀌어도 쓸모가 있어요.</p>
               {favs.length < 2 ? (
                 <p className="mt-3 text-sm text-slate-500">직업을 2개 이상 찜하면 공통 과목을 찾아 드려요.</p>
@@ -95,7 +95,7 @@ export default function PathPage() {
               )}
             </div>
             <div className="card">
-              <h2 className="font-bold">🎓 Plan B 지도</h2>
+              <h2 className="font-bold">Plan B 지도</h2>
               <p className="mt-1 text-xs text-slate-500">대표 꿈 외의 찜한 직업은 나의 대안 경로예요.</p>
               <ul className="mt-3 space-y-2 text-sm">
                 {favs
@@ -135,7 +135,7 @@ function HypothesisBox({ suggest }: { suggest: () => string }) {
   };
   return (
     <div className="card mt-5">
-      <h2 className="font-bold">✍️ 나의 진로 가설 한 문장</h2>
+      <h2 className="font-bold">나의 진로 가설 한 문장</h2>
       <p className="mt-1 text-xs text-slate-500">진로는 정답이 아니라 &lsquo;지금의 가설&rsquo;이에요. 경험하면서 언제든 고쳐 써도 괜찮아요.</p>
       <textarea
         className="input mt-3 min-h-[110px] leading-relaxed"
@@ -161,7 +161,7 @@ function MajorPaths() {
   const placed = new Set(Object.values(state.credits.plan).flat().map((e) => e.split("|")[0]));
   return (
     <div className="card mb-5">
-      <h2 className="font-bold">🎓 찜한 학과로 잇기</h2>
+      <h2 className="font-bold">찜한 학과로 잇기</h2>
       <p className="mt-1 text-xs text-slate-500">학과가 원하는 고교 과목과, 내 192학점 설계에 담겼는지(✓)를 보여 줘요.</p>
       <div className="mt-3 space-y-3">
         {majors.map((m) => {

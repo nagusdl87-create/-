@@ -61,7 +61,7 @@ async function answerDiscover(p) {
   await p.goto(B + '/tests'); await p.click('button:has-text("탐구형(I)")'); await p.click('button:has-text("관습형(C)")');
   await p.goto(B + '/plan'); await p.locator('input[type=checkbox]').first().click();
   await p.goto(B); await p.waitForTimeout(300); await p.screenshot({ path: D + '08-home-hs.png', fullPage: true });
-  console.log('hs progress:', (await p.innerText('main')).match(/진행 \d\/5/)?.[0]);
+  console.log('hs progress:', await p.locator('main svg[aria-label^="진행"]').first().getAttribute('aria-label'));
   await p.goto(B + '/report'); await p.waitForTimeout(300); await p.screenshot({ path: D + '09-report.png', fullPage: true });
   await p.click('text=공유 링크 복사'); await p.waitForTimeout(200);
   const url = await p.evaluate(() => navigator.clipboard.readText());

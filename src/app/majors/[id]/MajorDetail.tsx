@@ -1,5 +1,7 @@
 "use client";
 
+import { Heart } from "lucide-react";
+
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { MAJOR_MAP, MAJORS } from "@/data/majors";
@@ -42,14 +44,14 @@ export function MajorDetail({ id }: { id: string }) {
             onClick={() => update((s) => ({ ...s, favMajors: toggleIn(s.favMajors, m.id) }))}
             className={`grid h-11 w-11 place-items-center rounded-full border text-xl ${on ? "border-rose-200 bg-rose-50" : "border-slate-200"}`}
           >
-            {on ? "❤️" : "🤍"}
+            <Heart className={`h-[18px] w-[18px] ${on ? "fill-rose-500 text-rose-500" : "text-slate-400"}`} aria-hidden />
           </button>
         </div>
         <p className="mt-3 leading-relaxed text-slate-700">{m.desc}</p>
       </div>
 
       <div className="card">
-        <h2 className="font-bold">🏫 고등학교에서 들으면 좋은 과목</h2>
+        <h2 className="font-bold">고등학교에서 들으면 좋은 과목</h2>
         <div className="mt-3 text-xs font-semibold text-slate-500">핵심 과목</div>
         <div className="mt-1 flex flex-wrap gap-1.5">{m.core.map((s) => <Subj key={s} name={s} core />)}</div>
         <div className="mt-3 text-xs font-semibold text-slate-500">권장 과목</div>
@@ -70,11 +72,11 @@ export function MajorDetail({ id }: { id: string }) {
 
       <div className="grid gap-4 md:grid-cols-2">
         <div className="card">
-          <h2 className="font-bold">🎓 대학에서 배우는 과목</h2>
+          <h2 className="font-bold">대학에서 배우는 과목</h2>
           <ul className="mt-2 space-y-1 text-sm text-slate-700">{m.univ.map((u) => <li key={u}>• {u}</li>)}</ul>
         </div>
         <div className="card">
-          <h2 className="font-bold">💼 졸업 후 진로</h2>
+          <h2 className="font-bold">졸업 후 진로</h2>
           <div className="mt-2 flex flex-wrap gap-1.5">{m.careers.map((c) => <span key={c} className="chip">{c}</span>)}</div>
           <div className="mt-3 text-xs font-semibold text-slate-500">관련 직업</div>
           <div className="mt-1 flex flex-wrap gap-1.5">
@@ -84,7 +86,7 @@ export function MajorDetail({ id }: { id: string }) {
       </div>
 
       <div className="card">
-        <h2 className="font-bold">📍 경남 소재 대학에서 찾아보기</h2>
+        <h2 className="font-bold">경남 소재 대학에서 찾아보기</h2>
         <p className="mt-1 text-xs text-slate-500">같거나 비슷한 이름의 학과가 개설되어 있는지 대학 누리집이나 대학알리미에서 확인하세요.</p>
         <div className="mt-3 grid gap-2 sm:grid-cols-2">
           {GN_UNIVERSITIES.map((u) => (

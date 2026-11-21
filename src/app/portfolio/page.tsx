@@ -416,7 +416,7 @@ function Reading() {
             <li key={b.id} className="card">
               <div className="flex items-start justify-between gap-2">
                 <div>
-                  <div className="font-bold">📖 {b.title} <span className="text-sm font-normal text-slate-500">{b.author}</span></div>
+                  <div className="font-bold">{b.title} <span className="text-sm font-normal text-slate-500">{b.author}</span></div>
                   <div className="text-xs text-slate-400">{b.date}</div>
                 </div>
                 <div className="no-print flex gap-2 text-xs">

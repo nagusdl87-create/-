@@ -73,7 +73,7 @@ export default function TestsPage() {
       </section>
 
       <section className="card">
-        <h2 className="text-lg font-bold">🔗 공식 검사 결과와 비교하기</h2>
+        <h2 className="text-lg font-bold">공식 검사 결과와 비교하기</h2>
         <p className="mt-1 text-sm text-slate-600">커리어넷 직업흥미검사(H)나 고용24 직업흥미검사에서 받은 흥미 코드 상위 2개를 골라 주세요.</p>
         <div className="mt-3 flex flex-wrap gap-1.5">
           {RIASEC_ORDER.map((k) => {
@@ -116,7 +116,7 @@ export default function TestsPage() {
       </section>
 
       <section>
-        <h2 className="mb-3 text-lg font-bold">💬 진로 상담 받기</h2>
+        <h2 className="mb-3 text-lg font-bold">진로 상담 받기</h2>
         <div className="grid gap-3 md:grid-cols-3">
           <div className="card">
             <div className="font-bold">학교 진로전담교사</div>

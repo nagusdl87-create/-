@@ -1,5 +1,7 @@
 "use client";
 
+import { Star } from "lucide-react";
+
 import { useCallback, useEffect, useMemo, useState } from "react";
 import dynamic from "next/dynamic";
 import Link from "next/link";
@@ -191,7 +193,7 @@ export default function SchoolsPage() {
                         update((st) => ({ ...st, favSchools: toggleIn(st.favSchools, s.id) }));
                       }}
                     >
-                      {on ? "⭐" : "☆"}
+                      <Star className={`h-5 w-5 ${on ? "fill-sun-400 text-sun-500" : "text-slate-300"}`} aria-hidden />
                     </button>
                   </div>
                 </li>
@@ -204,7 +206,7 @@ export default function SchoolsPage() {
       {saved.length > 0 && (
         <div className="card mt-6 overflow-x-auto p-0">
           <table className="w-full min-w-[640px] text-left text-sm">
-            <caption className="p-4 text-left font-bold">⭐ 저장한 학교 비교</caption>
+            <caption className="p-4 text-left font-bold">저장한 학교 비교</caption>
             <thead className="bg-slate-50 text-xs text-slate-500">
               <tr>
                 <th className="p-3">학교</th>
@@ -298,7 +300,7 @@ function Detail({ s, d, origin, onClose }: { s: GnSchool; d: number | null; orig
       {d !== null && <p className="mt-2 text-sm">📏 {origin?.label}에서 직선 약 <b>{d.toFixed(1)}km</b></p>}
       {inds.length > 0 && (
         <div className="mt-3 rounded-xl bg-emerald-50 p-3 text-sm">
-          <div className="text-xs font-bold text-emerald-800">🏭 경남 산업 연계</div>
+          <div className="text-xs font-bold text-emerald-800">경남 산업 연계</div>
           {inds.map((i) => (
             <div key={i.id} className="mt-1">
               {i.emoji} {i.name}:{" "}

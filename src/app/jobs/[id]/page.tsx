@@ -9,7 +9,7 @@ export function generateStaticParams() {
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   const j = JOB_MAP[id];
-  return { title: j ? `${j.name} — 마이로드` : "마이로드" };
+  return { title: j ? j.name : "직업", description: j?.summary };
 }
 
 export default async function Page({ params }: { params: Promise<{ id: string }> }) {

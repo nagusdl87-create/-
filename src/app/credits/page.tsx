@@ -44,7 +44,7 @@ export default function CreditsPage() {
       />
 
       <div className="card no-print mb-4">
-        <div className="text-sm font-bold">① 희망 계열 고르기</div>
+        <div className="text-sm font-bold">희망 계열 고르기</div>
         <div className="mt-2 flex flex-wrap gap-1.5">
           {(Object.keys(TRACKS) as TrackId[]).map((k) => (
             <button key={k} aria-pressed={track === k} onClick={() => setTrack(track === k ? "" : k)} className={`chip px-3 py-1.5 text-sm ${track === k ? "chip-on" : ""}`}>
@@ -80,7 +80,7 @@ export default function CreditsPage() {
         ) : (
         <div className="mt-3 flex flex-wrap gap-2">
           <button className="btn-ghost" onClick={() => setPlan((p) => ({ ...p, ...TEMPLATE_Y1 }))}>
-            ② 1학년 공통과목 채우기
+            1학년 공통과목 채우기
           </button>
           <button className="btn-primary" disabled={!track} onClick={() => track && setPlan((p) => autoFill(p, track))}>
             ✨ 계열 추천으로 2·3학년 채우기
@@ -101,7 +101,7 @@ export default function CreditsPage() {
 
       <div className={`card no-print mb-4 flex flex-wrap items-center justify-between gap-3 ${cur ? "border-emerald-300 bg-emerald-50" : ""}`}>
         <div>
-          <div className="text-sm font-bold">{cur ? `🏫 편제표 모드 · ${cur.school}` : "📝 자유 설계 모드"}</div>
+          <div className="text-sm font-bold">{cur ? `편제표 모드 · ${cur.school}` : "자유 설계 모드"}</div>
           <p className="text-xs text-slate-600">
             {cur
               ? `${cur.year ? cur.year + " · " : ""}학교 지정 과목은 잠겨 있고, 선택군에서 정해진 개수만큼 고를 수 있어요.`
@@ -109,7 +109,7 @@ export default function CreditsPage() {
           </p>
         </div>
         <div className="flex flex-wrap gap-2">
-          <Link href="/credits/school" className="btn-ghost">{cur ? "편제표 수정" : "🏫 학교 편제표 등록"}</Link>
+          <Link href="/credits/school" className="btn-ghost">{cur ? "편제표 수정" : "학교 편제표 등록"}</Link>
           {cur && (
             <button className="btn-ghost" onClick={() => confirm("편제표 모드를 끄고 자유 설계로 돌아갈까요? (지금 설계는 그대로 남아요)") && update((s) => ({ ...s, credits: { ...s.credits, curriculum: null } }))}>
               자유 설계로 전환

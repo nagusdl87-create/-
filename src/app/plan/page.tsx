@@ -119,7 +119,7 @@ function Tasks() {
         </form>
       </div>
       <div className="card">
-        <h2 className="font-bold">💡 찜한 직업 맞춤 추천</h2>
+        <h2 className="font-bold">찜한 직업 맞춤 추천</h2>
         {suggestions.length === 0 ? (
           <p className="mt-2 text-sm text-slate-500">직업을 찜하면 중학생 때 해 볼 만한 활동을 추천해 드려요.</p>
         ) : (

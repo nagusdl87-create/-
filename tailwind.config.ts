@@ -1,13 +1,28 @@
 import type { Config } from "tailwindcss";
+
+// 디자인 토큰: 차분한 청록(브랜드) + 따뜻한 강조(sun) + 중립 회색(slate)
 export default {
   content: ["./src/**/*.{ts,tsx}"],
   theme: {
     extend: {
       colors: {
-        brand: { 50: "#eef6ff", 100: "#d9eaff", 200: "#b6d6ff", 400: "#5b9dff", 500: "#2f7bf5", 600: "#1f63d8", 700: "#1b4fae", 900: "#132c5c" },
-        sun: { 100: "#fff4d6", 400: "#ffc93c", 500: "#f5b000" },
+        brand: {
+          50: "#eefaf7",
+          100: "#d5f2ea",
+          200: "#ade3d5",
+          300: "#79cdb9",
+          400: "#40b199",
+          500: "#1d967e",
+          600: "#127a67",
+          700: "#116254",
+          800: "#124f45",
+          900: "#0f3a34",
+        },
+        sun: { 100: "#fff3dc", 400: "#ffbe55", 500: "#f2a516" },
+        canvas: "#f6f7f6",
       },
-      fontFamily: { sans: ["Pretendard", "Apple SD Gothic Neo", "Noto Sans KR", "system-ui", "sans-serif"] },
+      fontFamily: { sans: ["Pretendard Variable", "Pretendard", "Apple SD Gothic Neo", "Noto Sans KR", "system-ui", "sans-serif"] },
+      borderRadius: { "4xl": "2rem" },
     },
   },
   plugins: [],

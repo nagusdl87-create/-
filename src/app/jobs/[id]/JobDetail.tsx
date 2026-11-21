@@ -71,7 +71,7 @@ export function JobDetail({ id }: { id: string }) {
           </ul>
         </div>
         <div className="card">
-          <h2 className="font-bold">🙋 중학생인 지금 해 볼 수 있는 일</h2>
+          <h2 className="font-bold">중학생인 지금 해 볼 수 있는 일</h2>
           <ul className="mt-2 space-y-1.5 text-sm text-slate-700">
             {job.msActions.map((t) => (
               <li key={t}>✓ {t}</li>
@@ -85,7 +85,7 @@ export function JobDetail({ id }: { id: string }) {
 
       {(job.gn || inds.length > 0) && (
         <div className="card border-emerald-200 bg-emerald-50">
-          <h2 className="font-bold text-emerald-900">📍 경남에서는?</h2>
+          <h2 className="font-bold text-emerald-900">경남에서는?</h2>
           {job.gn && <p className="mt-1 text-sm text-emerald-900">{job.gn}</p>}
           {inds.length > 0 && (
             <div className="mt-2 flex flex-wrap gap-1.5">
@@ -101,7 +101,7 @@ export function JobDetail({ id }: { id: string }) {
 
       {majors.length > 0 && (
         <div className="card">
-          <h2 className="font-bold">🎓 관련 학과 (학과 백과)</h2>
+          <h2 className="font-bold">관련 학과 (학과 백과)</h2>
           <div className="mt-2 flex flex-wrap gap-1.5">
             {majors.map((m) => (
               <Link key={m.id} href={`/majors/${m.id}`} className="chip px-3 py-1.5 text-sm hover:border-brand-300">
@@ -113,7 +113,7 @@ export function JobDetail({ id }: { id: string }) {
       )}
 
       <div className="card">
-        <h2 className="mb-3 font-bold">🛤️ 이 직업까지 가는 길</h2>
+        <h2 className="mb-3 font-bold">이 직업까지 가는 길</h2>
         <PathFlow job={job} />
       </div>
 

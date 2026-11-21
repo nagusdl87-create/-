@@ -2,7 +2,7 @@ import Link from "next/link";
 import { OFFICIAL } from "@/data/gn";
 import { PageHead } from "@/components/ui";
 
-export const metadata = { title: "진로체험·자료 — 마이로드 경남" };
+export const metadata = { title: "진로체험·자료" };
 
 const GROUPS = [
   {

@@ -1,5 +1,7 @@
 "use client";
 
+import { Heart } from "lucide-react";
+
 import { useMemo, useState } from "react";
 import Link from "next/link";
 import { toggleIn, useStore } from "@/lib/store";
@@ -62,7 +64,7 @@ export default function MajorsPage() {
                   }}
                   className={`grid h-9 w-9 shrink-0 place-items-center rounded-full border text-lg ${on ? "border-rose-200 bg-rose-50" : "border-slate-200"}`}
                 >
-                  {on ? "❤️" : "🤍"}
+                  <Heart className={`h-[18px] w-[18px] ${on ? "fill-rose-500 text-rose-500" : "text-slate-400"}`} aria-hidden />
                 </button>
               </div>
               <p className="line-clamp-2 text-sm text-slate-600">{m.desc}</p>

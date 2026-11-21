@@ -1,5 +1,7 @@
 "use client";
 
+import { Heart } from "lucide-react";
+
 import Link from "next/link";
 import { FIELDS, type Job } from "@/data/jobs";
 import { RIASEC } from "@/data/riasec";
@@ -21,7 +23,7 @@ export function FavButton({ id, className = "" }: { id: string; className?: stri
         on ? "border-rose-200 bg-rose-50" : "border-slate-200 bg-white hover:bg-slate-50"
       } ${className}`}
     >
-      {on ? "❤️" : "🤍"}
+      <Heart className={`h-[18px] w-[18px] ${on ? "fill-rose-500 text-rose-500" : "text-slate-400"}`} aria-hidden />
     </button>
   );
 }
