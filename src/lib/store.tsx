@@ -3,7 +3,8 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
 import type { ValueId } from "@/data/riasec";
 import type { HsTypeId } from "@/data/jobs";
-import { DEFAULT_TASKS, TERMS, type Term } from "@/data/plan";
+import type { TrackId } from "@/data/subjects";
+import { DEFAULT_TASKS, TERMS, type Stage, type Term } from "@/data/plan";
 
 export type Task = { id: string; text: string; done: boolean };
 export type Goal = { id: string; term: Term; subject: string; text: string; done: boolean };
@@ -18,60 +19,82 @@ export type Log = {
   learned: string;
   next: string;
 };
+export type Book = { id: string; date: string; title: string; author: string; why: string; quote: string; thought: string; link: string; next: string };
+export type Sem = "1-1" | "1-2" | "2-1" | "2-2" | "3-1" | "3-2";
+export type GradeRow = { id: string; sem: Sem; subject: string; credits: number; grade: number; ach: string };
 
 export type AppState = {
-  version: 1;
-  profile: { name: string; school: string; grade: string };
+  version: 2;
+  profile: { name: string; school: string; grade: string; stage: Stage | ""; region: string; middle: string };
   answers: Record<number, number>;
   values: ValueId[];
   strengths: string[];
   testDoneAt?: string;
   favorites: string[];
+  favMajors: string[];
+  favSchools: string[];
   hsQuiz: Record<number, number>;
   hsInterest: HsTypeId[];
   currentTerm: Term;
   tasks: Record<Term, Task[]>;
   goals: Goal[];
   logs: Log[];
+  books: Book[];
   hypothesis: string;
+  credits: { track: TrackId | ""; plan: Record<Sem, string[]> };
+  grades: GradeRow[];
+  portfolio: Record<string, string>;
 };
 
 const KEY = "myroad:v1";
+export const SEMS: Sem[] = ["1-1", "1-2", "2-1", "2-2", "3-1", "3-2"];
 
 export const uid = () => Math.random().toString(36).slice(2, 10);
+
+const emptyPlan = () => Object.fromEntries(SEMS.map((s) => [s, [] as string[]])) as Record<Sem, string[]>;
 
 export function initialState(): AppState {
   const tasks = Object.fromEntries(
     TERMS.map((t) => [t.id, DEFAULT_TASKS[t.id].map((text) => ({ id: uid(), text, done: false }))])
   ) as Record<Term, Task[]>;
   return {
-    version: 1,
-    profile: { name: "", school: "", grade: "1" },
+    version: 2,
+    profile: { name: "", school: "", grade: "1", stage: "", region: "", middle: "" },
     answers: {},
     values: [],
     strengths: [],
     favorites: [],
+    favMajors: [],
+    favSchools: [],
     hsQuiz: {},
     hsInterest: [],
     currentTerm: "1-1",
     tasks,
     goals: [],
     logs: [],
+    books: [],
     hypothesis: "",
+    credits: { track: "", plan: emptyPlan() },
+    grades: [],
+    portfolio: {},
   };
 }
 
 function sanitize(raw: unknown): AppState {
   const base = initialState();
   if (!raw || typeof raw !== "object") return base;
-  const r = raw as Partial<AppState>;
-  return {
+  const r = raw as Partial<AppState> & { version?: number };
+  const s: AppState = {
     ...base,
     ...r,
     profile: { ...base.profile, ...(r.profile ?? {}) },
     tasks: { ...base.tasks, ...(r.tasks ?? {}) },
-    version: 1,
+    credits: { ...base.credits, ...(r.credits ?? {}), plan: { ...emptyPlan(), ...(r.credits?.plan ?? {}) } },
+    version: 2,
   };
+  // v1(중학생 전용) 데이터 이관
+  if (r.version !== 2 && !s.profile.stage && (r.answers && Object.keys(r.answers).length)) s.profile.stage = "ms";
+  return s;
 }
 
 type Ctx = {
@@ -121,20 +144,15 @@ export function useStore() {
   return ctx;
 }
 
+export function toggleIn<T>(arr: T[], v: T): T[] {
+  return arr.includes(v) ? arr.filter((x) => x !== v) : [...arr, v];
+}
+
 // 공유 링크용 인코딩 (서버 없이 URL 해시에 담음)
 export function encodeShare(s: AppState): string {
   const slim = {
-    p: s.profile,
-    a: s.answers,
-    v: s.values,
-    st: s.strengths,
-    f: s.favorites,
-    hi: s.hsInterest,
-    hq: s.hsQuiz,
-    h: s.hypothesis,
-    l: s.logs.slice(0, 10),
-    g: s.goals,
-    t: s.tasks,
+    p: s.profile, a: s.answers, v: s.values, st: s.strengths, f: s.favorites, fm: s.favMajors, fs: s.favSchools,
+    hi: s.hsInterest, hq: s.hsQuiz, h: s.hypothesis, l: s.logs.slice(0, 8), b: s.books.slice(0, 5), g: s.goals, t: s.tasks, c: s.credits,
   };
   const bytes = new TextEncoder().encode(JSON.stringify(slim));
   let bin = "";
@@ -149,8 +167,8 @@ export function decodeShare(code: string): AppState | null {
     const bytes = Uint8Array.from(bin, (c) => c.charCodeAt(0));
     const o = JSON.parse(new TextDecoder().decode(bytes));
     return sanitize({
-      profile: o.p, answers: o.a, values: o.v, strengths: o.st, favorites: o.f,
-      hsInterest: o.hi, hsQuiz: o.hq, hypothesis: o.h, logs: o.l, goals: o.g, tasks: o.t,
+      version: 2, profile: o.p, answers: o.a, values: o.v, strengths: o.st, favorites: o.f, favMajors: o.fm, favSchools: o.fs,
+      hsInterest: o.hi, hsQuiz: o.hq, hypothesis: o.h, logs: o.l, books: o.b, goals: o.g, tasks: o.t, credits: o.c,
     });
   } catch {
     return null;

@@ -7,8 +7,13 @@ import { isTestComplete, progress, riasecScores, topTypes, hsQuizResult } from "
 import { RIASEC, VALUES } from "@/data/riasec";
 import { JOB_MAP } from "@/data/jobs";
 import { HS_MAP } from "@/data/highschools";
-import { TERMS } from "@/data/plan";
+import { TERMS_BY_STAGE } from "@/data/plan";
 import { Radar } from "@/components/Radar";
+import { MAJOR_MAP } from "@/data/majors";
+import { GN_SCHOOLS, KIND_INFO } from "@/data/gn";
+import { TRACKS } from "@/data/subjects";
+import { analyze, parseEntry, SEM_LABEL } from "@/lib/credits";
+import { SEMS } from "@/lib/store";
 
 export default function ReportPage() {
   const store = useStore();
@@ -63,10 +68,10 @@ function ReportBody({ s }: { s: AppState }) {
     <article className="space-y-4">
       <header className="flex flex-wrap items-end justify-between gap-3 border-b-2 border-slate-900 pb-3">
         <div>
-          <div className="text-xs font-bold text-brand-600">MYROAD 진로·학업 설계 리포트</div>
+          <div className="text-xs font-bold text-brand-600">마이로드 경남 · 진로·학업 설계 리포트</div>
           <h1 className="text-2xl font-extrabold text-slate-900 sm:text-3xl">{s.profile.name ? `${s.profile.name}의 진로 지도` : "나의 진로 지도"}</h1>
           <div className="text-sm text-slate-500">
-            {[s.profile.school, g ? `중학교 ${g}학년` : ""].filter(Boolean).join(" · ")}
+            {[s.profile.school, g ? `${s.profile.stage === "hs" ? "고등학교" : "중학교"} ${g}학년` : ""].filter(Boolean).join(" · ")}
           </div>
         </div>
         <div className="text-right text-xs text-slate-500">
@@ -165,7 +170,7 @@ function ReportBody({ s }: { s: AppState }) {
         <div className="card">
           <div className="text-xs font-bold text-slate-500">학기별 실천</div>
           <ul className="mt-2 grid grid-cols-3 gap-2 text-center text-xs">
-            {TERMS.map((t) => {
+            {TERMS_BY_STAGE[s.profile.stage || "ms"].map((t) => {
               const ts = s.tasks[t.id] ?? [];
               const d = ts.filter((x) => x.done).length;
               return (
@@ -180,6 +185,52 @@ function ReportBody({ s }: { s: AppState }) {
           </ul>
         </div>
       </section>
+
+      {(s.favMajors.length > 0 || s.favSchools.length > 0) && (
+        <section className="grid gap-4 md:grid-cols-2">
+          <div className="card">
+            <div className="text-xs font-bold text-slate-500">관심 학과</div>
+            <ul className="mt-2 space-y-1 text-sm">
+              {s.favMajors.map((id) => MAJOR_MAP[id] && (
+                <li key={id}>
+                  <b>{MAJOR_MAP[id].name}</b> <span className="text-xs text-slate-500">핵심: {MAJOR_MAP[id].core.join(", ")}</span>
+                </li>
+              ))}
+              {s.favMajors.length === 0 && <li className="text-slate-400">-</li>}
+            </ul>
+          </div>
+          <div className="card">
+            <div className="text-xs font-bold text-slate-500">관심 경남 고교</div>
+            <ul className="mt-2 space-y-1 text-sm">
+              {s.favSchools.map((id) => {
+                const sc = GN_SCHOOLS.find((x) => x.id === id);
+                return sc ? (
+                  <li key={id}>
+                    <b>{sc.name}</b> <span className="text-xs text-slate-500">{sc.region} · {KIND_INFO[sc.kind].name} · {sc.round}</span>
+                  </li>
+                ) : null;
+              })}
+              {s.favSchools.length === 0 && <li className="text-slate-400">-</li>}
+            </ul>
+          </div>
+        </section>
+      )}
+
+      <CreditSummary s={s} />
+
+      {s.books.length > 0 && (
+        <section className="card">
+          <div className="text-xs font-bold text-slate-500">진로 독서 ({s.books.length})</div>
+          <ul className="mt-2 divide-y divide-slate-100 text-sm">
+            {s.books.slice(0, 6).map((b) => (
+              <li key={b.id} className="py-2">
+                <b>{b.title}</b> <span className="text-xs text-slate-400">{b.author}</span>
+                {b.thought && <div className="text-slate-600">💭 {b.thought}</div>}
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
 
       {s.logs.length > 0 && (
         <section className="card">
@@ -288,5 +339,30 @@ function Tools() {
         ← 홈으로
       </Link>
     </div>
+  );
+}
+
+function CreditSummary({ s }: { s: AppState }) {
+  const count = Object.values(s.credits.plan).flat().length;
+  if (!count) return null;
+  const a = analyze(s.credits.plan, s.credits.track);
+  return (
+    <section className="card">
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <div className="text-xs font-bold text-slate-500">3개년 과목 설계 (192학점)</div>
+        <div className="text-sm">
+          총 <b>{a.total + 18}</b>/192학점{s.credits.track && ` · ${TRACKS[s.credits.track].name} 계열`}
+          {a.trackFit && ` · 적합도 ${a.trackFit.pct}%`}
+        </div>
+      </div>
+      <div className="mt-2 grid gap-2 sm:grid-cols-3">
+        {SEMS.map((sem) => (
+          <div key={sem} className="rounded-lg bg-slate-50 p-2 text-xs">
+            <div className="font-bold text-slate-600">{SEM_LABEL[sem]} · {a.semTotals[sem]}학점</div>
+            <div className="mt-0.5 text-slate-600">{s.credits.plan[sem].map((e) => parseEntry(e).name).join(", ") || "-"}</div>
+          </div>
+        ))}
+      </div>
+    </section>
   );
 }

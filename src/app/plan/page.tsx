@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { uid, useStore, type Log } from "@/lib/store";
-import { REFLECTION_STEPS, SUBJECTS_MS, TERMS, type Term } from "@/data/plan";
+import { activeTerm, REFLECTION_STEPS, SUBJECTS_HS, SUBJECTS_MS, TERMS_BY_STAGE } from "@/data/plan";
 import { JOB_MAP } from "@/data/jobs";
 import { NextStep, PageHead } from "@/components/ui";
 
@@ -39,17 +39,18 @@ export default function PlanPage() {
 
 function TermPicker() {
   const { state, update } = useStore();
-  const t = TERMS.find((x) => x.id === state.currentTerm)!;
+  const terms = TERMS_BY_STAGE[state.profile.stage || "ms"];
+  const t = terms.find((x) => x.id === state.currentTerm) ?? terms[0];
   return (
     <div className="mb-4">
       <div className="-mx-1 flex gap-1.5 overflow-x-auto px-1 pb-1">
-        {TERMS.map((x) => {
+        {terms.map((x) => {
           const tasks = state.tasks[x.id] ?? [];
           const d = tasks.filter((k) => k.done).length;
           return (
-            <button key={x.id} onClick={() => update((s) => ({ ...s, currentTerm: x.id }))} className={`shrink-0 rounded-xl border px-3 py-2 text-left ${x.id === state.currentTerm ? "border-brand-500 bg-brand-600 text-white" : "border-slate-200 bg-white"}`}>
+            <button key={x.id} onClick={() => update((s) => ({ ...s, currentTerm: x.id }))} className={`shrink-0 rounded-xl border px-3 py-2 text-left ${x.id === t.id ? "border-brand-500 bg-brand-600 text-white" : "border-slate-200 bg-white"}`}>
               <div className="text-sm font-bold">{x.label}</div>
-              <div className={`text-[11px] ${x.id === state.currentTerm ? "text-brand-100" : "text-slate-400"}`}>
+              <div className={`text-[11px] ${x.id === t.id ? "text-brand-100" : "text-slate-400"}`}>
                 {d}/{tasks.length} 완료
               </div>
             </button>
@@ -66,7 +67,7 @@ function TermPicker() {
 
 function Tasks() {
   const { state, update } = useStore();
-  const term = state.currentTerm;
+  const term = activeTerm(state.profile.stage, state.currentTerm);
   const tasks = state.tasks[term] ?? [];
   const [text, setText] = useState("");
   const setTasks = (fn: (t: typeof tasks) => typeof tasks) => update((s) => ({ ...s, tasks: { ...s.tasks, [term]: fn(s.tasks[term] ?? []) } }));
@@ -80,7 +81,7 @@ function Tasks() {
   const done = tasks.filter((t) => t.done).length;
 
   return (
-    <div className="grid gap-4 lg:grid-cols-[1.3fr_0.7fr]">
+    <div className="grid grid-cols-1 gap-4 lg:grid-cols-[1.3fr_0.7fr] [&>*]:min-w-0">
       <div className="card">
         <div className="mb-3 flex items-center justify-between">
           <h2 className="font-bold">이번 학기 할 일</h2>
@@ -143,9 +144,10 @@ function Tasks() {
 
 function Goals() {
   const { state, update } = useStore();
-  const term = state.currentTerm;
+  const term = activeTerm(state.profile.stage, state.currentTerm);
   const goals = state.goals.filter((g) => g.term === term);
-  const [subject, setSubject] = useState(SUBJECTS_MS[0]);
+  const SUBJ = state.profile.stage === "hs" ? SUBJECTS_HS : SUBJECTS_MS;
+  const [subject, setSubject] = useState(SUBJ[0]);
   const [text, setText] = useState("");
   return (
     <div className="card">
@@ -161,7 +163,7 @@ function Goals() {
         }}
       >
         <select className="input sm:w-36" value={subject} onChange={(e) => setSubject(e.target.value)} aria-label="과목">
-          {SUBJECTS_MS.map((s) => (
+          {SUBJ.map((s) => (
             <option key={s}>{s}</option>
           ))}
         </select>

@@ -1,0 +1,308 @@
+"use client";
+
+import { useEffect, useMemo, useState } from "react";
+import Link from "next/link";
+import { CAT_INFO, CREDIT_RULES, GRADE5, GROUPS, SUBJECTS, SUBJECT_MAP, TRACKS, type Cat, type Group, type Subject, type TrackId } from "@/data/subjects";
+import { MAJORS } from "@/data/majors";
+import { JOBS } from "@/data/jobs";
+import { PageHead } from "@/components/ui";
+import { useEscape } from "@/components/useEscape";
+
+type Tab = "list" | "tree" | "rules" | "eval";
+
+export default function SubjectsPage() {
+  const [tab, setTab] = useState<Tab>("list");
+  const [group, setGroup] = useState<Group>("수학");
+  const [cat, setCat] = useState<Cat | "all">("all");
+  const [q, setQ] = useState("");
+  const [open, setOpen] = useState<string | null>(null);
+
+  useEffect(() => {
+    const h = decodeURIComponent(window.location.hash.slice(1));
+    if (SUBJECT_MAP[h]) setOpen(h);
+  }, []);
+
+  const list = useMemo(
+    () => SUBJECTS.filter((s) => (q ? (s.name + s.desc).includes(q.trim()) : s.group === group) && (cat === "all" || s.cat === cat)),
+    [group, cat, q]
+  );
+
+  return (
+    <div>
+      <PageHead
+        title="과목 백과"
+        desc={`2022 개정 교육과정 고등학교 보통교과 ${SUBJECTS.length}과목의 내용, 학점, 평가 방식, 선수과목, 2028 수능 출제 여부와 관련 학과·직업을 한곳에서 확인하세요.`}
+      />
+      <div className="mb-4 flex gap-1 overflow-x-auto rounded-xl bg-slate-100 p-1" role="tablist">
+        {(
+          [
+            ["list", "📚 과목 찾기"],
+            ["tree", "🌳 과목 위계도"],
+            ["rules", "🎓 192학점 기준"],
+            ["eval", "📝 평가·내신"],
+          ] as const
+        ).map(([k, l]) => (
+          <button key={k} role="tab" aria-selected={tab === k} onClick={() => setTab(k)} className={`flex-1 shrink-0 whitespace-nowrap rounded-lg px-3 py-2 text-sm font-semibold ${tab === k ? "bg-white shadow-sm" : "text-slate-500"}`}>
+            {l}
+          </button>
+        ))}
+      </div>
+
+      {(tab === "list" || tab === "tree") && (
+        <div className="card mb-4 space-y-2 p-4">
+          {tab === "list" && <input className="input" placeholder="과목 이름·내용 검색 (예: 미적분, 인공지능, 기후)" value={q} onChange={(e) => setQ(e.target.value)} aria-label="과목 검색" />}
+          <div className="-mx-1 flex gap-1.5 overflow-x-auto px-1 pb-1">
+            {GROUPS.map((g) => (
+              <button key={g} className={`chip shrink-0 ${group === g && !q ? "chip-on" : ""}`} onClick={() => { setGroup(g); setQ(""); }}>
+                {g} {SUBJECTS.filter((s) => s.group === g).length}
+              </button>
+            ))}
+          </div>
+          {tab === "list" && (
+            <div className="flex flex-wrap gap-1.5">
+              {(["all", "공통", "기본", "일반", "진로", "융합"] as const).map((c) => (
+                <button key={c} className={`chip ${cat === c ? "chip-on" : ""}`} onClick={() => setCat(c)}>
+                  {c === "all" ? "모든 유형" : CAT_INFO[c].label}
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+
+      {tab === "list" && (
+        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+          {list.map((s) => (
+            <SubjectCard key={s.name} s={s} onOpen={() => setOpen(s.name)} />
+          ))}
+          {list.length === 0 && <p className="text-sm text-slate-500">검색 결과가 없어요.</p>}
+        </div>
+      )}
+
+      {tab === "tree" && <Tree group={group} onOpen={setOpen} />}
+      {tab === "rules" && <Rules />}
+      {tab === "eval" && <EvalInfo />}
+
+      {open && SUBJECT_MAP[open] && <SubjectModal s={SUBJECT_MAP[open]} onClose={() => setOpen(null)} onOpen={setOpen} />}
+    </div>
+  );
+}
+
+function Badges({ s }: { s: Subject }) {
+  return (
+    <span className="inline-flex flex-wrap gap-1">
+      <span className="rounded px-1.5 py-0.5 text-[10px] font-bold text-white" style={{ background: CAT_INFO[s.cat].color }}>{CAT_INFO[s.cat].label}</span>
+      {s.suneung && <span className="rounded bg-rose-100 px-1.5 py-0.5 text-[10px] font-bold text-rose-700">2028 수능</span>}
+    </span>
+  );
+}
+
+function SubjectCard({ s, onOpen }: { s: Subject; onOpen: () => void }) {
+  return (
+    <button onClick={onOpen} className="card text-left transition hover:border-brand-200 hover:shadow-md">
+      <div className="flex items-start justify-between gap-2">
+        <div className="font-bold">{s.name}</div>
+        <Badges s={s} />
+      </div>
+      <p className="mt-1 text-sm text-slate-600">{s.desc}</p>
+      <div className="mt-2 text-xs text-slate-500">
+        {s.group} · 기본 {s.credits}학점 · {s.eval}
+        {s.prereq && ` · 선수: ${s.prereq.join(", ")}`}
+      </div>
+    </button>
+  );
+}
+
+function Tree({ group, onOpen }: { group: Group; onOpen: (n: string) => void }) {
+  const cols: Cat[] = ["공통", "일반", "진로", "융합"];
+  const items = SUBJECTS.filter((s) => s.group === group && s.cat !== "기본");
+  return (
+    <div className="card overflow-x-auto">
+      <p className="mb-3 text-sm text-slate-500">왼쪽에서 오른쪽으로 갈수록 심화돼요. 과목을 누르면 선수과목과 이어지는 과목을 볼 수 있어요.</p>
+      <div className="grid min-w-[720px] grid-cols-4 gap-3">
+        {cols.map((c, i) => (
+          <div key={c}>
+            <div className="mb-2 rounded-lg px-2 py-1 text-center text-xs font-bold text-white" style={{ background: CAT_INFO[c].color }}>
+              {i + 1}단계 · {CAT_INFO[c].label}
+            </div>
+            <ul className="space-y-2">
+              {items.filter((s) => s.cat === c).map((s) => {
+                const next = SUBJECTS.filter((x) => x.prereq?.includes(s.name));
+                return (
+                  <li key={s.name}>
+                    <button onClick={() => onOpen(s.name)} className="w-full rounded-xl border border-slate-200 bg-white p-2.5 text-left text-sm hover:border-brand-300">
+                      <div className="font-semibold">
+                        {s.name} {s.suneung && <span className="text-[10px] font-bold text-rose-600">수능</span>}
+                      </div>
+                      {s.prereq && <div className="text-[11px] text-slate-400">← {s.prereq.join(", ")}</div>}
+                      {next.length > 0 && <div className="text-[11px] text-brand-600">→ {next.map((n) => n.name).join(", ")}</div>}
+                    </button>
+                  </li>
+                );
+              })}
+              {items.filter((s) => s.cat === c).length === 0 && <li className="text-center text-xs text-slate-300">—</li>}
+            </ul>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function Rules() {
+  return (
+    <div className="space-y-4">
+      <div className="grid gap-3 sm:grid-cols-4">
+        {[
+          ["총 이수 학점", "192학점", "교과 174 + 창체 18"],
+          ["필수 이수 학점", "84학점", "교과(군)별 최소 학점의 합"],
+          ["국·수·영 상한", "81학점", "교과 174학점의 50% 이하"],
+          ["1학점 수업량", "50분 × 16회", "학기 단위로 이수"],
+        ].map(([t, v, d]) => (
+          <div key={t} className="card p-4">
+            <div className="text-xs font-semibold text-slate-500">{t}</div>
+            <div className="text-2xl font-extrabold">{v}</div>
+            <div className="text-xs text-slate-500">{d}</div>
+          </div>
+        ))}
+      </div>
+      <div className="card overflow-x-auto p-0">
+        <table className="w-full min-w-[480px] text-left text-sm">
+          <caption className="p-4 text-left font-bold">교과(군)별 필수 이수 학점</caption>
+          <thead className="bg-slate-50 text-xs text-slate-500">
+            <tr>
+              <th className="p-3">교과(군)</th>
+              <th className="p-3">필수 이수 학점</th>
+            </tr>
+          </thead>
+          <tbody>
+            {CREDIT_RULES.requiredByArea.map((r) => (
+              <tr key={r.area} className="border-t border-slate-100">
+                <td className="p-3">{r.area}</td>
+                <td className="p-3 font-semibold">{r.min}학점</td>
+              </tr>
+            ))}
+            <tr className="border-t border-slate-200 bg-slate-50 font-bold">
+              <td className="p-3">합계</td>
+              <td className="p-3">84학점</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div className="card text-sm leading-relaxed text-slate-700">
+        <div className="font-bold">알아 두면 좋은 점</div>
+        <ul className="mt-2 list-disc space-y-1 pl-5">
+          <li>필수 이수 학점(84)을 채운 뒤 남은 학점은 진로와 적성에 따라 자유롭게 선택해요.</li>
+          <li>과목 출석률(수업 횟수의 2/3 이상)과 학업성취율(40% 이상)을 충족해야 과목을 이수한 것으로 인정돼요. 미이수 시 보충 지도를 받아요.</li>
+          <li>학교에 개설되지 않은 과목은 공동교육과정·온라인학교 등으로 들을 수 있는지 담임 선생님께 확인해 보세요.</li>
+        </ul>
+        <Link href="/credits" className="btn-primary mt-3">192학점 설계 시작하기</Link>
+      </div>
+    </div>
+  );
+}
+
+function EvalInfo() {
+  return (
+    <div className="space-y-4">
+      <div className="card">
+        <div className="font-bold">고교 내신 5등급제 (2025 고1부터)</div>
+        <div className="mt-3 grid grid-cols-5 gap-2 text-center">
+          {GRADE5.map((g, i) => (
+            <div key={g.g} className="rounded-xl border border-slate-200 p-2">
+              <div className="text-lg font-extrabold text-brand-700">{g.g}등급</div>
+              <div className="text-[11px] text-slate-500">누적 {g.cum}%</div>
+              <div className="mt-1 text-[11px] font-semibold">{i === 0 ? 10 : g.cum - GRADE5[i - 1].cum}%</div>
+            </div>
+          ))}
+        </div>
+        <p className="mt-3 text-sm text-slate-600">성취도(A~E)와 석차등급(1~5)이 함께 기록돼요. 원점수·과목 평균·수강자 수도 성적표에 함께 적혀요.</p>
+      </div>
+      <div className="card overflow-x-auto p-0">
+        <table className="w-full min-w-[520px] text-left text-sm">
+          <caption className="p-4 text-left font-bold">과목 유형별 평가 방식</caption>
+          <thead className="bg-slate-50 text-xs text-slate-500">
+            <tr>
+              <th className="p-3">구분</th>
+              <th className="p-3">평가</th>
+            </tr>
+          </thead>
+          <tbody>
+            {[
+              ["공통·일반선택·진로선택 (국·수·영·사·과·정보 등)", "성취도(A~E) + 석차등급(5등급)"],
+              ["사회·과학 융합선택 (9과목)", "성취도(A~E)만 기록 (절대평가)"],
+              ["체육·예술 과목, 과학탐구실험", "성취도 3단계(A·B·C)"],
+              ["교양 과목", "이수 여부(P)"],
+            ].map(([a, b]) => (
+              <tr key={a} className="border-t border-slate-100">
+                <td className="p-3">{a}</td>
+                <td className="p-3 font-semibold">{b}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+      <Link href="/admission#calc" className="btn-primary">5등급 내신 계산기 →</Link>
+    </div>
+  );
+}
+
+function SubjectModal({ s, onClose, onOpen }: { s: Subject; onClose: () => void; onOpen: (n: string) => void }) {
+  const next = SUBJECTS.filter((x) => x.prereq?.includes(s.name));
+  const majors = MAJORS.filter((m) => m.core.includes(s.name) || m.rec.includes(s.name));
+  const jobs = JOBS.filter((j) => j.hsSubjects.includes(s.name));
+  useEscape(onClose);
+  const tracks = (Object.keys(TRACKS) as TrackId[]).filter((k) => TRACKS[k].core.includes(s.name) || TRACKS[k].rec.includes(s.name));
+  return (
+    <div className="fixed inset-0 z-50 flex items-end justify-center bg-slate-900/40 sm:items-center" onClick={onClose}>
+      <div className="max-h-[85vh] w-full max-w-lg overflow-y-auto rounded-t-3xl bg-white p-5 sm:rounded-3xl" onClick={(e) => e.stopPropagation()} role="dialog" aria-label={`${s.name} 상세`}>
+        <div className="flex items-start justify-between">
+          <div>
+            <div className="text-xs text-slate-500">{s.group}</div>
+            <h2 className="text-xl font-extrabold">{s.name}</h2>
+            <Badges s={s} />
+          </div>
+          <button className="btn-ghost px-3 py-1" onClick={onClose} aria-label="닫기">✕</button>
+        </div>
+        <p className="mt-3 text-slate-700">{s.desc}</p>
+        <dl className="mt-3 grid grid-cols-3 gap-2 text-sm">
+          <div className="rounded-lg bg-slate-50 p-2"><dt className="text-[11px] text-slate-500">기본 학점</dt><dd className="font-semibold">{s.credits}학점</dd></div>
+          <div className="col-span-2 rounded-lg bg-slate-50 p-2"><dt className="text-[11px] text-slate-500">평가</dt><dd className="font-semibold">{s.eval}</dd></div>
+        </dl>
+        {(s.prereq || next.length > 0) && (
+          <div className="mt-3 text-sm">
+            {s.prereq && (
+              <div>
+                <span className="text-xs font-bold text-slate-500">먼저 배우면 좋은 과목 </span>
+                {s.prereq.map((p) => <button key={p} className="chip mr-1" onClick={() => onOpen(p)}>{p}</button>)}
+              </div>
+            )}
+            {next.length > 0 && (
+              <div className="mt-1">
+                <span className="text-xs font-bold text-slate-500">이어서 배우는 과목 </span>
+                {next.map((n) => <button key={n.name} className="chip mr-1" onClick={() => onOpen(n.name)}>{n.name}</button>)}
+              </div>
+            )}
+          </div>
+        )}
+        {tracks.length > 0 && <p className="mt-3 text-sm"><span className="text-xs font-bold text-slate-500">추천 계열 </span>{tracks.map((k) => `${TRACKS[k].emoji} ${TRACKS[k].name}`).join(" · ")}</p>}
+        {majors.length > 0 && (
+          <div className="mt-3">
+            <div className="text-xs font-bold text-slate-500">이 과목이 중요한 학과</div>
+            <div className="mt-1 flex flex-wrap gap-1">
+              {majors.map((m) => <Link key={m.id} href={`/majors/${m.id}`} className="chip hover:border-brand-300">{m.name}{m.core.includes(s.name) ? " ★" : ""}</Link>)}
+            </div>
+          </div>
+        )}
+        {jobs.length > 0 && (
+          <div className="mt-3">
+            <div className="text-xs font-bold text-slate-500">관련 직업</div>
+            <div className="mt-1 flex flex-wrap gap-1">
+              {jobs.map((j) => <Link key={j.id} href={`/jobs/${j.id}`} className="chip hover:border-brand-300">{j.emoji} {j.name}</Link>)}
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}

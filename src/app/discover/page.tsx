@@ -200,15 +200,15 @@ function StrengthPage() {
           <select
             id="gr"
             className="input"
-            value={state.profile.grade}
+            value={`${state.profile.stage || "ms"}${state.profile.grade}`}
             onChange={(e) => {
-              const g = e.target.value;
-              update((s) => ({ ...s, profile: { ...s.profile, grade: g }, currentTerm: `${g}-1` as typeof s.currentTerm }));
+              const st = e.target.value.slice(0, 2) as "ms" | "hs";
+              const g = e.target.value.slice(2);
+              update((s) => ({ ...s, profile: { ...s.profile, grade: g, stage: st }, currentTerm: (st === "hs" ? `h${g}-1` : `${g}-1`) as typeof s.currentTerm }));
             }}
           >
-            <option value="1">중학교 1학년</option>
-            <option value="2">중학교 2학년</option>
-            <option value="3">중학교 3학년</option>
+            {["1", "2", "3"].map((g) => <option key={"ms" + g} value={"ms" + g}>중학교 {g}학년</option>)}
+            {["1", "2", "3"].map((g) => <option key={"hs" + g} value={"hs" + g}>고등학교 {g}학년</option>)}
           </select>
         </div>
       </div>
@@ -316,7 +316,7 @@ function Result({ onRetry }: { onRetry: () => void }) {
         </button>
       </div>
 
-      <NextStep href="/jobs" label="직업 찾기" hint="나와 잘 맞는 직업을 찾아 찜해 보세요" />
+      <NextStep href={state.profile.stage === "hs" ? "/majors" : "/jobs"} label={state.profile.stage === "hs" ? "학과·직업 찾기" : "직업 찾기"} hint={state.profile.stage === "hs" ? "관심 학과와 직업을 찜해 보세요" : "나와 잘 맞는 직업을 찾아 찜해 보세요"} />
     </div>
   );
 }

@@ -2,6 +2,7 @@ import { QUESTIONS, RIASEC_ORDER, type RiasecKey } from "@/data/riasec";
 import { JOBS, type HsTypeId, type Job } from "@/data/jobs";
 import { HS_QUIZ, HS_TYPES } from "@/data/highschools";
 import type { AppState } from "./store";
+import { TERMS_BY_STAGE } from "@/data/plan";
 
 export type Scores = Record<RiasecKey, number>; // 0~100
 
@@ -69,13 +70,18 @@ export function hsQuizResult(hsQuiz: Record<number, number>, favorites: Job[]) {
 
 export function progress(state: AppState) {
   const allTasks = Object.values(state.tasks).flat();
+  const hs = state.profile.stage === "hs";
+  const planCount = Object.values(state.credits.plan).flat().length;
   const steps = [
     { key: "discover", done: isTestComplete(state.answers) && state.values.length > 0 },
-    { key: "jobs", done: state.favorites.length >= 1 },
+    { key: "jobs", done: hs ? state.favorites.length + state.favMajors.length >= 1 : state.favorites.length >= 1 },
     { key: "path", done: state.hypothesis.trim().length > 0 },
-    { key: "highschool", done: Object.keys(state.hsQuiz).length === HS_QUIZ.length || state.hsInterest.length > 0 },
-    { key: "plan", done: state.logs.length > 0 || allTasks.some((t) => t.done) },
+    hs
+      ? { key: "credits", done: planCount >= 30 }
+      : { key: "highschool", done: Object.keys(state.hsQuiz).length === HS_QUIZ.length || state.hsInterest.length > 0 || state.favSchools.length > 0 },
+    { key: "plan", done: state.logs.length > 0 || state.books.length > 0 || allTasks.some((t) => t.done) },
   ];
-  const taskDone = allTasks.filter((t) => t.done).length;
-  return { steps, doneCount: steps.filter((s) => s.done).length, taskDone, taskTotal: allTasks.length };
+  const termTasks = TERMS_BY_STAGE[hs ? "hs" : "ms"].flatMap((x) => state.tasks[x.id] ?? []);
+  const taskDone = termTasks.filter((t) => t.done).length;
+  return { steps, doneCount: steps.filter((s) => s.done).length, taskDone, taskTotal: termTasks.length };
 }

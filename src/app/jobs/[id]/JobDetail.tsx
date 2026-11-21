@@ -8,12 +8,16 @@ import { useStore } from "@/lib/store";
 import { isTestComplete, jobMatch, riasecScores } from "@/lib/match";
 import { FavButton } from "@/components/JobCard";
 import { PathFlow } from "@/components/PathFlow";
+import { MAJORS } from "@/data/majors";
+import { GN_INDUSTRIES } from "@/data/gn";
 
 export function JobDetail({ id }: { id: string }) {
   const job = JOB_MAP[id];
   const { state, ready } = useStore();
   const tested = ready && isTestComplete(state.answers);
   const score = tested ? jobMatch(job, riasecScores(state.answers), state.values) : null;
+  const majors = MAJORS.filter((m) => m.jobs.includes(job.id));
+  const inds = GN_INDUSTRIES.filter((i) => i.jobs.includes(job.id));
   const similar = JOBS.filter((j) => j.id !== job.id && (j.field === job.field || j.riasec[0] === job.riasec[0])).slice(0, 4);
 
   return (
@@ -78,6 +82,35 @@ export function JobDetail({ id }: { id: string }) {
           </Link>
         </div>
       </div>
+
+      {(job.gn || inds.length > 0) && (
+        <div className="card border-emerald-200 bg-emerald-50">
+          <h2 className="font-bold text-emerald-900">📍 경남에서는?</h2>
+          {job.gn && <p className="mt-1 text-sm text-emerald-900">{job.gn}</p>}
+          {inds.length > 0 && (
+            <div className="mt-2 flex flex-wrap gap-1.5">
+              {inds.map((i) => (
+                <Link key={i.id} href="/industry" className="chip border-emerald-300 bg-white">
+                  {i.emoji} {i.name} · {i.regions.join("·")}
+                </Link>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+
+      {majors.length > 0 && (
+        <div className="card">
+          <h2 className="font-bold">🎓 관련 학과 (학과 백과)</h2>
+          <div className="mt-2 flex flex-wrap gap-1.5">
+            {majors.map((m) => (
+              <Link key={m.id} href={`/majors/${m.id}`} className="chip px-3 py-1.5 text-sm hover:border-brand-300">
+                {m.name}
+              </Link>
+            ))}
+          </div>
+        </div>
+      )}
 
       <div className="card">
         <h2 className="mb-3 font-bold">🛤️ 이 직업까지 가는 길</h2>
