@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { OFFICIAL } from "@/data/gn";
 import { PageHead } from "@/components/ui";
+import { CareerCenters } from "@/components/CareerCenters";
 
 export const metadata = { title: "진로체험·자료" };
 
@@ -54,6 +55,10 @@ export default function ResourcesPage() {
             </Link>
           ))}
         </div>
+      </section>
+      <section>
+        <h2 className="mb-3 text-lg font-bold">경남 진로체험지원센터 18곳</h2>
+        <CareerCenters />
       </section>
       {GROUPS.map((g) => (
         <section key={g.t}>

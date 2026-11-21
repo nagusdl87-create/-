@@ -10,9 +10,11 @@ import { TRACKS, type TrackId } from "@/data/subjects";
 import { JOB_MAP } from "@/data/jobs";
 import { NextStep, PageHead } from "@/components/ui";
 import { TRACK_HUE } from "@/lib/colors";
+import { NationalMajors } from "@/components/NationalMajors";
 
 export default function MajorsPage() {
   const { state, update, ready } = useStore();
+  const [view, setView] = useState<"guide" | "national">("guide");
   const [q, setQ] = useState("");
   const [track, setTrack] = useState<TrackId | "all" | "fav">("all");
   const list = useMemo(
@@ -34,6 +36,15 @@ export default function MajorsPage() {
         title="학과 백과"
         desc="대학 학과에서 무엇을 배우는지, 고등학교에서 어떤 과목을 들으면 좋은지, 졸업 후 어떤 일을 하는지 확인하고 관심 학과를 ❤️ 찜해 보세요."
       />
+      <div className="mb-4 grid grid-cols-2 gap-1 rounded-xl bg-slate-200/60 p-1" role="tablist">
+        <button role="tab" aria-selected={view === "guide"} onClick={() => setView("guide")} className={`rounded-lg py-2 text-sm font-semibold ${view === "guide" ? "bg-white shadow-sm" : "text-slate-500"}`}>
+          학과 가이드 (권장과목·진로)
+        </button>
+        <button role="tab" aria-selected={view === "national"} onClick={() => setView("national")} className={`rounded-lg py-2 text-sm font-semibold ${view === "national" ? "bg-white shadow-sm" : "text-slate-500"}`}>
+          전국 학과 탐색 (개설 대학)
+        </button>
+      </div>
+      {view === "national" ? <NationalMajors /> : <>
       <div className="card mb-4 space-y-2 p-4">
         <input className="input" placeholder="학과·과목·진로 검색 (예: 반도체, 간호, 미적분Ⅱ)" value={q} onChange={(e) => setQ(e.target.value)} aria-label="학과 검색" />
         <div className="flex flex-wrap gap-1.5">
@@ -92,6 +103,7 @@ export default function MajorsPage() {
         핵심·권장 과목은 일반적인 안내예요. 대학·학과별 권장과목은 대학마다 다르므로 각 대학 발표 자료와{" "}
         <a className="underline" href="https://www.adiga.kr/" target="_blank" rel="noreferrer">대입정보포털 어디가</a>에서 꼭 확인하세요.
       </p>
+      </>}
       {hs && <NextStep href="/path" label="길 잇기" hint="찜한 학과까지 가는 과목 경로를 확인해 보세요" />}
     </div>
   );

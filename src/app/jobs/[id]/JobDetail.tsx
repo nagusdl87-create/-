@@ -10,6 +10,8 @@ import { isTestComplete, jobMatch, riasecScores } from "@/lib/match";
 import { FavButton } from "@/components/JobCard";
 import { PathFlow } from "@/components/PathFlow";
 import { MAJORS } from "@/data/majors";
+import { JOB_VIDEOS } from "@/data/videos";
+import { Videos } from "@/components/Videos";
 import { GN_INDUSTRIES } from "@/data/gn";
 
 export function JobDetail({ id }: { id: string }) {
@@ -68,6 +70,11 @@ export function JobDetail({ id }: { id: string }) {
             💡 흥미 탐색을 하면 이 직업이 나와 얼마나 잘 맞는지 알려 드려요 →
           </Link>
         )}
+      </div>
+
+      <div className="card">
+        <h2 className="mb-3 font-bold">직업인 영상</h2>
+        <Videos videos={JOB_VIDEOS[job.id] ?? []} query={job.name} />
       </div>
 
       <div className="grid gap-4 md:grid-cols-2">

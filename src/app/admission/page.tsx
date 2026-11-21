@@ -8,6 +8,7 @@ import { GRADE5, SUNEUNG_2028 } from "@/data/subjects";
 import { OFFICIAL } from "@/data/gn";
 import { PageHead } from "@/components/ui";
 import { NaesinSimulator } from "@/components/Naesin";
+import { UnivDirectory } from "@/components/UnivDirectory";
 
 const CHANGES = [
   { t: "통합형 수능", d: "국어·수학 선택과목이 없어지고 모든 수험생이 같은 과목으로 시험을 봐요. 사회·과학탐구는 문·이과 구분 없이 통합사회와 통합과학을 모두 응시해요." },
@@ -49,6 +50,56 @@ export default function AdmissionPage() {
             <p className="mt-1 text-sm leading-relaxed text-slate-600">{c.d}</p>
           </div>
         ))}
+      </section>
+
+      <section className="card overflow-x-auto p-0">
+        <table className="w-full min-w-[620px] text-left text-sm">
+          <caption className="p-4 text-left">
+            <span className="text-lg font-bold">2028학년도 수능 시간표</span>
+            <span className="ml-2 text-sm text-slate-500">시험일 2027년 11월 18일(목) · 성적 통지 12월 10일</span>
+          </caption>
+          <thead className="bg-slate-50 text-xs text-slate-500">
+            <tr>
+              <th className="p-3">교시</th>
+              <th className="p-3">영역</th>
+              <th className="p-3">시간</th>
+              <th className="p-3">문항 수</th>
+              <th className="p-3">배점</th>
+            </tr>
+          </thead>
+          <tbody>
+            {[
+              ["1", "국어", "08:40~10:00 (80분)", "45", "100"],
+              ["2", "수학", "10:30~12:10 (100분)", "30 (단답형 9)", "100"],
+              ["3", "영어", "13:10~14:20 (70분)", "45 (듣기 17)", "100"],
+              ["4", "한국사", "14:50~15:20 (30분)", "20", "50"],
+              ["4", "사회·직업탐구 (통합사회)", "15:35~16:15 (40분)", "25", "50"],
+              ["4", "과학탐구 (통합과학)", "16:30~17:10 (40분)", "25", "50"],
+              ["5", "제2외국어/한문", "17:35~18:05 (30분)", "30", "50"],
+            ].map((r) => (
+              <tr key={r[1]} className="border-t border-slate-100">
+                <td className="p-3">{r[0]}</td>
+                <td className="p-3 font-semibold">{r[1]}</td>
+                <td className="p-3">{r[2]}</td>
+                <td className="p-3">{r[3]}</td>
+                <td className="p-3">{r[4]}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+        <p className="px-4 pb-4 text-xs text-slate-500">
+          입실 08:10. 한국교육과정평가원 2028학년도 수능 시험 시간표 안내(2026.8.) 기준이며, 배점과 시험 순서는 현행과 같아요. 시험일·통지일은 교육부·대교협 발표를 참고했고 최종 일정은 시행 기본계획으로 확인하세요.{" "}
+          <a className="underline" href="https://www.suneung.re.kr/boardCnts/fileDown.do?fileSeq=48896b8d358a73737e560d1820dea649" target="_blank" rel="noreferrer">2028 예시문항 안내(PDF)</a>
+        </p>
+      </section>
+
+      <section>
+        <h2 className="mb-1 text-lg font-bold">대학별 2028학년도 대입전형 기본계획</h2>
+        <p className="mb-3 text-sm text-slate-600">
+          2028학년도에는 194개 대학이 34만 8천여 명을 모집할 계획이에요(한국대학교육협의회 발표, 2026.4.). 지원하고 싶은 대학의 기본계획을 직접 확인해 보세요.{" "}
+          <a className="text-brand-700 underline" href="https://www.kcue.or.kr/_upload/news/2026/04/30/application_ea0382f8ef4d92cda46a7e015aec3fef.pdf" target="_blank" rel="noreferrer">2028 시행계획 주요사항(PDF)</a>
+        </p>
+        <UnivDirectory />
       </section>
 
       <section className="card overflow-x-auto p-0">

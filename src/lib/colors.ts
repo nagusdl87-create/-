@@ -20,5 +20,5 @@ export const TRACK_HUE: Record<string, Hue> = {
   hum: P.amber, soc: P.coral, biz: P.rose, nat: P.violet, ai: P.indigo, eng: P.sky, med: P.rose, edu: P.emerald, art: P.violet,
 };
 export const GROUP_HUE: Record<string, Hue> = {
-  국어: P.rose, 수학: P.indigo, 영어: P.sky, 사회: P.amber, 과학: P.emerald, "기술·가정/정보": P.teal, "제2외국어/한문": P.coral, 체육: P.lime, 예술: P.violet, 교양: P.slate,
+  과학계열: P.emerald, 체육계열: P.lime, 예술계열: P.violet, "외국어·국제계열": P.coral, 국어: P.rose, 수학: P.indigo, 영어: P.sky, 사회: P.amber, 과학: P.emerald, "기술·가정/정보": P.teal, "제2외국어/한문": P.coral, 체육: P.lime, 예술: P.violet, 교양: P.slate,
 };

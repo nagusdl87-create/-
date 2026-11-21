@@ -1,0 +1,186 @@
+{
+ "source": "꿈길 https://www.ggoomgil.go.kr/front/opr/oprInstIntroList.do (parent_area_seq=17 경상남도), fetched 2026-11-21; same data as data.go.kr 15123665",
+ "count": 18,
+ "centers": [
+  {
+   "name": "경남거제센터",
+   "office": "거제교육지원청",
+   "address": "경상남도 거제시 덕포4길 17 거제시 평생학습관 1층",
+   "tel": "055-688-6364",
+   "homepage": "http://www.geojejinro.com",
+   "email": "harang0_0@hanmail.net",
+   "lat": 34.91123331863686,
+   "lng": 128.70356424190192
+  },
+  {
+   "name": "경남거창센터",
+   "office": "거창교육지원청",
+   "address": "경상남도 거창군 거창읍 거함대로 3235",
+   "tel": "055-940-6116",
+   "homepage": "http://gcedu.gne.go.kr",
+   "email": "sangjong623@korea.kr",
+   "lat": 35.68189414509978,
+   "lng": 127.9156743084421
+  },
+  {
+   "name": "경남고성센터",
+   "office": "고성교육지원청",
+   "address": "경상남도 고성군 고성읍 성내로 61 고성진로교육지원센터",
+   "tel": "055-670-5934",
+   "homepage": "http://www.gsyon.or.kr",
+   "email": "peleme84@korea.kr",
+   "lat": 34.9768815610044,
+   "lng": 128.316323867445
+  },
+  {
+   "name": "경남김해센터",
+   "office": "김해교육지원청",
+   "address": "경상남도 김해시 구지로 127 김해여중 별관 김해행복마을학교 1층",
+   "tel": "055-325-1577",
+   "homepage": "http://www.김해진로센터.com",
+   "email": "ghjinro@daum.net",
+   "lat": 35.21367954571654,
+   "lng": 128.83191644692616
+  },
+  {
+   "name": "경남남해센터",
+   "office": "남해교육지원청",
+   "address": "경상남도 남해군 남해읍 화전로95번길 14 교육지원과",
+   "tel": "055-860-4122",
+   "homepage": "http://nhedu.gne.go.kr",
+   "email": "laroo@korea.kr",
+   "lat": 34.84021066737928,
+   "lng": 127.89220027590348
+  },
+  {
+   "name": "경남밀양센터",
+   "office": "밀양교육지원청",
+   "address": "경상남도 밀양시 상남면 밀양대로 1522",
+   "tel": "055-350-1521",
+   "homepage": "https://myedu.gne.go.kr/",
+   "email": "zzzlet@korea.kr",
+   "lat": 35.4663737554976,
+   "lng": 128.76208709270068
+  },
+  {
+   "name": "경남사천센터",
+   "office": "사천교육지원청",
+   "address": "경상남도 사천시 삼상로 85 교육지원과",
+   "tel": "055-830-1533",
+   "homepage": "https://scedu.gne.go.kr/",
+   "email": "kangiin8@korea.kr",
+   "lat": 34.93746157082615,
+   "lng": 128.08459480121806
+  },
+  {
+   "name": "경남산청센터",
+   "office": "산청교육지원청",
+   "address": "경상남도 산청군 산청읍 친환경로2720번길 10 교육지원과",
+   "tel": "055-970-3022",
+   "homepage": "https://schedu.gne.go.kr/schedu/main.do",
+   "email": "hj0472@korea.kr",
+   "lat": 35.41922132632706,
+   "lng": 127.87984573884609
+  },
+  {
+   "name": "경남양산센터",
+   "office": "양산교육지원청",
+   "address": "경상남도 양산시 양주3길 40-13 양주초등학교 내 별관 1층",
+   "tel": "055-785-0151",
+   "homepage": "http://www.양산진로센터.com",
+   "email": "dreamfly0151@hanmail.net",
+   "lat": 35.34287832769388,
+   "lng": 129.03280983317077
+  },
+  {
+   "name": "경남의령센터",
+   "office": "의령교육지원청",
+   "address": "경상남도 의령군 의령읍 의병로 148 의령교육지원청 교육지원과",
+   "tel": "055-570-7121",
+   "homepage": "http://uredu.gne.go.kr/",
+   "email": "geotop@korea.kr",
+   "lat": 35.32171608601697,
+   "lng": 128.26203250842488
+  },
+  {
+   "name": "경남진주센터",
+   "office": "진주교육지원청",
+   "address": "경상남도 진주시 비봉로23번길 8 교육지원과",
+   "tel": "055-740-2025",
+   "homepage": "https://jjedu.gne.go.kr",
+   "email": "johs9811@korea.kr",
+   "lat": 35.19277319758016,
+   "lng": 128.08009426030927
+  },
+  {
+   "name": "경남창녕센터",
+   "office": "창녕교육지원청",
+   "address": "경상남도 창녕군 창녕읍 창녕대로 135 교육지원과",
+   "tel": "055-530-3532",
+   "homepage": "http://cnedu.gne.go.kr",
+   "email": "ajh02170217@korea.kr",
+   "lat": 35.534350007924765,
+   "lng": 128.4998488489944
+  },
+  {
+   "name": "경남창원센터",
+   "office": "창원교육지원청",
+   "address": "경상남도 창원시 성산구 충혼로72번길 16 창원과학체험관 3층 창원진로교육지원센터",
+   "tel": "055-287-7391",
+   "homepage": "https://www.cwjinro.kr",
+   "email": "cwjinro24@daum.net",
+   "lat": 35.23020343363245,
+   "lng": 128.6617588491535
+  },
+  {
+   "name": "경남통영센터",
+   "office": "통영교육지원청",
+   "address": "경상남도 통영시 광도면 죽림2로 25-32 통영교육지원청 별관 통영진로교육지원센터",
+   "tel": "055-649-1318",
+   "homepage": "https://www.통영진로센터.com",
+   "email": "tyjinro@gmail.com",
+   "lat": 34.882005438552646,
+   "lng": 128.4167280984577
+  },
+  {
+   "name": "경남하동센터",
+   "office": "하동교육지원청",
+   "address": "경상남도 하동군 하동읍 군청로 191 교육지원과",
+   "tel": "055-880-1922",
+   "homepage": "https://hdedu.gne.go.kr",
+   "email": "sky614@korea.kr",
+   "lat": 35.0602928317164,
+   "lng": 127.767349527277
+  },
+  {
+   "name": "경남함안센터",
+   "office": "함안교육지원청",
+   "address": "경상남도 함안군 가야읍 함안대로 497 교육지원과",
+   "tel": "055-580-8023",
+   "homepage": "http://hmedu.gne.go.kr/",
+   "email": "khy0449@korea.kr",
+   "lat": 35.271425233738796,
+   "lng": 128.40821763508228
+  },
+  {
+   "name": "경남함양센터",
+   "office": "함양교육지원청",
+   "address": "경상남도 함양군 함양읍 함양로 1157 교육지원과",
+   "tel": "055-960-2720",
+   "homepage": "https://hyedu.gne.go.kr",
+   "email": "naya1124@korea.kr",
+   "lat": 35.522275958160236,
+   "lng": 127.72765450756665
+  },
+  {
+   "name": "경남합천센터",
+   "office": "합천교육지원청",
+   "address": "경상남도 합천군 동서로 150 교육지원과",
+   "tel": "055-930-7041",
+   "homepage": "http://hcedu.gne.go.kr/hcedu",
+   "email": "rainier04@korea.kr",
+   "lat": 35.56506289161925,
+   "lng": 128.16891769470885
+  }
+ ]
+}

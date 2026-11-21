@@ -2,9 +2,9 @@
 // 출처: 교육부 고시 제2022-33호 고등학교 교육과정, 「고교학점제 종합 추진계획」 및 2028 대입제도 개편 확정안(2023.12.)
 // 기본 학점은 공통과목 외 '기본 4학점(±1 증감 가능)' 기준이며, 실제 편성은 학교마다 다릅니다.
 
-export type Cat = "공통" | "기본" | "일반" | "진로" | "융합";
-export type Group = "국어" | "수학" | "영어" | "사회" | "과학" | "기술·가정/정보" | "제2외국어/한문" | "체육" | "예술" | "교양";
-export type Eval = "5등급+성취도" | "성취도(A~E)" | "성취도(3단계)" | "이수(P)";
+export type Cat = "공통" | "기본" | "일반" | "진로" | "융합" | "전문";
+export type Group = "국어" | "수학" | "영어" | "사회" | "과학" | "기술·가정/정보" | "제2외국어/한문" | "체육" | "예술" | "교양" | "과학계열" | "체육계열" | "예술계열" | "외국어·국제계열";
+export type Eval = "5등급+성취도" | "성취도(A~E)" | "성취도(3단계)" | "성취도(3단계)+3등급" | "이수(P)";
 
 export type Subject = {
   name: string;
@@ -152,7 +152,7 @@ export const SUBJECTS: Subject[] = [
   // ── 체육
   S("체육", "일반", "체육1", "건강 관리와 다양한 신체 활동"),
   S("체육", "일반", "체육2", "체육1에 이은 신체 활동 심화"),
-  S("체육", "일반", "운동과 건강", "운동 계획과 건강한 생활 습관"),
+  S("체육", "진로", "운동과 건강", "운동 계획과 건강한 생활 습관"),
   S("체육", "진로", "스포츠 문화", "스포츠의 역사와 문화"),
   S("체육", "진로", "스포츠 과학", "운동의 과학적 원리와 경기력 분석"),
   S("체육", "융합", "스포츠 생활1", "생활 스포츠 종목 체험"),
@@ -180,8 +180,30 @@ export const SUBJECTS: Subject[] = [
   S("교양", "융합", "논술", "논증적 글쓰기"),
 ];
 
+// ── 고교학점제 누리집 공식 목록(교육부 고시 제2022-33호)에서 위에 없는 과목을 덧붙임
+//    (제2외국어 회화·심화·문화 과목, 과학·체육·예술·외국어·국제 계열 전문교과)
+import official from "../../scripts/raw/hscredit-subjects-2022.json";
+type Off = { name: string; group: string; type: string; curriculum: string; grading: string; suneung: string };
+const EVAL_MAP = (g: string): Eval =>
+  g.includes("석차 5등급") ? "5등급+성취도" : g.includes("A~E") ? "성취도(A~E)" : g.includes("석차 3등급") ? "성취도(3단계)+3등급" : g.includes("A·B·C") ? "성취도(3단계)" : "이수(P)";
+const CAT_MAP = (o: Off): Cat => (o.curriculum !== "보통 교과" ? "전문" : o.type.startsWith("진로") ? "진로" : o.type.startsWith("융합") ? "융합" : o.type.startsWith("일반") ? "일반" : "공통");
+const DESC = (o: Off) => {
+  const lang = o.name.match(/^(독일어|프랑스어|스페인어|중국어|일본어|러시아어|아랍어|베트남어)/)?.[1];
+  if (o.name.endsWith("회화") && lang) return `${lang}로 일상과 진로 상황에서 말하고 듣는 실용 회화`;
+  if (o.name.startsWith("심화") && lang) return `${lang} 읽기·쓰기·말하기를 깊이 있게 배우는 심화 과정`;
+  if (o.name.includes("문화")) return `${o.name.replace(" 문화", "").replace("권", "")}권 사회와 문화를 언어와 함께 탐구`;
+  if (o.curriculum !== "보통 교과") return `${o.group} 학교(과정)에서 주로 편성하는 전문 교과`;
+  return `${o.group} ${o.type} 과목`;
+};
+const known = new Set(SUBJECTS.map((s) => s.name));
+for (const o of (official as { subjects: Off[] }).subjects) {
+  if (known.has(o.name)) continue;
+  const group = (o.curriculum !== "보통 교과" ? o.group : o.group) as Group;
+  SUBJECTS.push({ name: o.name, group, cat: CAT_MAP(o), credits: 4, eval: EVAL_MAP(o.grading), suneung: o.suneung === "출제" || o.suneung.startsWith("선택") ? true : undefined, desc: DESC(o) });
+}
+
 export const SUBJECT_MAP: Record<string, Subject> = Object.fromEntries(SUBJECTS.map((s) => [s.name, s]));
-export const GROUPS: Group[] = ["국어", "수학", "영어", "사회", "과학", "기술·가정/정보", "제2외국어/한문", "체육", "예술", "교양"];
+export const GROUPS: Group[] = ["국어", "수학", "영어", "사회", "과학", "기술·가정/정보", "제2외국어/한문", "체육", "예술", "교양", "과학계열", "체육계열", "예술계열", "외국어·국제계열"];
 
 export const CAT_INFO: Record<Cat, { label: string; desc: string; color: string }> = {
   공통: { label: "공통과목", desc: "모든 학생이 주로 1학년에 배우는 기초 과목", color: "#64748b" },
@@ -189,6 +211,7 @@ export const CAT_INFO: Record<Cat, { label: string; desc: string; color: string 
   일반: { label: "일반선택", desc: "교과별 학문 영역의 주요 내용을 배우는 과목", color: "#2f7bf5" },
   진로: { label: "진로선택", desc: "교과별 심화 학습과 진로 관련 과목", color: "#10b981" },
   융합: { label: "융합선택", desc: "교과 내·교과 간 주제 융합, 실생활 응용 과목", color: "#a855f7" },
+  전문: { label: "전문교과", desc: "과학·체육·예술·외국어·국제 계열 학교(과정)의 전문 과목", color: "#f4693f" },
 };
 
 // ── 192학점 졸업 기준 (2022 개정 교육과정)

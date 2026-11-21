@@ -179,8 +179,8 @@ export default function Home() {
         <section className="grid grid-cols-2 gap-px overflow-hidden rounded-3xl bg-ink-800 sm:grid-cols-5">
           {[
             ["203", "경남 고등학교"],
-            ["137", "고교 과목"],
-            ["56", "대학 학과"],
+            ["290", "고교 과목"],
+            ["444", "전국 대학·캠퍼스"],
             ["51", "직업"],
             ["20", "공식 진로검사"],
           ].map(([n, l]) => (

@@ -7,7 +7,12 @@ import { useRouter } from "next/navigation";
 import { MAJOR_MAP, MAJORS } from "@/data/majors";
 import { SUBJECT_MAP, TRACKS } from "@/data/subjects";
 import { JOB_MAP } from "@/data/jobs";
-import { GN_UNIVERSITIES, OFFICIAL } from "@/data/gn";
+import { OFFICIAL } from "@/data/gn";
+import { MAJOR_MATCH } from "@/data/majorMatch";
+import { UniversityList } from "@/components/UniversityList";
+import { useUniv } from "@/lib/univ";
+import { MAJOR_VIDEOS } from "@/data/videos";
+import { Videos } from "@/components/Videos";
 import { toggleIn, useStore } from "@/lib/store";
 
 export function MajorDetail({ id }: { id: string }) {
@@ -70,6 +75,11 @@ export function MajorDetail({ id }: { id: string }) {
         <p className="mt-2 text-xs text-slate-400">일반적인 안내예요. 지원할 대학의 학과별 권장과목은 반드시 대학 발표 자료로 확인하세요.</p>
       </div>
 
+      <div className="card">
+        <h2 className="mb-3 font-bold">학과 소개 영상</h2>
+        <Videos videos={MAJOR_VIDEOS[m.id] ?? []} query={m.name} />
+      </div>
+
       <div className="grid gap-4 md:grid-cols-2">
         <div className="card">
           <h2 className="font-bold">대학에서 배우는 과목</h2>
@@ -85,28 +95,54 @@ export function MajorDetail({ id }: { id: string }) {
         </div>
       </div>
 
-      <div className="card">
-        <h2 className="font-bold">경남 소재 대학에서 찾아보기</h2>
-        <p className="mt-1 text-xs text-slate-500">같거나 비슷한 이름의 학과가 개설되어 있는지 대학 누리집이나 대학알리미에서 확인하세요.</p>
-        <div className="mt-3 grid gap-2 sm:grid-cols-2">
-          {GN_UNIVERSITIES.map((u) => (
-            <a key={u.name} href={u.url} target="_blank" rel="noreferrer" className="rounded-xl border border-slate-200 px-3 py-2 text-sm hover:border-brand-300">
-              <b>{u.name}</b> <span className="text-xs text-slate-500">{u.region}</span>
-            </a>
-          ))}
+      {MAJOR_MATCH[m.id] && (
+        <div className="card">
+          <h2 className="mb-1 font-bold">전국 개설 대학 (경남 먼저)</h2>
+          <OfficialMajorInfo match={MAJOR_MATCH[m.id]} />
+          <div className="mt-4">
+            <UniversityList match={MAJOR_MATCH[m.id]} title={`${m.name} 및 유사 학과`} />
+          </div>
+          <div className="mt-3 flex flex-wrap gap-2 text-sm">
+            <a className="btn-ghost" href={OFFICIAL.academy.url} target="_blank" rel="noreferrer">대학알리미 ↗</a>
+            <a className="btn-ghost" href={OFFICIAL.adiga.url} target="_blank" rel="noreferrer">어디가 (전형·권장과목) ↗</a>
+            <a className="btn-ghost" href={OFFICIAL.career.url} target="_blank" rel="noreferrer">커리어넷 학과정보 ↗</a>
+          </div>
         </div>
-        <div className="mt-3 flex flex-wrap gap-2 text-sm">
-          <a className="btn-ghost" href={OFFICIAL.academy.url} target="_blank" rel="noreferrer">대학알리미 학과 정보 ↗</a>
-          <a className="btn-ghost" href={OFFICIAL.adiga.url} target="_blank" rel="noreferrer">어디가 (전형·권장과목) ↗</a>
-          <a className="btn-ghost" href={OFFICIAL.career.url} target="_blank" rel="noreferrer">커리어넷 학과정보 ↗</a>
-        </div>
-      </div>
+      )}
 
       <div className="card">
         <h2 className="font-bold">같은 계열의 다른 학과</h2>
         <div className="mt-2 flex flex-wrap gap-1.5">
           {similar.map((x) => <Link key={x.id} href={`/majors/${x.id}`} className="chip px-3 py-1.5 text-sm hover:border-brand-300">{x.name}</Link>)}
         </div>
+      </div>
+    </div>
+  );
+}
+
+// 전국 학과 데이터에서 이 학과와 비슷한 학과들의 주요 교과목·관련 직업 모아 보기
+function OfficialMajorInfo({ match }: { match: { inc: RegExp; exc?: RegExp } }) {
+  const { data } = useUniv();
+  if (!data) return null;
+  const subj = new Map<string, number>();
+  const jobs = new Map<string, number>();
+  for (const g of data.groups) {
+    const n = g.depts.filter((d) => match.inc.test(d[1]) && !(match.exc && match.exc.test(d[1]))).length;
+    if (!n) continue;
+    g.subjects.forEach((s, i) => subj.set(s, (subj.get(s) ?? 0) + n * (12 - i)));
+    g.jobs.forEach((s, i) => jobs.set(s, (jobs.get(s) ?? 0) + n * (12 - i)));
+  }
+  const top = (m: Map<string, number>) => [...m.entries()].sort((a, b) => b[1] - a[1]).slice(0, 10).map(([k]) => k);
+  if (!subj.size) return null;
+  return (
+    <div className="mt-2 grid gap-3 md:grid-cols-2">
+      <div className="rounded-xl bg-slate-50 p-3">
+        <div className="text-xs font-semibold text-slate-500">전국 대학에서 많이 가르치는 교과목</div>
+        <div className="mt-1.5 flex flex-wrap gap-1">{top(subj).map((s) => <span key={s} className="chip bg-white">{s}</span>)}</div>
+      </div>
+      <div className="rounded-xl bg-slate-50 p-3">
+        <div className="text-xs font-semibold text-slate-500">대학이 밝힌 관련 직업</div>
+        <div className="mt-1.5 flex flex-wrap gap-1">{top(jobs).map((s) => <span key={s} className="chip bg-white">{s}</span>)}</div>
       </div>
     </div>
   );
