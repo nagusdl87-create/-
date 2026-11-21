@@ -118,20 +118,31 @@ async function uploads(ch) {
   return out;
 }
 
-function pick(all, kws) {
+const stem = (x) => x.replace(/(학과|학부|과)$/, "");
+// "학과정보_수학ㆍ통계학과" → ["수학", "통계"] 같은 학과 이름 후보
+function majorParts(title) {
+  const m = title.match(/학과정보[_\s:]*([^|\-]+)/);
+  if (!m) return [];
+  return m[1].split(/[ㆍ·,\/]/).map((x) => stem(norm(x))).filter(Boolean);
+}
+
+function pick(all, kws, isMajor = false) {
   const scored = [];
   for (const v of all) {
     const n = norm(v.title), h = head(v.title);
+    const parts = isMajor ? majorParts(v.title) : [];
     let best = 0;
     kws.forEach((k, ki) => {
       const kk = norm(k);
       const w = 1 - ki * 0.05; // 앞쪽 키워드 우선
       let s = 0;
       if (h === kk || n === kk) s = 3;
+      else if (isMajor && parts.includes(stem(kk))) s = 3 - (parts.length - 1) * 0.3;
       else if (h.startsWith(kk) || n.startsWith(kk)) s = 2;
       else if (kk.length >= 4 && n.includes(kk)) s = 1;
       best = Math.max(best, s * w);
     });
+    if (/Q&A|면세점|브이로그|vlog/i.test(v.title)) best *= 0.3;
     if (best > 0) scored.push({ v, s: best + v.bonus - Math.min(n.length, 60) / 200 });
   }
   scored.sort((a, b) => b.s - a.s);
@@ -154,7 +165,7 @@ async function filterEmbeddable(list) {
 
 const all = (await Promise.all(CHANNELS.map(uploads))).flat();
 const jobs = Object.fromEntries(Object.entries(JOB_KW).map(([id, kw]) => [id, pick(all, kw)]));
-const majors = Object.fromEntries(Object.entries(MAJOR_KW).map(([id, kw]) => [id, pick(all, kw)]));
+const majors = Object.fromEntries(Object.entries(MAJOR_KW).map(([id, kw]) => [id, pick(all, kw, true)]));
 const ok = await filterEmbeddable([...Object.values(jobs), ...Object.values(majors)].flat());
 const clean = (m) => Object.fromEntries(Object.entries(m).map(([k, vs]) => [k, vs.filter((v) => ok.has(v.id)).slice(0, 3).map(({ id, title, channel }) => ({ id, title, channel }))]).filter(([, vs]) => vs.length));
 const out = { asOf: new Date().toISOString().slice(0, 10), source: CHANNELS.map((c) => c.name).join(", "), jobs: clean(jobs), majors: clean(majors) };
