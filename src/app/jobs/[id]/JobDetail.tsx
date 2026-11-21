@@ -13,6 +13,8 @@ import { MAJORS } from "@/data/majors";
 import { JOB_VIDEOS } from "@/data/videos";
 import { Videos } from "@/components/Videos";
 import { GN_INDUSTRIES } from "@/data/gn";
+import { JOB_DETAILS } from "@/data/jobDetails";
+import { Award, Building2, Sparkles, TrendingUp } from "lucide-react";
 
 export function JobDetail({ id }: { id: string }) {
   const job = JOB_MAP[id];
@@ -27,6 +29,7 @@ export function JobDetail({ id }: { id: string }) {
   }, [ready, id, update]);
   const tested = ready && isTestComplete(state.answers);
   const score = tested ? jobMatch(job, riasecScores(state.answers), state.values) : null;
+  const more = JOB_DETAILS[job.id];
   const majors = MAJORS.filter((m) => m.jobs.includes(job.id));
   const inds = GN_INDUSTRIES.filter((i) => i.jobs.includes(job.id));
   const similar = JOBS.filter((j) => j.id !== job.id && (j.field === job.field || j.riasec[0] === job.riasec[0])).slice(0, 4);
@@ -98,6 +101,48 @@ export function JobDetail({ id }: { id: string }) {
           </Link>
         </div>
       </div>
+
+      {more && (
+        <div className="grid gap-4 md:grid-cols-2">
+          <div className="card">
+            <h2 className="flex items-center gap-1.5 font-bold"><Sparkles className="h-4 w-4 text-brand-600" aria-hidden /> 이런 사람에게 잘 맞아요</h2>
+            <div className="mt-2 flex flex-wrap gap-1.5">
+              {more.aptitude.map((t) => (
+                <span key={t} className="chip">{t}</span>
+              ))}
+            </div>
+            <h3 className="mt-4 text-sm font-bold text-slate-800">되는 방법</h3>
+            <ol className="mt-1.5 space-y-1.5 text-sm text-slate-700">
+              {more.prepare.map((t, i) => (
+                <li key={t} className="flex gap-2"><span className="grid h-5 w-5 shrink-0 place-items-center rounded-full bg-brand-100 text-[11px] font-bold text-brand-800">{i + 1}</span>{t}</li>
+              ))}
+            </ol>
+          </div>
+          <div className="card space-y-4">
+            <div>
+              <h2 className="flex items-center gap-1.5 font-bold"><Building2 className="h-4 w-4 text-sky-600" aria-hidden /> 일하는 곳</h2>
+              <p className="mt-1.5 text-sm text-slate-700">{more.places.join(" · ")}</p>
+            </div>
+            <div>
+              <h2 className="flex items-center gap-1.5 font-bold"><Award className="h-4 w-4 text-amber-600" aria-hidden /> 관련 자격</h2>
+              {more.certs.length ? (
+                <div className="mt-1.5 flex flex-wrap gap-1.5">
+                  {more.certs.map((c) => (
+                    <span key={c} className="rounded-lg bg-amber-50 px-2 py-1 text-xs font-medium text-amber-900">{c}</span>
+                  ))}
+                </div>
+              ) : (
+                <p className="mt-1.5 text-sm text-slate-500">꼭 필요한 자격증보다 실력과 경험(작품·경력)이 중요한 직업이에요.</p>
+              )}
+              <a href="https://www.q-net.or.kr" target="_blank" rel="noreferrer" className="mt-1.5 inline-block text-xs text-slate-500 underline">응시 자격·시험 일정은 큐넷에서 확인</a>
+            </div>
+            <div>
+              <h2 className="flex items-center gap-1.5 font-bold"><TrendingUp className="h-4 w-4 text-violet-600" aria-hidden /> 앞으로의 전망</h2>
+              <p className="mt-1.5 text-sm text-slate-700">{more.outlook}</p>
+            </div>
+          </div>
+        </div>
+      )}
 
       {(job.gn || inds.length > 0) && (
         <div className="card border-emerald-200 bg-emerald-50">

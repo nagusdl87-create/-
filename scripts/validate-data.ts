@@ -2,6 +2,8 @@
 import { SUBJECT_MAP, TRACKS, SUBJECTS } from "../src/data/subjects";
 import { JOBS, JOB_MAP } from "../src/data/jobs";
 import { MAJORS } from "../src/data/majors";
+import { JOB_DETAILS } from "../src/data/jobDetails";
+import { MAJOR_DETAILS } from "../src/data/majorDetails";
 import { SAMPLE_CURRICULUM, SEM_KEYS } from "../src/data/curriculum";
 import { GN_INDUSTRIES, GN_SCHOOLS, EXPERIENCE_SCHOOLS, GENERAL_WITH_VOC } from "../src/data/gn";
 const errs: string[] = [];
@@ -15,6 +17,8 @@ GN_INDUSTRIES.forEach((i) => { i.schools.forEach((s) => names.has(s) || errs.pus
 [...EXPERIENCE_SCHOOLS, ...GENERAL_WITH_VOC.map((g) => g.school)].forEach((s) => names.has(s) || errs.push(`학교 없음: ${s}`));
 SEM_KEYS.forEach((s) => { const c = SAMPLE_CURRICULUM.sems[s]; [...c.fixed, ...c.groups.flatMap((g) => g.options)].forEach((i) => subj(i.name, "예시편제표:" + s)); });
 const ids = JOBS.map((j) => j.id); ids.forEach((id, i) => ids.indexOf(id) !== i && errs.push("중복 직업 " + id));
+JOBS.forEach((j) => JOB_DETAILS[j.id] || errs.push(`직업 상세 없음: ${j.id}`));
+MAJORS.forEach((m) => MAJOR_DETAILS[m.id] || errs.push(`학과 상세 없음: ${m.id}`));
 console.log(`과목 ${SUBJECTS.length} · 직업 ${JOBS.length} · 학과 ${MAJORS.length} · 경남 고교 ${GN_SCHOOLS.length}`);
 console.log(errs.length ? errs.join("\n") : "OK");
 process.exit(errs.length ? 1 : 0);

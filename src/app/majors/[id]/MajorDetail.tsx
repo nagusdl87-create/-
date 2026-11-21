@@ -1,6 +1,7 @@
 "use client";
 
-import { Heart } from "lucide-react";
+import { Award, Heart, Lightbulb, Sparkles } from "lucide-react";
+import { MAJOR_DETAILS } from "@/data/majorDetails";
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -20,6 +21,7 @@ export function MajorDetail({ id }: { id: string }) {
   const router = useRouter();
   const { state, update } = useStore();
   const on = state.favMajors.includes(m.id);
+  const more = MAJOR_DETAILS[m.id];
   const similar = MAJORS.filter((x) => x.track === m.track && x.id !== m.id).slice(0, 6);
   const placed = new Set(Object.values(state.credits.plan).flat().map((e) => e.split("|")[0]));
 
@@ -69,11 +71,48 @@ export function MajorDetail({ id }: { id: string }) {
               router.push("/credits");
             }}
           >
-            🧮 이 학과 기준으로 192학점 설계하기
+            이 학과 기준으로 192학점 설계하기
           </button>
         </div>
         <p className="mt-2 text-xs text-slate-400">일반적인 안내예요. 지원할 대학의 학과별 권장과목은 반드시 대학 발표 자료로 확인하세요.</p>
       </div>
+
+      {more && (
+        <div className="grid gap-4 md:grid-cols-2">
+          <div className="card">
+            <h2 className="flex items-center gap-1.5 font-bold"><Sparkles className="h-4 w-4 text-brand-600" aria-hidden /> 이런 학생에게 잘 맞아요</h2>
+            <div className="mt-2 flex flex-wrap gap-1.5">
+              {more.aptitude.map((t) => (
+                <span key={t} className="chip">{t}</span>
+              ))}
+            </div>
+            <h3 className="mt-4 text-sm font-bold text-slate-800">고등학교에서 해 볼 활동</h3>
+            <ul className="mt-1.5 space-y-1.5 text-sm text-slate-700">
+              {more.activities.map((t) => (
+                <li key={t}>✓ {t}</li>
+              ))}
+            </ul>
+          </div>
+          <div className="card space-y-4">
+            <div>
+              <h2 className="flex items-center gap-1.5 font-bold"><Lightbulb className="h-4 w-4 text-violet-600" aria-hidden /> 알아 두면 좋은 점</h2>
+              <p className="mt-1.5 text-sm leading-relaxed text-slate-700">{more.tip}</p>
+            </div>
+            <div>
+              <h2 className="flex items-center gap-1.5 font-bold"><Award className="h-4 w-4 text-amber-600" aria-hidden /> 관련 자격·면허</h2>
+              {more.certs.length ? (
+                <div className="mt-1.5 flex flex-wrap gap-1.5">
+                  {more.certs.map((c) => (
+                    <span key={c} className="rounded-lg bg-amber-50 px-2 py-1 text-xs font-medium text-amber-900">{c}</span>
+                  ))}
+                </div>
+              ) : (
+                <p className="mt-1.5 text-sm text-slate-500">특정 자격보다 전공 지식과 경험이 중요한 학과예요.</p>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
 
       <div className="card">
         <h2 className="mb-3 font-bold">학과 소개 영상</h2>
