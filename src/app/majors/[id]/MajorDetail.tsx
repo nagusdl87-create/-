@@ -12,7 +12,7 @@ import { OFFICIAL } from "@/data/gn";
 import { MAJOR_MATCH } from "@/data/majorMatch";
 import { UniversityList } from "@/components/UniversityList";
 import { useUniv } from "@/lib/univ";
-import { MAJOR_VIDEOS } from "@/data/videos";
+import { majorVideos } from "@/data/videos";
 import { Videos } from "@/components/Videos";
 import { toggleIn, useStore } from "@/lib/store";
 
@@ -116,7 +116,7 @@ export function MajorDetail({ id }: { id: string }) {
 
       <div className="card">
         <h2 className="mb-3 font-bold">학과 소개 영상</h2>
-        <Videos videos={MAJOR_VIDEOS[m.id] ?? []} query={m.name} />
+        <Videos videos={majorVideos(m.id)} query={m.name} />
       </div>
 
       <div className="grid gap-4 md:grid-cols-2">

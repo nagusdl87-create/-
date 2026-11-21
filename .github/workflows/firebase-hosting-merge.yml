@@ -4,6 +4,8 @@ on:
   push:
     branches: [main]
   workflow_dispatch:
+  schedule:
+    - cron: "17 18 * * 0" # 매주 월요일 03:17(한국) 영상 목록 갱신 후 재배포
 
 jobs:
   deploy:
@@ -17,6 +19,10 @@ jobs:
           node-version-file: .nvmrc
           cache: npm
       - run: npm ci
+      - name: 공식 채널 영상 목록 갱신 (YOUTUBE_API_KEY 없으면 건너뜀)
+        run: node scripts/fetch-videos.mjs || echo "영상 갱신 실패 → 저장된 목록 사용"
+        env:
+          YOUTUBE_API_KEY: ${{ secrets.YOUTUBE_API_KEY }}
       - run: npm run validate
       - run: npm run build
       - uses: FirebaseExtended/action-hosting-deploy@v0
