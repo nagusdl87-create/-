@@ -137,6 +137,17 @@ firebase emulators:start --only hosting   # http://localhost:5000
 
 데이터를 고친 뒤에는 `npm run validate`로 참조 오류(없는 과목명, 없는 직업 id, 없는 학교명)를 확인하세요.
 
+## 5. 외부 API 인증키 (선택)
+
+키는 저장소·코드·대화에 넣지 않고 **GitHub 저장소 → Settings → Secrets and variables → Actions → New repository secret**에만 등록한다. 빌드 단계(GitHub Actions)에서 읽어 JSON으로 저장하므로 방문자 브라우저에는 키가 노출되지 않는다.
+
+| Secret 이름 | 발급처 | 용도 |
+|---|---|---|
+| `CAREERNET_API_KEY` | 커리어넷 Open API 센터(career.go.kr) → 회원 로그인 → 오픈API 신청 → 담당자 승인 → 인증신청현황에서 확인 | 직업·학과 정보 확장 |
+| `NEIS_API_KEY` | 나이스 교육정보 개방 포털(open.neis.go.kr) → 회원가입 → 인증키 신청 | 학교 급식·시간표 |
+| `YOUTUBE_API_KEY` | Google Cloud Console → 프로젝트 → YouTube Data API v3 사용 설정 → 사용자 인증 정보 → API 키(제한: YouTube Data API v3) | 직업 영상 자동 연결 |
+| `DATA_GO_KR_KEY` | 공공데이터포털(data.go.kr) → 데이터 활용신청 → 마이페이지 일반 인증키(Decoding) | 공공데이터 자동 갱신 |
+
 ## 4. 테스트
 ```bash
 npm run build
