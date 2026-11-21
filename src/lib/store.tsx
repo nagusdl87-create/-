@@ -5,6 +5,7 @@ import type { ValueId } from "@/data/riasec";
 import type { HsTypeId } from "@/data/jobs";
 import type { TrackId } from "@/data/subjects";
 import { DEFAULT_TASKS, TERMS, type Stage, type Term } from "@/data/plan";
+import type { SchoolCurriculum } from "@/data/curriculum";
 
 export type Task = { id: string; text: string; done: boolean };
 export type Goal = { id: string; term: Term; subject: string; text: string; done: boolean };
@@ -41,7 +42,13 @@ export type AppState = {
   logs: Log[];
   books: Book[];
   hypothesis: string;
-  credits: { track: TrackId | ""; plan: Record<Sem, string[]> };
+  credits: {
+    track: TrackId | "";
+    plan: Record<Sem, string[]>;
+    curriculum: SchoolCurriculum | null; // 학교 편제표 (있으면 편제표 모드)
+    picks: Record<string, string[]>; // 선택군 id → 고른 과목
+    extra: Record<Sem, string[]>; // 편제표 외 추가 과목(공동교육과정 등)
+  };
   grades: GradeRow[];
   portfolio: Record<string, string>;
 };
@@ -74,7 +81,7 @@ export function initialState(): AppState {
     logs: [],
     books: [],
     hypothesis: "",
-    credits: { track: "", plan: emptyPlan() },
+    credits: { track: "", plan: emptyPlan(), curriculum: null, picks: {}, extra: emptyPlan() },
     grades: [],
     portfolio: {},
   };
@@ -89,7 +96,14 @@ function sanitize(raw: unknown): AppState {
     ...r,
     profile: { ...base.profile, ...(r.profile ?? {}) },
     tasks: { ...base.tasks, ...(r.tasks ?? {}) },
-    credits: { ...base.credits, ...(r.credits ?? {}), plan: { ...emptyPlan(), ...(r.credits?.plan ?? {}) } },
+    credits: {
+      ...base.credits,
+      ...(r.credits ?? {}),
+      plan: { ...emptyPlan(), ...(r.credits?.plan ?? {}) },
+      extra: { ...emptyPlan(), ...(r.credits?.extra ?? {}) },
+      picks: r.credits?.picks ?? {},
+      curriculum: r.credits?.curriculum ?? null,
+    },
     version: 2,
   };
   // v1(중학생 전용) 데이터 이관

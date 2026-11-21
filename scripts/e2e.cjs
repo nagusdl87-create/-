@@ -87,11 +87,33 @@ async function answerDiscover(p) {
   console.log('search 항공:', (await m.innerText('main')).match(/검색 결과 \d+건/)?.[0]);
   await m.goto(B + '/industry'); await m.click('button:has-text("항공·우주")'); await m.screenshot({ path: D + '13-industry.png', fullPage: true });
 
+  // ── 편제표 모드
+  {
+    const cp = await ctx.newPage(); watch(cp, 'curr');
+    await cp.goto(B + '/credits/school'); await cp.waitForTimeout(300);
+    await cp.click('text=예시 불러오기'); await cp.waitForTimeout(200);
+    await cp.click('text=🔗 공유 링크 복사'); await cp.waitForTimeout(200);
+    const share = await cp.evaluate(() => navigator.clipboard.readText());
+    await cp.click('text=✅ 이 편제표로 설계하기'); await cp.waitForURL('**/credits');
+    await cp.click('text=계열·학과 추천대로 선택군 채우기'); await cp.waitForTimeout(300);
+    const counters = await cp.locator('fieldset legend').allInnerTexts();
+    console.log('groups filled:', counters.filter((c) => /\((\d+)\/\1\)/.test(c)).length, '/', counters.length);
+    // 꽉 찬 선택군에 하나 더 고르면 안내 문구
+    const fs0 = cp.locator('fieldset').first();
+    const free = fs0.locator('button[aria-pressed="false"]:not([disabled])').first();
+    if (await free.count()) { await free.click(); console.log('cap message:', await cp.locator('[role=status]').first().innerText()); }
+    console.log('curr total:', await cp.locator('aside .text-3xl').first().innerText());
+    await cp.screenshot({ path: D + '17-curriculum.png', fullPage: true });
+    const sp = await (await b.newContext()).newPage(); watch(sp, 'currshare');
+    await sp.goto(share); await sp.waitForTimeout(400);
+    console.log('shared curriculum banner:', (await sp.locator('text=공유받은 편제표').count()) > 0);
+  }
+
   // ── 모든 페이지 모바일 점검
   const mc = await b.newContext({ viewport: { width: 390, height: 844 }, deviceScaleFactor: 2 });
   const mp = await mc.newPage(); watch(mp, 'mobile');
   await mp.goto(B); await mp.click('text=고등학생이에요');
-  const routes = ['/', '/discover', '/jobs', '/jobs/shipbuilding', '/majors', '/majors/medicine', '/path', '/credits', '/subjects', '/schools', '/highschool', '/admission', '/industry', '/tests', '/resources', '/guide', '/portfolio', '/plan', '/report', '/explore', '/tools', '/search?q=로봇', '/nope'];
+  const routes = ['/', '/discover', '/jobs', '/jobs/shipbuilding', '/majors', '/majors/medicine', '/path', '/credits', '/credits/school', '/subjects', '/schools', '/highschool', '/admission', '/industry', '/tests', '/resources', '/guide', '/portfolio', '/plan', '/report', '/explore', '/tools', '/search?q=로봇', '/nope'];
   for (const r of routes) {
     const res = await mp.goto(B + r); await mp.waitForTimeout(r === '/schools' ? 1200 : 250);
     const ov = await mp.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);

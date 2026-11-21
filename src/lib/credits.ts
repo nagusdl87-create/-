@@ -1,5 +1,6 @@
 import { CREDIT_RULES, SUBJECT_MAP, TRACKS, type Group, type TrackId } from "@/data/subjects";
 import { SEMS, type Sem } from "./store";
+import type { SchoolCurriculum } from "@/data/curriculum";
 
 // 계획 항목 표기: "과목명" 또는 "과목명|학점"
 export function parseEntry(e: string) {
@@ -158,6 +159,32 @@ export function autoFill(plan: Record<Sem, string[]>, track: TrackId): Record<Se
       const total = analyze(next, track).total;
       if (total >= 174) break;
       place(name, 174 - total < 4 ? Math.max(1, 174 - total) : undefined, cap);
+    }
+  }
+  return next;
+}
+
+// 편제표 선택군에서 추천 순서대로 자동 선택 (이미 고른 것은 유지, 다른 학기와 중복 방지)
+export function autoPick(c: SchoolCurriculum, picks: Record<string, string[]>, rank: (name: string) => number): Record<string, string[]> {
+  const next: Record<string, string[]> = { ...picks };
+  const taken = new Set<string>();
+  for (const s of SEMS) {
+    c.sems[s].fixed.forEach((i) => taken.add(i.name));
+    c.sems[s].groups.forEach((g) => (next[g.id] ?? []).forEach((n) => taken.add(n)));
+  }
+  for (const s of SEMS) {
+    for (const g of c.sems[s].groups) {
+      const cur = [...(next[g.id] ?? [])];
+      const cands = g.options
+        .map((o, i) => ({ n: o.name, r: rank(o.name), i }))
+        .filter((o) => !taken.has(o.n))
+        .sort((a, b) => b.r - a.r || a.i - b.i);
+      for (const o of cands) {
+        if (cur.length >= g.pick) break;
+        cur.push(o.n);
+        taken.add(o.n);
+      }
+      next[g.id] = cur;
     }
   }
   return next;

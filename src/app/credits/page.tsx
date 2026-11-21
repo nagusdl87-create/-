@@ -3,7 +3,8 @@
 import { useMemo, useState } from "react";
 import Link from "next/link";
 import { SEMS, useStore, type Sem } from "@/lib/store";
-import { analyze, autoFill, entry, parseEntry, SEM_LABEL, TEMPLATE_Y1 } from "@/lib/credits";
+import { analyze, autoFill, autoPick, entry, parseEntry, SEM_LABEL, TEMPLATE_Y1 } from "@/lib/credits";
+import { curriculumToPlan, type SchoolCurriculum } from "@/data/curriculum";
 import { CAT_INFO, CREDIT_RULES, GROUPS, SUBJECTS, TRACKS, type Cat, type Group, type TrackId } from "@/data/subjects";
 import { MAJOR_MAP } from "@/data/majors";
 import { PageHead } from "@/components/ui";
@@ -19,6 +20,13 @@ export default function CreditsPage() {
 
   const setPlan = (fn: (p: typeof plan) => typeof plan) => update((s) => ({ ...s, credits: { ...s.credits, plan: fn(s.credits.plan) } }));
   const setTrack = (t: TrackId | "") => update((s) => ({ ...s, credits: { ...s.credits, track: t } }));
+  const cur = state.credits.curriculum;
+  // 편제표 모드: 선택·추가 과목이 바뀌면 계획을 다시 계산
+  const setCurr = (fn: (c: typeof state.credits) => Partial<typeof state.credits>) =>
+    update((s) => {
+      const nextC = { ...s.credits, ...fn(s.credits) };
+      return { ...s, credits: nextC.curriculum ? { ...nextC, plan: curriculumToPlan(nextC.curriculum, nextC.picks, nextC.extra) } : nextC };
+    });
   const majorHints = state.favMajors.map((id) => MAJOR_MAP[id]).filter(Boolean);
   // 계열 추천 + 찜한 학과의 핵심·권장 과목을 함께 표시
   const star = (name: string) => {
@@ -59,6 +67,17 @@ export default function CreditsPage() {
             ))}
           </p>
         )}
+        {cur ? (
+        <div className="mt-3 flex flex-wrap gap-2">
+          <button className="btn-primary" disabled={!track && !majorHints.length} onClick={() => setCurr((c) => ({ picks: autoPick(c.curriculum!, c.picks, (n) => (star(n) === "core" ? 2 : star(n) === "rec" ? 1 : 0)) }))}>
+            ✨ 계열·학과 추천대로 선택군 채우기
+          </button>
+          <button className="btn-ghost" onClick={() => window.print()}>🖨️ 학업설계서 인쇄</button>
+          <button className="btn-ghost text-rose-600" onClick={() => confirm("선택한 과목을 모두 지울까요?") && setCurr(() => ({ picks: {}, extra: Object.fromEntries(SEMS.map((s) => [s, []])) as unknown as Record<Sem, string[]> }))}>
+            선택 초기화
+          </button>
+        </div>
+        ) : (
         <div className="mt-3 flex flex-wrap gap-2">
           <button className="btn-ghost" onClick={() => setPlan((p) => ({ ...p, ...TEMPLATE_Y1 }))}>
             ② 1학년 공통과목 채우기
@@ -73,10 +92,30 @@ export default function CreditsPage() {
             초기화
           </button>
         </div>
+        )}
         <p className="mt-2 text-xs text-slate-400">
           1학년 편성과 개설 과목은 학교마다 달라요. 내 학교 교육과정 편제표(학교 누리집·
           <a className="underline" href="https://www.hscredit.kr/" target="_blank" rel="noreferrer">고교학점제 누리집</a>)를 보면서 수정하세요.
         </p>
+      </div>
+
+      <div className={`card no-print mb-4 flex flex-wrap items-center justify-between gap-3 ${cur ? "border-emerald-300 bg-emerald-50" : ""}`}>
+        <div>
+          <div className="text-sm font-bold">{cur ? `🏫 편제표 모드 · ${cur.school}` : "📝 자유 설계 모드"}</div>
+          <p className="text-xs text-slate-600">
+            {cur
+              ? `${cur.year ? cur.year + " · " : ""}학교 지정 과목은 잠겨 있고, 선택군에서 정해진 개수만큼 고를 수 있어요.`
+              : "학교 편제표를 등록하면 지정 과목 잠금과 선택군(택N) 제한이 적용된 실제 수강 신청처럼 설계할 수 있어요."}
+          </p>
+        </div>
+        <div className="flex flex-wrap gap-2">
+          <Link href="/credits/school" className="btn-ghost">{cur ? "편제표 수정" : "🏫 학교 편제표 등록"}</Link>
+          {cur && (
+            <button className="btn-ghost" onClick={() => confirm("편제표 모드를 끄고 자유 설계로 돌아갈까요? (지금 설계는 그대로 남아요)") && update((s) => ({ ...s, credits: { ...s.credits, curriculum: null } }))}>
+              자유 설계로 전환
+            </button>
+          )}
+        </div>
       </div>
 
       <div className="hidden print:block">
@@ -92,6 +131,19 @@ export default function CreditsPage() {
                 <div className="font-bold">{SEM_LABEL[sem]}</div>
                 <span className={`text-sm font-extrabold ${a.semTotals[sem] >= 25 && a.semTotals[sem] <= 33 ? "text-brand-600" : "text-slate-400"}`}>{a.semTotals[sem]}학점</span>
               </div>
+              {cur ? (
+                <CurriculumSem c={cur} sem={sem} picks={state.credits.picks} extra={state.credits.extra[sem] ?? []} star={star}
+                  onToggle={(gid, name, pick) =>
+                    setCurr((c) => {
+                      const now = c.picks[gid] ?? [];
+                      if (now.includes(name)) return { picks: { ...c.picks, [gid]: now.filter((x) => x !== name) } };
+                      if (now.length >= pick) return {};
+                      return { picks: { ...c.picks, [gid]: [...now, name] } };
+                    })
+                  }
+                  onRemoveExtra={(k) => setCurr((c) => ({ extra: { ...c.extra, [sem]: (c.extra[sem] ?? []).filter((_, x) => x !== k) } }))}
+                />
+              ) : (
               <ul className="space-y-1">
                 {plan[sem].map((e, i) => {
                   const { name, credits, subject } = parseEntry(e);
@@ -125,8 +177,9 @@ export default function CreditsPage() {
                   );
                 })}
               </ul>
+              )}
               <button className="no-print mt-2 w-full rounded-lg border-2 border-dashed border-slate-200 py-1.5 text-sm font-semibold text-slate-500 hover:border-brand-300 hover:text-brand-600" onClick={() => setAdding(sem)}>
-                + 과목 담기
+                {cur ? "+ 공동교육과정·추가 과목" : "+ 과목 담기"}
               </button>
             </div>
           ))}
@@ -209,7 +262,7 @@ export default function CreditsPage() {
           placed={a.placed}
           majorSubjects={majorHints.flatMap((m) => [...m.core, ...m.rec])}
           onClose={() => setAdding(null)}
-          onPick={(name) => setPlan((p) => ({ ...p, [adding]: [...p[adding], name] }))}
+          onPick={(name) => (cur ? setCurr((c) => ({ extra: { ...c.extra, [adding]: [...(c.extra[adding] ?? []), name] } })) : setPlan((p) => ({ ...p, [adding]: [...p[adding], name] })))}
         />
       )}
     </div>
@@ -301,3 +354,98 @@ function SubjectPicker({ sem, track, placed, majorSubjects, onClose, onPick }: {
   );
 }
 
+
+function CurriculumSem({
+  c, sem, picks, extra, star, onToggle, onRemoveExtra,
+}: {
+  c: SchoolCurriculum;
+  sem: Sem;
+  picks: Record<string, string[]>;
+  extra: string[];
+  star: (n: string) => "core" | "rec" | null;
+  onToggle: (gid: string, name: string, pick: number) => void;
+  onRemoveExtra: (i: number) => void;
+}) {
+  const [msg, setMsg] = useState("");
+  const s = c.sems[sem];
+  // 다른 학기·다른 선택군에서 이미 고른 과목
+  const elsewhere = (gid: string) => {
+    const set = new Set<string>();
+    for (const k of Object.keys(c.sems) as Sem[]) {
+      c.sems[k].fixed.forEach((i) => set.add(i.name));
+      c.sems[k].groups.forEach((g) => g.id !== gid && (picks[g.id] ?? []).forEach((n) => set.add(n)));
+    }
+    return set;
+  };
+  return (
+    <div className="space-y-2">
+      {s.fixed.length > 0 && (
+        <ul className="space-y-1">
+          {s.fixed.map((i) => (
+            <li key={i.name} className="flex items-center gap-2 rounded-lg bg-slate-100 px-2 py-1.5 text-sm text-slate-600">
+              <span aria-hidden>🔒</span>
+              <span className="flex-1 truncate">{i.name}</span>
+              <span className="text-xs">{i.credits}학점</span>
+            </li>
+          ))}
+        </ul>
+      )}
+      {s.groups.map((g) => {
+        const chosen = picks[g.id] ?? [];
+        const other = elsewhere(g.id);
+        const full = chosen.length >= g.pick;
+        return (
+          <fieldset key={g.id} className={`rounded-xl border p-2 ${full ? "border-emerald-200 bg-emerald-50/50" : "border-amber-200 bg-amber-50/40"}`}>
+            <legend className="px-1 text-xs font-bold text-slate-600">
+              {g.label} · 택{g.pick} <span className={full ? "text-emerald-600" : "text-amber-600"}>({chosen.length}/{g.pick})</span>
+            </legend>
+            <div className="flex flex-wrap gap-1">
+              {g.options.map((o) => {
+                const on = chosen.includes(o.name);
+                const dup = !on && other.has(o.name);
+                const st = star(o.name);
+                return (
+                  <button
+                    key={o.name}
+                    aria-pressed={on}
+                    disabled={dup}
+                    title={dup ? "다른 학기·선택군에서 이미 골랐어요" : undefined}
+                    onClick={() => {
+                      if (!on && full) {
+                        setMsg(`${g.label}은(는) ${g.pick}과목까지 고를 수 있어요. 다른 과목을 먼저 빼 주세요.`);
+                        setTimeout(() => setMsg(""), 2500);
+                        return;
+                      }
+                      onToggle(g.id, o.name, g.pick);
+                    }}
+                    className={`rounded-lg border px-2 py-1 text-xs font-semibold transition ${on ? "border-brand-500 bg-brand-600 text-white" : dup ? "border-slate-100 bg-slate-50 text-slate-300 line-through" : "border-slate-200 bg-white text-slate-700 hover:border-brand-300"}`}
+                  >
+                    {st === "core" && "★ "}
+                    {st === "rec" && "☆ "}
+                    {o.name} <span className="opacity-70">{o.credits}</span>
+                  </button>
+                );
+              })}
+            </div>
+          </fieldset>
+        );
+      })}
+      {msg && <p className="text-xs font-semibold text-amber-700" role="status">{msg}</p>}
+      {extra.length > 0 && (
+        <ul className="space-y-1">
+          {extra.map((e, k) => {
+            const p = parseEntry(e);
+            return (
+              <li key={e + k} className="flex items-center gap-2 rounded-lg border border-dashed border-slate-300 px-2 py-1.5 text-sm">
+                <span aria-hidden>➕</span>
+                <span className="flex-1 truncate">{p.name}</span>
+                <span className="text-xs text-slate-500">{p.credits}학점</span>
+                <button className="no-print text-xs text-slate-300 hover:text-rose-500" aria-label={`${p.name} 빼기`} onClick={() => onRemoveExtra(k)}>✕</button>
+              </li>
+            );
+          })}
+        </ul>
+      )}
+    </div>
+  );
+}

@@ -24,6 +24,7 @@ BASE=http://localhost:5000 node scripts/e2e.cjs   # 전체 흐름 브라우저 �
 - 상태: `src/lib/store.tsx` 하나의 `AppState`를 localStorage(`myroad:v1`)에 저장. 필드를 추가하면 `initialState`와 `sanitize`를 함께 고친다(구버전 데이터 호환).
 - 학교급: `profile.stage` = `"ms" | "hs"`. 여정 단계는 `src/lib/journey.ts`, 진행률은 `src/lib/match.ts`의 `progress`.
 - 192학점 진단·자동 채우기: `src/lib/credits.ts` (규칙은 `src/data/subjects.ts`의 `CREDIT_RULES`).
+- 학교 편제표: `src/data/curriculum.ts`(형식·예시·공유 코드), 편집기 `/credits/school`. 편제표 모드에서는 `credits.curriculum + picks + extra`로 `credits.plan`을 다시 계산한다.
 - 데이터 파일: `src/data/` — `subjects.ts`(2022 개정 137과목), `jobs.ts`(51), `majors.ts`(56), `gn.ts`(경남 고입·산업·링크), `gn-schools.json`(203교), `gn-middle.json`(270교).
 - 지도: Leaflet + OpenStreetMap 타일(`src/components/SchoolMap.tsx`, 클라이언트 전용 dynamic import).
 
