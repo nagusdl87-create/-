@@ -1,10 +1,21 @@
-// 제작자·저작권 표기
-export const AUTHOR = { name: "윤용현", org: "삼천포여자중학교", role: "교사", year: 2026 };
+// 제작자·저작권 표기 (내용은 src/data/author.json 에서 수정)
+import author from "@/data/author.json";
+
+export const AUTHOR = author as { name: string; org: string; role: string; year: number; email: string };
 
 export function CreditLine({ className = "" }: { className?: string }) {
   return (
     <p className={className}>
-      제작: {AUTHOR.org} {AUTHOR.role} <b className="font-semibold text-slate-700">{AUTHOR.name}</b> · © {AUTHOR.year} {AUTHOR.name}. All rights reserved.
+      제작: {AUTHOR.org} {AUTHOR.role} <b className="font-semibold text-slate-700">{AUTHOR.name}</b>
+      {AUTHOR.email && (
+        <>
+          {" · "}
+          <a href={`mailto:${AUTHOR.email}`} className="hover:text-brand-700 hover:underline">
+            {AUTHOR.email}
+          </a>
+        </>
+      )}
+      {" "}· © {AUTHOR.year} {AUTHOR.name}. All rights reserved.
     </p>
   );
 }
@@ -17,6 +28,11 @@ export function CreditCard() {
         <div className="mt-0.5">
           {AUTHOR.org} {AUTHOR.role} <b className="text-slate-900">{AUTHOR.name}</b>
         </div>
+        {AUTHOR.email && (
+          <a href={`mailto:${AUTHOR.email}`} className="text-xs text-brand-700 hover:underline">
+            {AUTHOR.email}
+          </a>
+        )}
       </div>
       <div className="text-xs text-slate-500">
         © {AUTHOR.year} {AUTHOR.name}. All rights reserved. 이 플랫폼의 기획·구성·콘텐츠에 대한 저작권은 제작자에게 있어요.
