@@ -4,3 +4,9 @@ out
 *.tsbuildinfo
 next-env.d.ts
 .vercel
+
+# Firebase
+.firebase/
+firebase-debug.log
+*-debug.log
+service-account*.json

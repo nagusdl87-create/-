@@ -7,8 +7,10 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "validate": "npx tsx@4.19.2 scripts/validate-data.ts",
-    "build:schools": "python3 scripts/build-schools.py scripts/raw"
+    "validate": "tsx scripts/validate-data.ts",
+    "build:schools": "python3 scripts/build-schools.py scripts/raw",
+    "deploy": "next build && firebase deploy --only hosting",
+    "preview": "next build && npx serve@14.2.4 out -l 3000"
   },
   "dependencies": {
     "leaflet": "1.9.4",
@@ -24,6 +26,10 @@
     "autoprefixer": "10.4.21",
     "postcss": "8.5.6",
     "tailwindcss": "3.4.17",
+    "tsx": "4.19.2",
     "typescript": "5.8.3"
+  },
+  "engines": {
+    "node": ">=20"
   }
 }

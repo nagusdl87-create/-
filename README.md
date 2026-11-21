@@ -12,9 +12,11 @@ npm install
 npm run dev          # http://localhost:3000
 npm run build && npm start
 npm run validate     # 과목·직업·학과·학교 데이터 교차 검증
+npm run deploy       # Firebase Hosting 배포
 ```
 
-Vercel에 저장소를 연결하면 별도 설정 없이 배포됩니다 (Next.js 15, 130개 정적 페이지).
+**배포: Firebase Hosting + GitHub Actions.** 완전 정적 사이트(`out/`)로 빌드되며, `main`에 push하면 자동 배포됩니다.
+설정 방법과 다른 컴퓨터에서 이어 작업하는 방법은 [docs/DEVELOPMENT.md](docs/DEVELOPMENT.md), 남은 작업은 [docs/ROADMAP.md](docs/ROADMAP.md)를 보세요.
 
 ## 구성
 
