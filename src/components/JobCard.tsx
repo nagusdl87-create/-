@@ -1,0 +1,59 @@
+"use client";
+
+import Link from "next/link";
+import { FIELDS, type Job } from "@/data/jobs";
+import { RIASEC } from "@/data/riasec";
+import { useStore } from "@/lib/store";
+
+export function FavButton({ id, className = "" }: { id: string; className?: string }) {
+  const { state, update } = useStore();
+  const on = state.favorites.includes(id);
+  return (
+    <button
+      type="button"
+      aria-pressed={on}
+      aria-label={on ? "찜 해제" : "찜하기"}
+      onClick={(e) => {
+        e.preventDefault();
+        update((s) => ({ ...s, favorites: on ? s.favorites.filter((f) => f !== id) : [...s.favorites, id] }));
+      }}
+      className={`grid h-9 w-9 place-items-center rounded-full border text-lg transition ${
+        on ? "border-rose-200 bg-rose-50" : "border-slate-200 bg-white hover:bg-slate-50"
+      } ${className}`}
+    >
+      {on ? "❤️" : "🤍"}
+    </button>
+  );
+}
+
+export function JobCard({ job, score }: { job: Job; score?: number }) {
+  return (
+    <Link href={`/jobs/${job.id}`} className="card group flex flex-col gap-3 transition hover:border-brand-200 hover:shadow-md">
+      <div className="flex items-start justify-between gap-2">
+        <div className="flex items-center gap-3">
+          <span className="grid h-12 w-12 shrink-0 place-items-center rounded-xl bg-slate-100 text-2xl">{job.emoji}</span>
+          <div>
+            <div className="font-bold text-slate-900 group-hover:text-brand-700">{job.name}</div>
+            <div className="text-xs text-slate-500">
+              {FIELDS[job.field].emoji} {FIELDS[job.field].name}
+            </div>
+          </div>
+        </div>
+        <FavButton id={job.id} />
+      </div>
+      <p className="line-clamp-2 text-sm text-slate-600">{job.summary}</p>
+      <div className="mt-auto flex items-center justify-between">
+        <div className="flex gap-1">
+          {job.riasec.slice(0, 2).map((k) => (
+            <span key={k} className="rounded-md px-1.5 py-0.5 text-[11px] font-bold text-white" style={{ background: RIASEC[k].color }}>
+              {RIASEC[k].name}
+            </span>
+          ))}
+        </div>
+        {score !== undefined && (
+          <span className={`text-sm font-extrabold ${score >= 70 ? "text-brand-600" : "text-slate-400"}`}>나와 {score}% 잘 맞아요</span>
+        )}
+      </div>
+    </Link>
+  );
+}
