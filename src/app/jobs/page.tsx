@@ -82,7 +82,20 @@ export default function JobsPage() {
         </div>
       </div>
 
-      <div className="mb-2 text-sm text-slate-500">{list.length}개 직업</div>
+      <div className="mb-2 flex flex-wrap items-center justify-between gap-2 text-sm text-slate-500">
+        <span>{list.length}개 직업</span>
+        {ready && (() => {
+          let v: string[] = [];
+          try { v = JSON.parse(state.portfolio["viewed.jobs"] ?? "[]"); } catch {}
+          const n = JOBS.filter((j) => v.includes(j.id)).length;
+          return (
+            <span className="flex items-center gap-2">
+              직업 열람 진행률 {n} / {JOBS.length} ({Math.round((n / JOBS.length) * 100)}%)
+              <span className="h-1.5 w-24 overflow-hidden rounded-full bg-slate-200"><span className="block h-full bg-brand-500" style={{ width: `${(n / JOBS.length) * 100}%` }} /></span>
+            </span>
+          );
+        })()}
+      </div>
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
         {list.map(({ job, score }) => (
           <JobCard key={job.id} job={job} score={score} />

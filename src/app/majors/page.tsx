@@ -35,6 +35,13 @@ export default function MajorsPage() {
       />
       <div className="card mb-4 space-y-2 p-4">
         <input className="input" placeholder="학과·과목·진로 검색 (예: 반도체, 간호, 미적분Ⅱ)" value={q} onChange={(e) => setQ(e.target.value)} aria-label="학과 검색" />
+        <div className="flex flex-wrap gap-1.5">
+          {["컴퓨터", "반도체", "인공지능", "의예", "간호", "경영", "미디어", "로봇", "화학", "심리", "교육", "조선", "항공"].map((tg) => (
+            <button key={tg} className={`chip ${q === tg ? "chip-on" : ""}`} onClick={() => setQ(q === tg ? "" : tg)}>
+              #{tg}
+            </button>
+          ))}
+        </div>
         <div className="-mx-1 flex gap-1.5 overflow-x-auto px-1 pb-1">
           <button className={`chip shrink-0 ${track === "all" ? "chip-on" : ""}`} onClick={() => setTrack("all")}>전체 {MAJORS.length}</button>
           <button className={`chip shrink-0 ${track === "fav" ? "chip-on" : ""}`} onClick={() => setTrack("fav")}>❤️ 찜 {ready ? state.favMajors.length : 0}</button>

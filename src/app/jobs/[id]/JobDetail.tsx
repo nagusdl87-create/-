@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useEffect } from "react";
 import { FIELDS, JOBS, JOB_MAP } from "@/data/jobs";
 import { HS_MAP } from "@/data/highschools";
 import { RIASEC, VALUES } from "@/data/riasec";
@@ -13,7 +14,15 @@ import { GN_INDUSTRIES } from "@/data/gn";
 
 export function JobDetail({ id }: { id: string }) {
   const job = JOB_MAP[id];
-  const { state, ready } = useStore();
+  const { state, ready, update } = useStore();
+  // 열람 기록 (직업 열람 진행률)
+  useEffect(() => {
+    if (!ready) return;
+    update((s) => {
+      const v: string[] = (() => { try { return JSON.parse(s.portfolio["viewed.jobs"] ?? "[]"); } catch { return []; } })();
+      return v.includes(id) ? s : { ...s, portfolio: { ...s.portfolio, "viewed.jobs": JSON.stringify([...v, id]) } };
+    });
+  }, [ready, id, update]);
   const tested = ready && isTestComplete(state.answers);
   const score = tested ? jobMatch(job, riasecScores(state.answers), state.values) : null;
   const majors = MAJORS.filter((m) => m.jobs.includes(job.id));
