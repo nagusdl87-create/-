@@ -12,7 +12,7 @@ import { OFFICIAL } from "@/data/gn";
 import { MAJOR_MATCH } from "@/data/majorMatch";
 import { UniversityList } from "@/components/UniversityList";
 import { useUniv } from "@/lib/univ";
-import { majorVideos } from "@/data/videos";
+import { majorVideos, relatedJobVideos } from "@/data/videos";
 import { Videos } from "@/components/Videos";
 import { toggleIn, useStore } from "@/lib/store";
 
@@ -115,8 +115,18 @@ export function MajorDetail({ id }: { id: string }) {
       )}
 
       <div className="card">
-        <h2 className="mb-3 font-bold">학과 소개 영상</h2>
-        <Videos videos={majorVideos(m.id)} query={m.name} />
+        {majorVideos(m.id).length > 0 ? (
+          <>
+            <h2 className="mb-3 font-bold">학과 소개 영상</h2>
+            <Videos videos={majorVideos(m.id)} query={m.name} />
+          </>
+        ) : (
+          <>
+            <h2 className="font-bold">관련 직업 영상</h2>
+            <p className="mb-3 mt-0.5 text-xs text-slate-500">공식 채널에 이 학과 소개 영상이 아직 없어, 졸업 후 진출하는 직업의 영상을 보여 줘요.</p>
+            <Videos videos={relatedJobVideos(m.jobs)} query={m.name} />
+          </>
+        )}
       </div>
 
       <div className="grid gap-4 md:grid-cols-2">

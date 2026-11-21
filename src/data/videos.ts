@@ -35,3 +35,5 @@ const merge = (a: Video[] = [], b: Video[] = []) => {
 };
 export const jobVideos = (id: string) => merge(JOB_VIDEOS[id], auto.jobs[id]);
 export const majorVideos = (id: string) => merge(MAJOR_VIDEOS[id], auto.majors[id]);
+// 학과 영상이 없을 때: 관련 직업 영상 (직업마다 1개씩)
+export const relatedJobVideos = (jobIds: string[]) => merge([], jobIds.map((j) => jobVideos(j)[0]).filter((v): v is Video => !!v));

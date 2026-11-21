@@ -142,7 +142,7 @@ function pick(all, kws, isMajor = false) {
       else if (kk.length >= 4 && n.includes(kk)) s = 1;
       best = Math.max(best, s * w);
     });
-    if (/Q&A|면세점|브이로그|vlog/i.test(v.title)) best *= 0.3;
+    if (/Q&A|면세점|브이로그|vlog/i.test(v.title)) best = 0;
     if (best > 0) scored.push({ v, s: best + v.bonus - Math.min(n.length, 60) / 200 });
   }
   scored.sort((a, b) => b.s - a.s);
