@@ -46,7 +46,7 @@ export default function PortfolioPage() {
 
   return (
     <div>
-      <PageHead
+      <PageHead tone="coral" eyebrow="도구"
         title="진로 포트폴리오"
         desc="체험과 탐구를 질문과 성찰로 엮는 진로활동 포트폴리오, 3개년 학업을 설계하는 192학점 로드맵, 한 권의 책에서 진로를 넓히는 독서 포트폴리오를 작성하고 제출용 보고서로 인쇄·PDF 저장하세요."
       />

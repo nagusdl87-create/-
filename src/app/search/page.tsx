@@ -45,7 +45,7 @@ function Results() {
 export default function SearchPage() {
   return (
     <div>
-      <PageHead title="통합 검색" />
+      <PageHead tone="brand" eyebrow="검색" title="통합 검색" />
       <Suspense fallback={null}>
         <Results />
       </Suspense>

@@ -6,6 +6,7 @@ import Link from "next/link";
 import { FIELDS, type Job } from "@/data/jobs";
 import { RIASEC } from "@/data/riasec";
 import { useStore } from "@/lib/store";
+import { FIELD_HUE } from "@/lib/colors";
 
 export function FavButton({ id, className = "" }: { id: string; className?: string }) {
   const { state, update } = useStore();
@@ -30,15 +31,14 @@ export function FavButton({ id, className = "" }: { id: string; className?: stri
 
 export function JobCard({ job, score }: { job: Job; score?: number }) {
   return (
-    <Link href={`/jobs/${job.id}`} className="card group flex flex-col gap-3 transition hover:border-brand-200 hover:shadow-md">
+    <Link href={`/jobs/${job.id}`} className="card group relative flex flex-col gap-3 overflow-hidden transition hover:-translate-y-0.5 hover:border-slate-300 hover:shadow-lg hover:shadow-slate-900/5">
+      <span className={`absolute inset-x-0 top-0 h-1 ${FIELD_HUE[job.field].bar}`} aria-hidden />
       <div className="flex items-start justify-between gap-2">
         <div className="flex items-center gap-3">
-          <span className="grid h-12 w-12 shrink-0 place-items-center rounded-xl bg-slate-100 text-2xl">{job.emoji}</span>
+          <span className={`grid h-12 w-12 shrink-0 place-items-center rounded-2xl text-2xl ${FIELD_HUE[job.field].tile}`}>{job.emoji}</span>
           <div>
             <div className="font-bold text-slate-900 group-hover:text-brand-700">{job.name}</div>
-            <div className="text-xs text-slate-500">
-              {FIELDS[job.field].emoji} {FIELDS[job.field].name}
-            </div>
+            <div className={`text-xs font-medium ${FIELD_HUE[job.field].text}`}>{FIELDS[job.field].name}</div>
           </div>
         </div>
         <FavButton id={job.id} />

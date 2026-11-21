@@ -7,6 +7,7 @@ import { MAJORS } from "@/data/majors";
 import { JOBS } from "@/data/jobs";
 import { PageHead } from "@/components/ui";
 import { useEscape } from "@/components/useEscape";
+import { GROUP_HUE } from "@/lib/colors";
 import { NaesinGuide, NaesinSimulator } from "@/components/Naesin";
 import { CreditStandards, CreditSystemGuide } from "@/components/CreditGuide";
 
@@ -31,7 +32,7 @@ export default function SubjectsPage() {
 
   return (
     <div>
-      <PageHead
+      <PageHead tone="sky" eyebrow="탐색 백과"
         title="과목 백과"
         desc={`2022 개정 교육과정 고등학교 보통교과 ${SUBJECTS.length}과목의 내용, 학점, 평가 방식, 선수과목, 2028 수능 출제 여부와 관련 학과·직업을 한곳에서 확인하세요.`}
       />
@@ -111,7 +112,8 @@ function Badges({ s }: { s: Subject }) {
 
 function SubjectCard({ s, onOpen }: { s: Subject; onOpen: () => void }) {
   return (
-    <button onClick={onOpen} className="card text-left transition hover:border-brand-200 hover:shadow-md">
+    <button onClick={onOpen} className="card relative overflow-hidden text-left transition hover:-translate-y-0.5 hover:border-slate-300 hover:shadow-lg hover:shadow-slate-900/5">
+      <span className={`absolute inset-y-0 left-0 w-1 ${GROUP_HUE[s.group].bar}`} aria-hidden />
       <div className="flex items-start justify-between gap-2">
         <div className="font-bold">{s.name}</div>
         <Badges s={s} />

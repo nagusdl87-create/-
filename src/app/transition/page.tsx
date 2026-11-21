@@ -24,7 +24,7 @@ export default function TransitionPage() {
 
   return (
     <div>
-      <PageHead title="고3 진로 전환기 10차시" desc="수능 이후 졸업까지, 대학 생활·사회 진출을 준비하는 10차시 수업 자료예요. 학생은 혼자 읽고 체크리스트를 채우고, 선생님은 그대로 수업 자료로 인쇄해 쓸 수 있어요." />
+      <PageHead tone="rose" eyebrow="진로 자료실" title="고3 진로 전환기 10차시" desc="수능 이후 졸업까지, 대학 생활·사회 진출을 준비하는 10차시 수업 자료예요. 학생은 혼자 읽고 체크리스트를 채우고, 선생님은 그대로 수업 자료로 인쇄해 쓸 수 있어요." />
       <div className="no-print mb-4 flex flex-wrap items-center justify-between gap-2">
         <div className="text-sm text-slate-500">
           완료 <b className="text-slate-800">{done}</b> / 10 차시

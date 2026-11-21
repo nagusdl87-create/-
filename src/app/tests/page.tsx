@@ -23,7 +23,7 @@ export default function TestsPage() {
 
   return (
     <div>
-      <PageHead title="진로검사·진로상담" desc="국가 진로정보망 커리어넷(7종)과 고용24(13종)의 무료 진로심리검사 20종을 안내하고, 결과를 마이로드와 연결해요. 1:1 상담 창구도 한곳에 모았어요." />
+      <PageHead tone="indigo" eyebrow="도구" title="진로검사·진로상담" desc="국가 진로정보망 커리어넷(7종)과 고용24(13종)의 무료 진로심리검사 20종을 안내하고, 결과를 마이로드와 연결해요. 1:1 상담 창구도 한곳에 모았어요." />
       <div className="mb-6 grid grid-cols-3 gap-1 rounded-xl bg-slate-200/60 p-1" role="tablist">
         {(
           [

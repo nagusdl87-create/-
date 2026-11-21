@@ -53,7 +53,7 @@ export default function FuturePage() {
 
   return (
     <div>
-      <PageHead title="미래 신산업 진로 탐색" desc="인공지능·로봇·모빌리티·바이오헬스·친환경 에너지·반도체·우주항공·스마트팜 8대 신산업을 퀴즈와 친화도 검사로 알아보고, 관심 분야의 직업·학과·고교 과목 로드맵을 확인하세요." />
+      <PageHead tone="violet" eyebrow="진로 자료실" title="미래 신산업 진로 탐색" desc="인공지능·로봇·모빌리티·바이오헬스·친환경 에너지·반도체·우주항공·스마트팜 8대 신산업을 퀴즈와 친화도 검사로 알아보고, 관심 분야의 직업·학과·고교 과목 로드맵을 확인하세요." />
       <div className="mb-6 grid grid-cols-3 gap-1 rounded-xl bg-slate-200/60 p-1" role="tablist">
         {(
           [

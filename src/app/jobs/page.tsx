@@ -37,7 +37,7 @@ export default function JobsPage() {
 
   return (
     <div>
-      <PageHead
+      <PageHead tone="amber" eyebrow="탐색 백과"
         step={2}
         title="직업 찾기"
         desc={

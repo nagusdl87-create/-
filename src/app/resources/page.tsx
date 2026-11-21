@@ -36,7 +36,7 @@ const GROUPS = [
 export default function ResourcesPage() {
   return (
     <div className="space-y-8">
-      <PageHead title="진로체험·자료" desc="진로체험 신청부터 학교·대입 정보까지, 공식 사이트를 목적별로 모았어요. 체험을 다녀오면 마이로드에 기록해 두세요." />
+      <PageHead tone="amber" eyebrow="도구" title="진로체험·자료" desc="진로체험 신청부터 학교·대입 정보까지, 공식 사이트를 목적별로 모았어요. 체험을 다녀오면 마이로드에 기록해 두세요." />
       <section>
         <h2 className="mb-3 text-lg font-bold">마이로드 진로 자료실</h2>
         <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-3">

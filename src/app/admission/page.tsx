@@ -39,7 +39,7 @@ function gradeFromRank(rank: number, ties: number, total: number) {
 export default function AdmissionPage() {
   return (
     <div className="space-y-8">
-      <PageHead title="2028 대입" desc="2025년 고1부터 적용되는 2028학년도 대입 제도의 핵심을 정리했어요. 수능 구조, 5등급 내신, 전형 종류와 학년별 준비를 확인하고 내신을 직접 계산해 보세요." />
+      <PageHead tone="rose" eyebrow="2028 대입" title="2028 대입" desc="2025년 고1부터 적용되는 2028학년도 대입 제도의 핵심을 정리했어요. 수능 구조, 5등급 내신, 전형 종류와 학년별 준비를 확인하고 내신을 직접 계산해 보세요." />
 
       <section className="grid gap-3 md:grid-cols-3">
         {CHANGES.map((c, i) => (

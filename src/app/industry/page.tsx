@@ -17,7 +17,7 @@ export default function IndustryPage() {
 
   return (
     <div>
-      <PageHead title="경남 산업 진로 지도" desc="경남에는 조선, 항공우주, 기계·방산, 나노, 항노화 같은 특색 있는 산업이 있어요. 우리 지역 산업과 연결된 직업·학과·고등학교를 함께 살펴보세요." />
+      <PageHead tone="coral" eyebrow="경남 산업" title="경남 산업 진로 지도" desc="경남에는 조선, 항공우주, 기계·방산, 나노, 항노화 같은 특색 있는 산업이 있어요. 우리 지역 산업과 연결된 직업·학과·고등학교를 함께 살펴보세요." />
       <div className="grid gap-2 sm:grid-cols-3 lg:grid-cols-5">
         {GN_INDUSTRIES.map((i) => (
           <button key={i.id} aria-pressed={sel === i.id} onClick={() => setSel(i.id)} className={`card p-3 text-left transition ${sel === i.id ? "border-brand-400 ring-2 ring-brand-100" : "hover:border-brand-200"}`}>

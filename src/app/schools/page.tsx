@@ -88,7 +88,7 @@ export default function SchoolsPage() {
 
   return (
     <div>
-      <PageHead
+      <PageHead tone="emerald" eyebrow="경남 고교"
         title="경남 고교 찾기"
         desc={`경상남도 고등학교 ${GN_SCHOOLS.length}곳을 지도에서 찾아보세요. 내 중학교나 현재 위치를 출발점으로 정하면 가까운 순서로 정렬돼요.`}
       />

@@ -119,44 +119,78 @@ export default function Home() {
   if (!stage) {
     return (
       <div className="space-y-14">
-        <section className="grid items-center gap-10 lg:grid-cols-[1.15fr_0.85fr]">
-          <div>
-            <div className="eyebrow">경남 중·고등학생 진로·학업 설계</div>
-            <h1 className="mt-3 text-[2.1rem] font-bold leading-[1.2] tracking-tight text-slate-900 sm:text-5xl">
-              흩어진 진로 정보를
-              <br />
-              <span className="text-brand-700">나만의 지도 한 장</span>으로
-            </h1>
-            <p className="mt-5 max-w-xl text-[1.05rem] leading-relaxed text-slate-600">
-              흥미 탐색에서 시작해 직업과 학과, 고교 과목, 경남 고등학교, 192학점 설계까지. 앞 단계의 결과가 다음 단계로 자동으로 이어져요.
-            </p>
-            <div className="mt-6 flex flex-wrap gap-2">
-              {["경남 고교 203곳", "2027 경남 고입 일정", "과목 137개", "192학점 실시간 진단", "포트폴리오 3종"].map((t) => (
-                <span key={t} className="chip bg-white ring-1 ring-slate-200">
-                  {t}
-                </span>
-              ))}
+        <section className="relative overflow-hidden rounded-[2rem] bg-gradient-to-br from-brand-50 via-white to-coral-50 px-6 py-10 sm:px-12 sm:py-14">
+          <div className="pointer-events-none absolute -left-24 -top-24 h-72 w-72 rounded-full bg-brand-200/50 blur-3xl" aria-hidden />
+          <div className="pointer-events-none absolute -bottom-24 right-10 h-72 w-72 rounded-full bg-sun-400/30 blur-3xl" aria-hidden />
+          <div className="relative grid items-center gap-10 lg:grid-cols-[1.05fr_0.95fr]">
+            <div>
+              <span className="inline-flex items-center gap-1.5 rounded-full bg-white/80 px-3 py-1 text-xs font-semibold text-brand-700 ring-1 ring-brand-100">
+                <Sparkles className="h-3.5 w-3.5" aria-hidden /> 경남 중·고등학생 진로·학업 설계
+              </span>
+              <h1 className="mt-4 text-[2.2rem] font-bold leading-[1.18] tracking-tight text-slate-900 sm:text-[3.2rem]">
+                흩어진 진로 정보를
+                <br />
+                <span className="bg-gradient-to-r from-brand-700 to-brand-500 bg-clip-text text-transparent">나만의 지도 한 장</span>으로
+              </h1>
+              <p className="mt-5 max-w-xl text-[1.05rem] leading-relaxed text-slate-600">흥미 탐색에서 시작해 직업과 학과, 고교 과목, 경남 고등학교, 192학점 설계, 2028 대입까지. 앞 단계의 결과가 다음 단계로 자동으로 이어져요.</p>
+              <div className="mt-7 flex flex-wrap gap-2">
+                <a href="#stage" className="btn rounded-full bg-coral-500 px-6 py-3 text-white shadow-lg shadow-coral-500/25 hover:bg-coral-600">지금 시작하기 <ArrowRight className="h-4 w-4" aria-hidden /></a>
+                <Link href="/explore" className="btn-ghost rounded-full px-6 py-3">둘러보기</Link>
+              </div>
+            </div>
+            <div className="relative mx-auto h-[360px] w-full max-w-[460px]" aria-hidden>
+              <div className="absolute left-0 top-4 w-[62%] rotate-[-3deg] rounded-2xl bg-white p-4 shadow-xl shadow-slate-900/10 ring-1 ring-slate-100">
+                <div className="text-xs font-semibold text-slate-500">나의 흥미 유형</div>
+                <svg viewBox="0 0 120 104" className="mx-auto mt-2 h-28 w-32">
+                  <polygon points="60,4 112,32 112,76 60,100 8,76 8,32" fill="none" stroke="#e2e8f0" />
+                  <polygon points="60,18 100,36 96,70 60,84 22,66 28,38" fill="rgba(29,150,126,.18)" stroke="#127a67" strokeWidth="2" />
+                </svg>
+                <div className="text-center text-sm font-bold text-slate-900">탐구형 · 현실형</div>
+              </div>
+              <div className="absolute right-0 top-0 w-[48%] rotate-[3deg] rounded-2xl bg-white p-4 shadow-xl shadow-slate-900/10 ring-1 ring-slate-100">
+                <div className="text-xs font-semibold text-slate-500">경남 고입</div>
+                <div className="mt-1 flex items-center gap-2">
+                  <span className="rounded-lg bg-coral-50 px-2 py-1 text-sm font-bold text-coral-600">D-6</span>
+                  <span className="text-xs text-slate-600">특성화고 원서</span>
+                </div>
+                <div className="mt-2 flex items-center gap-2">
+                  <span className="rounded-lg bg-brand-50 px-2 py-1 text-sm font-bold text-brand-700">D-19</span>
+                  <span className="text-xs text-slate-600">후기 일반고</span>
+                </div>
+              </div>
+              <div className="absolute right-0 top-[44%] z-10 w-[52%] rotate-[2deg] rounded-2xl bg-ink-900 p-4 text-white shadow-xl shadow-slate-900/20">
+                <div className="text-xs font-semibold text-brand-200">192학점 진단</div>
+                <div className="mt-1 text-2xl font-bold">
+                  192<span className="text-sm font-medium text-white/60"> / 192</span>
+                </div>
+                <div className="mt-2 h-1.5 rounded-full bg-white/15">
+                  <div className="h-full w-full rounded-full bg-sun-400" />
+                </div>
+                <div className="mt-2 text-xs text-white/80">✓ 필수 84학점 · ✓ 국수영 81 이내</div>
+              </div>
+              <div className="absolute bottom-0 left-2 w-[44%] rotate-[-2deg] rounded-2xl bg-white p-4 shadow-xl shadow-slate-900/10 ring-1 ring-slate-100">
+                <div className="text-xs font-semibold text-slate-500">추천 직업</div>
+                <div className="mt-1 flex items-center justify-between text-sm"><span>🛰️ 항공우주</span><b className="text-brand-700">92%</b></div>
+                <div className="mt-1 flex items-center justify-between text-sm"><span>🚢 조선해양</span><b className="text-brand-700">88%</b></div>
+              </div>
             </div>
           </div>
-          <ol className="card relative space-y-4 p-6" aria-label="마이로드 진행 흐름">
-            <span className="absolute bottom-10 left-[2.7rem] top-10 w-px bg-slate-200" aria-hidden />
-            {FLOW.map((f, i) => {
-              const Icon = f.icon;
-              return (
-                <li key={f.t} className="relative flex items-center gap-4">
-                  <span className={`relative grid h-10 w-10 place-items-center rounded-full ${i === 0 ? "bg-brand-600 text-white" : "bg-white text-brand-700 ring-1 ring-slate-200"}`}>
-                    <Icon className="h-5 w-5" aria-hidden />
-                  </span>
-                  <div>
-                    <div className="font-semibold text-slate-900">{f.t}</div>
-                    <div className="text-sm text-slate-500">{f.d}</div>
-                  </div>
-                </li>
-              );
-            })}
-          </ol>
         </section>
-        <section>
+        <section className="grid grid-cols-2 gap-px overflow-hidden rounded-3xl bg-ink-800 sm:grid-cols-5">
+          {[
+            ["203", "경남 고등학교"],
+            ["137", "고교 과목"],
+            ["56", "대학 학과"],
+            ["51", "직업"],
+            ["20", "공식 진로검사"],
+          ].map(([n, l]) => (
+            <div key={l} className="bg-ink-900 px-5 py-6 text-center">
+              <div className="text-3xl font-bold text-white">{n}</div>
+              <div className="mt-1 text-xs font-medium text-brand-200">{l}</div>
+            </div>
+          ))}
+        </section>
+        <section id="stage" className="scroll-mt-24">
           <h2 className="mb-4 text-xl font-bold text-slate-900">지금 몇 학년인가요?</h2>
           <StagePicker />
         </section>
@@ -181,7 +215,8 @@ export default function Home() {
 
   return (
     <div className="space-y-10">
-      <section className="flex items-start justify-between gap-4 sm:items-center sm:gap-6">
+      <section className="relative flex items-start justify-between gap-4 overflow-hidden rounded-[2rem] bg-gradient-to-br from-brand-50 via-white to-sun-100/70 px-6 py-8 sm:items-center sm:gap-6 sm:px-10">
+        <div className="pointer-events-none absolute -right-16 -top-16 h-56 w-56 rounded-full bg-brand-200/40 blur-3xl" aria-hidden />
         <div>
           <div className="flex flex-wrap items-center gap-2 text-sm text-slate-500">
             <span className="font-semibold text-brand-700">{stage === "hs" ? "고등학생 과정" : "중학생 과정"}</span>

@@ -14,7 +14,7 @@ export default function PlanPage() {
   if (!ready) return <div className="h-64" />;
   return (
     <div>
-      <PageHead step={5} title="계획·기록" desc="진로는 생각만으로 완성되지 않아요. 학기마다 작은 할 일을 정하고, 경험한 것을 기록하며 나의 성장을 쌓아 가요." />
+      <PageHead tone="indigo" step={5} title="계획·기록" desc="진로는 생각만으로 완성되지 않아요. 학기마다 작은 할 일을 정하고, 경험한 것을 기록하며 나의 성장을 쌓아 가요." />
       <TermPicker />
       <div className="mb-4 flex gap-1 rounded-xl bg-slate-100 p-1" role="tablist">
         {(

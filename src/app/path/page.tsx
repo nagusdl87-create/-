@@ -41,7 +41,7 @@ export default function PathPage() {
 
   return (
     <div>
-      <PageHead
+      <PageHead tone="sky"
         step={3}
         title="길 잇기"
         desc="찜한 직업에서 거꾸로 거슬러 올라가 대학 학과, 고등학교 과목, 그리고 중학생인 지금 할 일까지 한 줄로 이어 봐요."

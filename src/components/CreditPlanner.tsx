@@ -38,7 +38,7 @@ export function CreditPlanner({ embedded = false }: { embedded?: boolean }) {
   return (
     <div>
       {!embedded && (
-        <PageHead
+        <PageHead tone="brand" eyebrow="도구"
           step={state.profile.stage === "hs" ? 4 : undefined}
           title="192학점 과목 설계"
           desc="고등학교 3년 동안 들을 과목을 학기별로 담아 보세요. 졸업 기준, 필수 이수 학점, 선수과목 순서, 수능 과목, 계열 적합도를 실시간으로 진단해 드려요."

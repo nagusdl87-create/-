@@ -9,6 +9,7 @@ import { MAJORS } from "@/data/majors";
 import { TRACKS, type TrackId } from "@/data/subjects";
 import { JOB_MAP } from "@/data/jobs";
 import { NextStep, PageHead } from "@/components/ui";
+import { TRACK_HUE } from "@/lib/colors";
 
 export default function MajorsPage() {
   const { state, update, ready } = useStore();
@@ -28,7 +29,7 @@ export default function MajorsPage() {
 
   return (
     <div>
-      <PageHead
+      <PageHead tone="violet" eyebrow="탐색 백과"
         step={hs ? 2 : undefined}
         title="학과 백과"
         desc="대학 학과에서 무엇을 배우는지, 고등학교에서 어떤 과목을 들으면 좋은지, 졸업 후 어떤 일을 하는지 확인하고 관심 학과를 ❤️ 찜해 보세요."
@@ -56,10 +57,11 @@ export default function MajorsPage() {
         {list.map((m) => {
           const on = state.favMajors.includes(m.id);
           return (
-            <Link key={m.id} href={`/majors/${m.id}`} className="card group flex flex-col gap-2 transition hover:border-brand-200 hover:shadow-md">
+            <Link key={m.id} href={`/majors/${m.id}`} className="card group relative flex flex-col gap-2 overflow-hidden transition hover:-translate-y-0.5 hover:border-slate-300 hover:shadow-lg hover:shadow-slate-900/5">
+              <span className={`absolute inset-x-0 top-0 h-1 ${TRACK_HUE[m.track].bar}`} aria-hidden />
               <div className="flex items-start justify-between gap-2">
                 <div>
-                  <div className="text-xs text-slate-500">{TRACKS[m.track].emoji} {TRACKS[m.track].name}</div>
+                  <span className={`inline-block rounded-md px-1.5 py-0.5 text-[11px] font-semibold ${TRACK_HUE[m.track].tile} ${TRACK_HUE[m.track].text}`}>{TRACKS[m.track].name}</span>
                   <div className="font-bold group-hover:text-brand-700">{m.name}</div>
                 </div>
                 <button

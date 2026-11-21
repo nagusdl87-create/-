@@ -30,7 +30,7 @@ export default function Discover() {
 
   return (
     <div>
-      <PageHead step={1} title="나 알기" desc="정답은 없어요. 평소의 나와 가장 가까운 답을 솔직하게 골라 주세요." />
+      <PageHead tone="violet" step={1} title="나 알기" desc="정답은 없어요. 평소의 나와 가장 가까운 답을 솔직하게 골라 주세요." />
       <div className="mb-5 flex items-center gap-3">
         <div className="h-2 flex-1 overflow-hidden rounded-full bg-slate-200">
           <div className="h-full rounded-full bg-brand-500 transition-all" style={{ width: `${pct}%` }} />

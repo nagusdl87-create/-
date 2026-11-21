@@ -283,7 +283,7 @@ export default function GuidePage() {
   const Body = BODIES[ch];
   return (
     <div>
-      <PageHead title="진로·학업설계 가이드북" desc="학생, 보호자, 선생님이 함께 읽는 5장짜리 안내서예요. 진로·학업설계의 원리부터 5단계 실천 로드맵, 학년별 성장, 과목 설계법, 진로가 바뀌었을 때의 재설계까지 담았어요." />
+      <PageHead tone="brand" eyebrow="가이드북" title="진로·학업설계 가이드북" desc="학생, 보호자, 선생님이 함께 읽는 5장짜리 안내서예요. 진로·학업설계의 원리부터 5단계 실천 로드맵, 학년별 성장, 과목 설계법, 진로가 바뀌었을 때의 재설계까지 담았어요." />
       <div className="mb-5 grid grid-cols-1 gap-2 sm:grid-cols-5">
         {CHAPTERS.map((c, i) => (
           <button key={c.t} onClick={() => go(i)} aria-current={ch === i} className={`rounded-2xl border p-3 text-left transition ${ch === i ? "border-brand-400 bg-brand-50" : "border-slate-200 bg-white hover:border-slate-300"}`}>

@@ -60,7 +60,7 @@ export default function SchoolCurriculumPage() {
 
   return (
     <div>
-      <PageHead title="학교 편제표 등록" desc="내 학교의 학기별 지정 과목과 선택군(택N)을 입력하면, 192학점 설계가 실제 수강 신청처럼 바뀌어요. 한 사람이 입력해 공유 링크나 파일로 친구·학생들과 나눌 수 있어요." />
+      <PageHead tone="brand" eyebrow="도구" title="학교 편제표 등록" desc="내 학교의 학기별 지정 과목과 선택군(택N)을 입력하면, 192학점 설계가 실제 수강 신청처럼 바뀌어요. 한 사람이 입력해 공유 링크나 파일로 친구·학생들과 나눌 수 있어요." />
 
       {incoming && (
         <div className="card mb-4 flex flex-wrap items-center justify-between gap-2 border-amber-300 bg-amber-50">

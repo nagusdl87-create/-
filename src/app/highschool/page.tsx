@@ -29,7 +29,7 @@ export default function HighschoolPage() {
 
   return (
     <div>
-      <PageHead
+      <PageHead tone="emerald" eyebrow="경남 고입"
         step={4}
         title="고교 고르기"
         desc="고등학교 유형마다 배우는 방식과 졸업 후 길이 달라요. 퀴즈로 나에게 맞는 유형을 알아보고, 경남 고입 제도와 일정, 실제 학교까지 확인해 보세요."
