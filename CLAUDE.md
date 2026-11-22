@@ -1,6 +1,7 @@
 # 마이로드 경남 — 작업 안내 (Claude Code / 개발자 공통)
 
 경상남도 중·고등학생용 진로·학업 설계 웹앱. 대구광역시교육청 플랫폼(dgcareer.vercel.app)의 모든 요소를 참고해 더 나은 방향으로 만드는 프로젝트다.
+자동 작업 에이전트 규칙은 `docs/AGENT.md`, 사용자 결정 요청은 `docs/DECISIONS.md`.
 새 컴퓨터에서 이어 작업할 때는 `docs/DEVELOPMENT.md`, 남은 일은 `docs/ROADMAP.md`, 원본 분석은 `docs/reference/dgcareer-inventory.md`를 본다.
 
 ## 새 세션을 시작하면 (다른 컴퓨터·새 대화)
