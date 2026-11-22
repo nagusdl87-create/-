@@ -7,15 +7,20 @@ import { FIELDS, type Job } from "@/data/jobs";
 import { RIASEC } from "@/data/riasec";
 import { useStore } from "@/lib/store";
 import { FIELD_HUE } from "@/lib/colors";
+import { useEnData, useT } from "@/lib/i18n";
+
+/** 영어 모드일 때만 직업 영어 자료(이름·요약·분야명 등)를 불러온다. 한국어 모드에서는 null. */
+export const useJobsEn = () => useEnData(() => import("@/i18n/data/jobs.en"), "jobs");
 
 export function FavButton({ id, className = "" }: { id: string; className?: string }) {
   const { state, update } = useStore();
+  const t = useT();
   const on = state.favorites.includes(id);
   return (
     <button
       type="button"
       aria-pressed={on}
-      aria-label={on ? "찜 해제" : "찜하기"}
+      aria-label={on ? t("찜 해제") : t("찜하기")}
       onClick={(e) => {
         e.preventDefault();
         update((s) => ({ ...s, favorites: on ? s.favorites.filter((f) => f !== id) : [...s.favorites, id] }));
@@ -30,6 +35,9 @@ export function FavButton({ id, className = "" }: { id: string; className?: stri
 }
 
 export function JobCard({ job, score }: { job: Job; score?: number }) {
+  const t = useT();
+  const en = useJobsEn();
+  const e = en?.JOBS_EN[job.id];
   return (
     <Link href={`/jobs/${job.id}`} className="card group relative flex flex-col gap-3 overflow-hidden transition hover:-translate-y-0.5 hover:border-slate-300 hover:shadow-lg hover:shadow-slate-900/5">
       <span className={`absolute inset-x-0 top-0 h-1 ${FIELD_HUE[job.field].bar}`} aria-hidden />
@@ -37,23 +45,23 @@ export function JobCard({ job, score }: { job: Job; score?: number }) {
         <div className="flex items-center gap-3">
           <span className={`grid h-12 w-12 shrink-0 place-items-center rounded-2xl text-2xl ${FIELD_HUE[job.field].tile}`}>{job.emoji}</span>
           <div>
-            <div className="font-bold text-slate-900 group-hover:text-brand-700">{job.name}</div>
-            <div className={`text-xs font-medium ${FIELD_HUE[job.field].text}`}>{FIELDS[job.field].name}</div>
+            <div className="font-bold text-slate-900 group-hover:text-brand-700">{e?.name ?? job.name}</div>
+            <div className={`text-xs font-medium ${FIELD_HUE[job.field].text}`}>{en?.FIELDS_EN[job.field] ?? FIELDS[job.field].name}</div>
           </div>
         </div>
         <FavButton id={job.id} />
       </div>
-      <p className="line-clamp-2 text-sm text-slate-600">{job.summary}</p>
+      <p className="line-clamp-2 text-sm text-slate-600">{e?.summary ?? job.summary}</p>
       <div className="mt-auto flex items-center justify-between">
         <div className="flex gap-1">
           {job.riasec.slice(0, 2).map((k) => (
             <span key={k} className="rounded-md px-1.5 py-0.5 text-[11px] font-bold text-white" style={{ background: RIASEC[k].color }}>
-              {RIASEC[k].name}
+              {t(RIASEC[k].name)}
             </span>
           ))}
         </div>
         {score !== undefined && (
-          <span className={`text-sm font-extrabold ${score >= 70 ? "text-brand-600" : "text-slate-400"}`}>나와 {score}% 잘 맞아요</span>
+          <span className={`text-sm font-extrabold ${score >= 70 ? "text-brand-600" : "text-slate-400"}`}>{t("나와 {score}% 잘 맞아요", { score })}</span>
         )}
       </div>
     </Link>
