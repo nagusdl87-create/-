@@ -179,3 +179,26 @@ export function scheduleToIcs(): string {
   }).filter(Boolean);
   return ["BEGIN:VCALENDAR", "VERSION:2.0", "PRODID:-//myroad-gn//admission//KO", "CALSCALE:GREGORIAN", "X-WR-CALNAME:경남 고입 일정 (2027학년도)", ...events, "END:VCALENDAR"].join("\r\n");
 }
+
+// 영어 모드 표시용: useEnData(() => import("@/i18n/data/gn.en"), "gn")로 받은 모듈을 넘기면 영어, null이면 한국어.
+export type GnEn = typeof import("@/i18n/data/gn.en");
+export function gnText(en: GnEn | null) {
+  const pick = (m: Record<string, string> | undefined, k: string | null | undefined) => (k ? (en && m?.[k]) || k : k ?? "");
+  return {
+    en: !!en,
+    kind: (k: HsKind) => en?.KIND_EN[k] ?? KIND_INFO[k].name,
+    region: (r: string) => pick(en?.REGION_EN, r),
+    /** 선택 목록용: "Changwon (창원)" */
+    regionSel: (r: string) => (en?.REGION_EN[r] ? `${en.REGION_EN[r]} (${r})` : r),
+    regions: (rs: string[], sep: string) => rs.map((r) => pick(en?.REGION_EN, r)).join(sep),
+    zone: (z: string | null | undefined) => pick(en?.ZONE_EN, z),
+    round: (r: string) => pick(en?.ROUND_EN, r),
+    coedu: (c: string | undefined) => pick(en?.COEDU_EN, c),
+    found: (f: string | undefined) => pick(en?.FOUND_EN, f),
+    unit: (u: string) => pick(en?.UNIT_EN, u),
+    dept: (d: string) => pick(en?.DEPT_EN, d),
+    industry: (i: (typeof GN_INDUSTRIES)[number]) => en?.INDUSTRY_EN[i.id] ?? { name: i.name, desc: i.desc },
+    official: (k: keyof typeof OFFICIAL) => en?.OFFICIAL_EN[k] ?? OFFICIAL[k].name,
+    asOf: en ? en.DATA_AS_OF_EN : DATA_AS_OF,
+  };
+}

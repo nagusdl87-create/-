@@ -3,7 +3,8 @@
 // 카카오맵 (최신 지리: 카카오가 지도를 계속 갱신). 키: src/lib/site.ts의 KAKAO_JS_KEY (웹에 공개되는 JavaScript 키, 등록한 도메인에서만 작동)
 // SDK를 못 불러오면(키 없음·도메인 미등록·차단) onFail을 불러 OpenStreetMap 지도로 바꾼다.
 import { useEffect, useRef, useState } from "react";
-import { KIND_INFO, type GnSchool } from "@/data/gn";
+import { gnText, KIND_INFO, type GnSchool } from "@/data/gn";
+import { useEnData, useT } from "@/lib/i18n";
 import { KAKAO_JS_KEY } from "@/lib/site";
 
 type Props = {
@@ -51,6 +52,10 @@ export default function KakaoSchoolMap({ schools, selected, origin, onSelect, on
   const extra = useRef<K[]>([]);
   const [ready, setReady] = useState(false);
   const failRef = useRef(onFail);
+  const t = useT();
+  const g = gnText(useEnData(() => import("@/i18n/data/gn.en"), "gn"));
+  const gRef = useRef({ t, g });
+  gRef.current = { t, g };
   failRef.current = onFail;
 
   useEffect(() => {
@@ -83,7 +88,7 @@ export default function KakaoSchoolMap({ schools, selected, origin, onSelect, on
     for (const s of schools) {
       if (s.lat == null || s.lng == null) continue;
       const pos = new kakao.maps.LatLng(s.lat, s.lng);
-      const c = dot(KIND_INFO[s.kind].color, false, `${s.name} · ${KIND_INFO[s.kind].name}`);
+      const c = dot(KIND_INFO[s.kind].color, false, `${s.name} · ${gRef.current.g.kind(s.kind)}`);
       c.onclick = () => onSelect(s.id);
       const o = new kakao.maps.CustomOverlay({ position: pos, content: c, yAnchor: 0, xAnchor: 0, zIndex: 1 });
       o.setMap(m);
@@ -93,7 +98,7 @@ export default function KakaoSchoolMap({ schools, selected, origin, onSelect, on
     }
     if (origin) {
       const pos = new kakao.maps.LatLng(origin.lat, origin.lng);
-      const c = dot("#facc15", true, `출발: ${origin.label}`);
+      const c = dot("#facc15", true, gRef.current.t("출발: {label}", { label: origin.label }));
       const o = new kakao.maps.CustomOverlay({ position: pos, content: c, yAnchor: 0, xAnchor: 0, zIndex: 3 });
       o.setMap(m);
       extra.current.push(o);
@@ -101,7 +106,7 @@ export default function KakaoSchoolMap({ schools, selected, origin, onSelect, on
       n++;
     }
     if (n) m.setBounds(bounds, 40, 40, 40, 40);
-  }, [ready, schools, origin, onSelect]);
+  }, [ready, schools, origin, onSelect, g.en]);
 
   // 고른 학교 강조 + 이름표
   useEffect(() => {
@@ -113,10 +118,11 @@ export default function KakaoSchoolMap({ schools, selected, origin, onSelect, on
     const { s, o } = hit;
     const pos = new kakao.maps.LatLng(s.lat, s.lng);
     o.setMap(null);
-    const big = dot(KIND_INFO[s.kind].color, true, `${s.name} · ${KIND_INFO[s.kind].name}`);
+    const big = dot(KIND_INFO[s.kind].color, true, `${s.name} · ${gRef.current.g.kind(s.kind)}`);
     const sel = new kakao.maps.CustomOverlay({ position: pos, content: big, yAnchor: 0, xAnchor: 0, zIndex: 4 });
     const tag = document.createElement("div");
     tag.textContent = s.name;
+    tag.setAttribute("data-keep-ko", "");
     tag.style.cssText = "transform:translate(-50%,-150%);background:#fff;border:1px solid #cbd5e1;border-radius:8px;padding:2px 8px;font-size:12px;font-weight:600;color:#0f172a;white-space:nowrap;box-shadow:0 1px 3px rgba(0,0,0,.2)";
     const label = new kakao.maps.CustomOverlay({ position: pos, content: tag, yAnchor: 0, xAnchor: 0, zIndex: 5 });
     sel.setMap(m);
@@ -124,7 +130,7 @@ export default function KakaoSchoolMap({ schools, selected, origin, onSelect, on
     if (m.getLevel() > 6) m.setLevel(6);
     m.panTo(pos);
     return () => { sel.setMap(null); label.setMap(null); o.setMap(m); };
-  }, [ready, selected]);
+  }, [ready, selected, g.en]);
 
-  return <div ref={el} className="h-full min-h-[320px] w-full overflow-hidden rounded-2xl bg-slate-100" role="application" aria-label="경남 고등학교 지도 (카카오맵)" />;
+  return <div ref={el} className="h-full min-h-[320px] w-full overflow-hidden rounded-2xl bg-slate-100" role="application" aria-label={t("경남 고등학교 지도 (카카오맵)")} />;
 }
