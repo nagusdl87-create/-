@@ -205,4 +205,14 @@ export const HOME: Record<string, string> = {
   "결과 보기": "See results",
   "이렇게 진행해요": "How it works",
   "경남 고입 일정": "Gyeongnam high school admission schedule",
+  // 홈 개편 2(당근형, 2026-11-22)
+  "바로가기 메뉴": "Shortcuts",
+  "흥미 탐색": "Interests",
+  "고입 일정": "Admissions",
+  "더보기": "More",
+  "자세히": "Details",
+  "경남 주력 산업 직업": "Jobs in Gyeongnam's key industries",
+  "분야별 직업 둘러보기": "Browse jobs by field",
+  "흥미 탐색 · 직업 찾기 · 고교 고르기": "Interests · jobs · high schools",
+  "학과별 과목 · 192학점 · 2028 대입": "Subjects by major · 192 credits · 2028 admission",
 };

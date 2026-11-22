@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useStore } from "@/lib/store";
 import { FIELDS, JOBS, type FieldId } from "@/data/jobs";
 import { RIASEC, RIASEC_ORDER, type RiasecKey } from "@/data/riasec";
@@ -19,6 +19,11 @@ export default function JobsPage() {
   const [type, setType] = useState<RiasecKey | "all">("all");
   const [sort, setSort] = useState<Sort>("match");
   const t = useT();
+  // 홈의 분야 카드에서 /jobs#field=it 처럼 들어오면 그 분야로 거르기
+  useEffect(() => {
+    const f = window.location.hash.match(/field=(\w+)/)?.[1];
+    if (f && f in FIELDS) setField(f as FieldId);
+  }, []);
   const en = useJobsEn();
 
   const list = useMemo(() => {

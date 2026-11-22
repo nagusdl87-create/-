@@ -1,7 +1,7 @@
 // 과목·직업·학과 한국어 이름 → 영어 이름 (영어 모드에서만 불러옴)
-import { JOBS } from "@/data/jobs";
+import { FIELDS, JOBS, type FieldId } from "@/data/jobs";
 import { SUBJECTS_EN } from "./subjects.en";
-import { JOBS_EN } from "./jobs.en";
+import { FIELDS_EN, JOBS_EN } from "./jobs.en";
 import { MAJOR_NAME_EN, MAJORS_EN } from "./majors.en";
 import { MAJORS } from "@/data/majors";
 import { RIASEC, VALUES } from "@/data/riasec";
@@ -52,6 +52,7 @@ export const majorNameById = (id: string) => MAJORS_EN[id]?.name;
 // 기록 화면(리포트·상담 요약·계획 등)에 그대로 저장·표시되는 한국어 문구 → 영어
 // (흥미 유형 이름·설명, 가치관, 강점, 직업별 중학생 활동, 학기 할 일)
 const TEXT: Record<string, string> = { ...STRENGTHS_EN, ...TASKS_EN };
+for (const f of Object.keys(FIELDS) as FieldId[]) if (FIELDS_EN[f]) TEXT[FIELDS[f].name] = FIELDS_EN[f];
 for (const k of Object.keys(RIASEC) as (keyof typeof RIASEC)[]) {
   const ko = RIASEC[k], en = RIASEC_EN[k];
   TEXT[ko.name] = en.name; TEXT[ko.short] = en.short; TEXT[ko.desc] = en.desc;
