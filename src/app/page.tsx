@@ -4,6 +4,7 @@ import Link from "next/link";
 import { STATS } from "@/data/stats";
 import { MySchoolMeal } from "@/components/Neis";
 import { BackupReminder } from "@/components/Backup";
+import { EnglishHome } from "@/components/English";
 import { ArrowRight, Backpack, BookOpenCheck, CalendarClock, Check, GraduationCap, MapPinned, Calculator, Sparkles, Route, Compass } from "lucide-react";
 import { useStore } from "@/lib/store";
 import { isTestComplete, progress, rankedJobs, riasecScores, topTypes } from "@/lib/match";
@@ -198,6 +199,7 @@ export default function Home() {
           <StagePicker />
         </section>
         <Hubs />
+      <EnglishHome />
         <CreditCard />
       </div>
     );
@@ -403,6 +405,7 @@ export default function Home() {
       </section>
 
       <Hubs />
+      <EnglishHome />
       <CreditCard />
     </div>
   );

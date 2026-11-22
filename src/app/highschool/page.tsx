@@ -9,6 +9,7 @@ import { ArrowLeftRight, CalendarPlus, Star } from "lucide-react";
 import Link from "next/link";
 import { hsQuizResult } from "@/lib/match";
 import { NextStep, PageHead } from "@/components/ui";
+import { EnglishHighschool } from "@/components/English";
 
 export default function HighschoolPage() {
   const { state, update, ready } = useStore();
@@ -245,6 +246,7 @@ export default function HighschoolPage() {
 
       <GnAdmission />
 
+      <EnglishHighschool />
       <NextStep href="/plan" label="계획·기록" hint="이제 학기별로 할 일을 정하고 실천해 봐요" />
     </div>
   );
