@@ -171,11 +171,39 @@ async function answerDiscover(p) {
     await xc.close();
   }
 
+
+  // ── D6 선생님 모아 보기 · D7 상담용 한 장 요약
+  {
+    const ck = (name, ok) => { console.log(name + ':', ok ? 'ok' : 'FAIL'); if (!ok) errs.push('check failed: ' + name); };
+    const tc = await b.newContext({ viewport: { width: 1280, height: 900 }, acceptDownloads: true });
+    const t = await tc.newPage(); watch(t, 'teacher');
+    const code = Buffer.from(JSON.stringify({ p: { name: '테스트', stage: 'ms', grade: '3', school: '', region: '', middle: '' }, a: {}, f: ['ai-engineer'] })).toString('base64url');
+    await t.goto(B + '/teacher');
+    await t.getByLabel('공유 링크 (한 줄에 하나)').fill(`${B}/report#d=${code}\nnot-a-link`);
+    await t.getByRole('button', { name: '링크로 학생 추가' }).click(); await t.waitForTimeout(300);
+    ck('teacher row added', await t.locator('tbody tr').count() === 1);
+    const [csv] = await Promise.all([t.waitForEvent('download'), t.getByRole('button', { name: /CSV 내려받기/ }).click()]);
+    ck('teacher csv', csv.suggestedFilename().endsWith('.csv'));
+    ck('teacher no storage', await t.evaluate(() => sessionStorage.length === 0));
+    // 상담용 한 장 요약: 빈 상태에서도 안내 문구 + A4 1쪽
+    await t.goto(B + '/report/summary'); await t.waitForTimeout(400);
+    ck('summary placeholder', await t.locator('text=흥미 탐색을 아직 하지 않았어요').count() > 0);
+    const pdf = await t.pdf({ format: 'A4', preferCSSPageSize: true });
+    const pages = (pdf.toString('latin1').match(/\/Type\s*\/Page[^s]/g) || []).length;
+    ck('summary one page', pages === 1);
+    // D4·D5: 나이스 자료가 있을 때만(CI 빌드에는 키가 있으면 생성)
+    const subj = await (await t.request.get(B + '/data/neis/subjects.json')).json().catch(() => ({ schools: {} }));
+    if (Object.keys(subj.schools || {}).length) {
+      await t.goto(B + '/credits'); await t.waitForSelector('text=우리 학교 개설 과목으로 설계하기', { timeout: 8000 }).catch(() => {}); ck('school offer card', await t.locator('text=우리 학교 개설 과목으로 설계하기').count() > 0);
+    } else console.log('school offer: skipped (no data)');
+    await tc.close();
+  }
+
   // ── 모든 페이지 모바일 점검
   const mc = await b.newContext({ viewport: { width: 390, height: 844 }, deviceScaleFactor: 2 });
   const mp = await mc.newPage(); watch(mp, 'mobile');
   await mp.goto(B); await mp.click('text=고등학생이에요');
-  const routes = ['/', '/discover', '/jobs', '/jobs/shipbuilding', '/majors', '/majors/medicine', '/path', '/credits', '/credits/school', '/subjects', '/schools', '/highschool', '/admission', '/industry', '/tests', '/resources', '/guide', '/future', '/transition', '/portfolio', '/plan', '/report', '/explore', '/tools', '/account', '/privacy', '/offline', '/search?q=로봇', '/nope'];
+  const routes = ['/', '/discover', '/jobs', '/jobs/shipbuilding', '/majors', '/majors/medicine', '/path', '/credits', '/credits/school', '/subjects', '/schools', '/highschool', '/admission', '/industry', '/tests', '/resources', '/guide', '/future', '/transition', '/portfolio', '/plan', '/report', '/explore', '/tools', '/account', '/privacy', '/offline', '/teacher', '/report/summary', '/search?q=로봇', '/nope'];
   for (const r of routes) {
     const res = await mp.goto(B + r); await mp.waitForTimeout(r === '/schools' ? 1200 : 250);
     const ov = await mp.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
