@@ -3,11 +3,11 @@
 // 선택 기능: 구글 로그인 + 기기 간 동기화 (결정 D1=B)
 // - 로그인하지 않으면 Firebase 코드를 내려받지도 않는다(동적 import).
 // - 기록은 Firestore users/{uid} 문서 하나에 JSON 문자열로 저장(보안 규칙: 본인만, firestore.rules).
-// - 공개 전(개인정보 처리 방침 게시 전)에는 NEXT_PUBLIC_LOGIN=on 이 아니면 숨김. /account?preview=1 로 미리보기.
+// - 개인정보 처리 방침(/privacy) 게시와 함께 공개. NEXT_PUBLIC_LOGIN=off 로 빌드하면 숨김(/account?preview=1 미리보기).
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
 import { initialState, useStore, type AppState } from "@/lib/store";
 
-export const LOGIN_PUBLIC = process.env.NEXT_PUBLIC_LOGIN === "on";
+export const LOGIN_PUBLIC = process.env.NEXT_PUBLIC_LOGIN !== "off"; // 2026-11-22 공개(결정 D3=A). 끄려면 빌드 때 NEXT_PUBLIC_LOGIN=off
 const FLAG = "myroad:cloud"; // 이 기기에서 로그인한 적 있음 → 시작할 때 세션 확인
 const PREVIEW = "myroad:login-preview";
 

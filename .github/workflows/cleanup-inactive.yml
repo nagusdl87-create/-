@@ -1,0 +1,30 @@
+name: 1년 미접속 계정 정리
+
+on:
+  schedule:
+    - cron: "23 18 1 * *" # 매월 2일 03:23(한국)
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: "점검만 하고 지우지 않기 (1=점검만)"
+        default: "1"
+
+jobs:
+  cleanup:
+    runs-on: ubuntu-latest
+    if: ${{ vars.FIREBASE_PROJECT_ID != '' }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+      - run: npm install --no-save --no-package-lock firebase-admin@14.5.0
+      - name: 정리 실행
+        env:
+          SA: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+          DRY_RUN: ${{ github.event.inputs.dry_run || '0' }}
+        run: |
+          umask 077
+          printf '%s' "$SA" > "$RUNNER_TEMP/sa.json"
+          GOOGLE_APPLICATION_CREDENTIALS="$RUNNER_TEMP/sa.json" node scripts/cleanup-inactive.mjs
+          rm -f "$RUNNER_TEMP/sa.json"

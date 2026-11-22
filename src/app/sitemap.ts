@@ -5,7 +5,7 @@ import { MAJORS } from "@/data/majors";
 
 export const dynamic = "force-static";
 
-const PAGES = ["", "discover", "jobs", "majors", "subjects", "schools", "highschool", "admission", "industry", "credits", "credits/school", "path", "plan", "portfolio", "tests", "resources", "guide", "explore", "tools", "future", "transition"];
+const PAGES = ["", "discover", "jobs", "majors", "subjects", "schools", "highschool", "admission", "industry", "credits", "credits/school", "path", "plan", "portfolio", "tests", "resources", "guide", "explore", "tools", "future", "transition", "account", "privacy"];
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const now = new Date();
