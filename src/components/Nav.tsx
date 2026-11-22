@@ -12,6 +12,7 @@ import { Logo } from "./Logo";
 import { AccountButton } from "./Account";
 import { ThemeToggle } from "./ThemeToggle";
 import { EnglishGuideButton } from "./EnglishGuide";
+import { LangToggle } from "@/lib/i18n";
 
 function Dropdown({ label, items, active, done }: { label: string; items: NavItem[]; active: boolean; done?: (href: string) => boolean }) {
   return (
@@ -88,6 +89,7 @@ export function Nav() {
               <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" aria-hidden />
               <input className="input w-56 rounded-full bg-slate-50 py-2 pl-9 lg:w-48 xl:w-56" placeholder="직업·학과·과목·학교 검색" value={q} onChange={(e) => setQ(e.target.value)} aria-label="통합 검색" />
             </form>
+            <LangToggle />
             <EnglishGuideButton />
             <ThemeToggle />
             <AccountButton />

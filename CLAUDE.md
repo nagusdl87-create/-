@@ -16,6 +16,7 @@
 - 저장소: https://github.com/nagusdl87-create/- · 사이트: https://my-job-c1e50.web.app · Firebase 프로젝트: `my-job-c1e50`
 - 배포 키(서비스 계정 JSON)는 GitHub Secrets에만 있다. 키 파일을 요청하거나 저장소·대화에 넣지 않는다.
 - 사용자는 Windows를 쓴다. 명령 안내는 PowerShell 기준으로 한다.
+- **사용자에게 보이는 모든 글은 한국어로 쓴다.** 최종 보고뿐 아니라 작업 중간의 짧은 진행 설명, 질문, 알림까지 모두 한국어(해요체). 코드·파일 이름·명령어만 원문 그대로.
 
 ## 명령어
 

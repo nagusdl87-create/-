@@ -4,6 +4,7 @@ import "./theme.css";
 import { SITE_DESC, SITE_NAME, SITE_URL } from "@/lib/site";
 import { StoreProvider } from "@/lib/store";
 import { CloudProvider } from "@/lib/cloud";
+import { LangProvider } from "@/lib/i18n";
 import { CloudConflict } from "@/components/Account";
 import { Nav } from "@/components/Nav";
 import { ScrollTop } from "@/components/ScrollTop";
@@ -38,6 +39,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         />
       </head>
       <body>
+        <LangProvider>
         <StoreProvider>
           <CloudProvider>
           <Nav />
@@ -48,6 +50,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           <CloudConflict />
           </CloudProvider>
         </StoreProvider>
+        </LangProvider>
       </body>
     </html>
   );
