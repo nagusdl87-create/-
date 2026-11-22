@@ -140,7 +140,7 @@ firebase emulators:start --only hosting   # http://localhost:5000
 ## 4. 테스트
 ```bash
 npm run build
-firebase emulators:start --only hosting &      # 또는 npx serve@14.2.4 out -l 5000
+firebase emulators:start --only hosting &      # 또는 node scripts/serve-out.cjs out 5000 (npx serve는 반복 테스트 중 멈춤)
 BASE=http://localhost:5000 node scripts/e2e.cjs
 ```
 Playwright가 없다면 `npm i -D playwright && npx playwright install chromium`.

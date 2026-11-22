@@ -27,6 +27,7 @@ npm run validate       # 데이터 교차 검증 (과목·직업·학과·학교
 npm run build          # 정적 내보내기 → out/
 npm run deploy         # 빌드 후 Firebase Hosting 배포 (firebase login 필요)
 npm run build:schools  # scripts/raw → src/data/gn-schools.json 재생성 (Python 3)
+node scripts/serve-out.cjs out 5000 &          # 테스트용 정적 서버 (npx serve 대신)
 BASE=http://localhost:5000 node scripts/e2e.cjs   # 전체 흐름 브라우저 테스트 (Playwright)
 ```
 
