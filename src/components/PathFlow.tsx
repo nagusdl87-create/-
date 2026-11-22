@@ -12,7 +12,7 @@ export function PathFlow({ job, compact = false }: { job: Job; compact?: boolean
       {cols.map((col, i) => (
         <div key={col.t} className="contents">
           <div className={`rounded-2xl border p-3 ${col.c}`}>
-            <div className={`text-[11px] font-bold uppercase tracking-wide ${i === 3 ? "text-brand-100" : "text-slate-500"}`}>{col.t}</div>
+            <div className={`text-[11px] font-bold uppercase tracking-wide ${i === 3 ? "text-white" : "text-slate-500"}`}>{col.t}</div>
             <ul className={`mt-1.5 space-y-1 text-sm ${i === 3 ? "text-lg font-extrabold" : "text-slate-700"}`}>
               {col.items.map((x) => (
                 <li key={x}>{i === 3 ? x : `· ${x}`}</li>

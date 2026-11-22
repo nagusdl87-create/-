@@ -337,8 +337,8 @@ function GnAdmission() {
             const dd = per ? dday(per.start) : null;
             const over = per ? per.end < new Date() : false;
             return (
-              <li key={x.who} className={`grid gap-1 rounded-xl border border-slate-100 p-3 text-sm sm:grid-cols-[60px_1fr_auto_72px] sm:items-center ${over ? "opacity-50" : ""}`}>
-                <span className={`w-fit rounded px-1.5 py-0.5 text-[11px] font-bold text-white ${x.round === "전기" ? "bg-emerald-600" : x.round === "후기" ? "bg-brand-600" : "bg-slate-500"}`}>{x.round}</span>
+              <li key={x.who} className={`grid gap-1 rounded-xl border border-slate-100 p-3 text-sm sm:grid-cols-[60px_1fr_auto_72px] sm:items-center ${over ? "bg-slate-50 text-slate-500 grayscale" : ""}`}>
+                <span className={`w-fit rounded px-1.5 py-0.5 text-[11px] font-bold text-white ${x.round === "전기" ? "bg-emerald-700" : x.round === "후기" ? "bg-brand-600" : "bg-slate-500"}`}>{x.round}</span>
                 <span className="font-semibold">{x.who}</span>
                 <span className="text-xs text-slate-500">원서 {x.apply} · 발표 {x.result}</span>
                 <span className={`w-fit rounded-lg px-2 py-0.5 text-xs font-bold sm:justify-self-end ${over ? "bg-slate-100 text-slate-500" : dd !== null && dd <= 0 ? "bg-sun-100 text-amber-800" : "bg-brand-50 text-brand-700"}`}>

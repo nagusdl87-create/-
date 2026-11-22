@@ -21,7 +21,7 @@ export function Footer() {
           <div className="inline-block rounded-xl bg-white px-3 py-2">
             <Logo />
           </div>
-          <p className="mt-4 text-sm leading-relaxed text-slate-400">경남 중·고등학생을 위한 진로·학업 설계 플랫폼. 흥미 탐색부터 경남 고교 선택, 192학점 설계, 2028 대입까지 한 흐름으로.</p>
+          <p className="mt-4 text-sm leading-relaxed text-slate-300">경남 중·고등학생을 위한 진로·학업 설계 플랫폼. 흥미 탐색부터 경남 고교 선택, 192학점 설계, 2028 대입까지 한 흐름으로.</p>
         </div>
         {[
           { t: "탐색", items: EXPLORE.map((i) => [i.label, i.href]) },
@@ -32,7 +32,7 @@ export function Footer() {
             <ul className="mt-3 space-y-2 text-sm">
               {g.items.map(([l, h]) => (
                 <li key={h}>
-                  <Link href={h} className="text-slate-400 hover:text-white">
+                  <Link href={h} className="text-slate-300 hover:text-white">
                     {l}
                   </Link>
                 </li>
@@ -45,7 +45,7 @@ export function Footer() {
           <ul className="mt-3 space-y-2 text-sm">
             {OFFICIAL.map(([n, u]) => (
               <li key={u}>
-                <a href={u} target="_blank" rel="noreferrer" className="text-slate-400 hover:text-white">
+                <a href={u} target="_blank" rel="noreferrer" className="text-slate-300 hover:text-white">
                   {n} ↗
                 </a>
               </li>
@@ -54,7 +54,7 @@ export function Footer() {
         </nav>
       </div>
       <div className="border-t border-white/10">
-        <div className="mx-auto max-w-6xl space-y-2 px-4 py-6 text-xs leading-relaxed text-slate-400">
+        <div className="mx-auto max-w-6xl space-y-2 px-4 py-6 text-xs leading-relaxed text-slate-300">
           <CreditLine className="text-slate-300 [&_a]:text-brand-200 [&_b]:text-white" />
           <p>
             마이로드 경남은 진로 탐색을 돕는 참고용 서비스이며 경상남도교육청의 공식 서비스가 아닙니다. 고교 정보는 경상남도교육청 고등학교 입학포털·공공데이터포털·교육정보 개방포털(NEIS)의 공개 자료를 바탕으로 했고, 입학 전형과 교육과정은 바뀔 수 있으니 원서 접수 전 반드시 교육청과 학교의 공식 안내를 확인하세요. 흥미 탐색 결과는 표준화된 심리검사가 아니며, 입력한 내용은 이 기기의 브라우저에만 저장됩니다. 로그인(선택)한 경우에만 본인 기록이 서버에 저장됩니다.

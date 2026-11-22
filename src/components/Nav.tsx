@@ -73,7 +73,7 @@ export function Nav() {
       </a>
       <header className="no-print sticky top-0 z-30 border-b border-slate-200/80 bg-white/95 backdrop-blur">
         <div className="mx-auto flex h-16 max-w-6xl items-center justify-between gap-4 px-4">
-          <Link href="/" aria-label="마이로드 경남 홈">
+          <Link href="/" title="마이로드 경남 홈">
             <Logo />
           </Link>
           <nav className="hidden items-center lg:flex" aria-label="주 메뉴">

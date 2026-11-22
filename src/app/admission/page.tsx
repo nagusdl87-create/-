@@ -140,7 +140,7 @@ export default function AdmissionPage() {
         <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-3">
           {TYPES.map((t) => (
             <div key={t.t} className="card">
-              <span className={`rounded px-1.5 py-0.5 text-[11px] font-bold text-white ${t.w === "수시" ? "bg-brand-600" : "bg-emerald-600"}`}>{t.w}</span>
+              <span className={`rounded px-1.5 py-0.5 text-[11px] font-bold text-white ${t.w === "수시" ? "bg-brand-600" : "bg-emerald-700"}`}>{t.w}</span>
               <div className="mt-1 font-bold">{t.t}</div>
               <p className="mt-1 text-sm text-slate-600">{t.d}</p>
               <p className="mt-2 text-xs text-slate-500">👍 {t.fit}</p>

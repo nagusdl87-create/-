@@ -79,7 +79,7 @@ function QuestionPage({ page }: { page: number }) {
         <fieldset key={q.id} className="card p-4">
           <legend className="sr-only">{q.text}</legend>
           <div className="mb-3 font-semibold text-slate-900">
-            <span className="mr-2 text-brand-500">Q{q.id}.</span>
+            <span className="mr-2 text-brand-700">Q{q.id}.</span>
             {q.text}
           </div>
           <div className="grid grid-cols-4 gap-2">

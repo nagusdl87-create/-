@@ -46,7 +46,7 @@ function StagePicker() {
             <ul className="mt-2 space-y-1.5 text-[0.95rem] text-slate-600">
               {x.d.map((d) => (
                 <li key={d} className="flex items-center gap-2">
-                  <Check className="h-4 w-4 text-brand-500" aria-hidden /> {d}
+                  <Check className="h-4 w-4 text-brand-700" aria-hidden /> {d}
                 </li>
               ))}
             </ul>
@@ -152,7 +152,7 @@ export default function Home() {
               <div className="absolute right-0 top-0 w-[48%] rotate-[3deg] rounded-2xl bg-white p-4 shadow-xl shadow-slate-900/10 ring-1 ring-slate-100">
                 <div className="text-xs font-semibold text-slate-500">경남 고입</div>
                 <div className="mt-1 flex items-center gap-2">
-                  <span className="rounded-lg bg-coral-50 px-2 py-1 text-sm font-bold text-coral-600">D-6</span>
+                  <span className="rounded-lg bg-coral-50 px-2 py-1 text-sm font-bold text-coral-700">D-6</span>
                   <span className="text-xs text-slate-600">특성화고 원서</span>
                 </div>
                 <div className="mt-2 flex items-center gap-2">

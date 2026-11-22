@@ -33,14 +33,14 @@ export const GN_MIDDLE = middleRaw as { name: string; region: string; lat: numbe
 export const DATA_AS_OF = "2027학년도 고입전형(2026년 공개 자료) · 학교 위치 2026.10.";
 
 export const KIND_INFO: Record<HsKind, { name: string; emoji: string; color: string }> = {
-  general: { name: "일반고", emoji: "🏫", color: "#2f7bf5" },
-  autonomous: { name: "자율형 공립고", emoji: "🧩", color: "#0ea5e9" },
+  general: { name: "일반고", emoji: "🏫", color: "#2563eb" },
+  autonomous: { name: "자율형 공립고", emoji: "🧩", color: "#0369a1" },
   science: { name: "과학고", emoji: "🔬", color: "#7c3aed" },
   foreign: { name: "외국어고", emoji: "🌐", color: "#db2777" },
   arts: { name: "예술고", emoji: "🎭", color: "#c026d3" },
-  sports: { name: "체육고", emoji: "🏅", color: "#ea580c" },
-  meister: { name: "마이스터고", emoji: "🛠️", color: "#16a34a" },
-  vocational: { name: "특성화고", emoji: "🔧", color: "#059669" },
+  sports: { name: "체육고", emoji: "🏅", color: "#c2410c" },
+  meister: { name: "마이스터고", emoji: "🛠️", color: "#15803d" },
+  vocational: { name: "특성화고", emoji: "🔧", color: "#047857" },
   special: { name: "각종학교·고등기술학교", emoji: "🎬", color: "#64748b" },
 };
 

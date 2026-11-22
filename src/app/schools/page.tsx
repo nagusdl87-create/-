@@ -216,28 +216,24 @@ export default function SchoolsPage() {
               const on = state.favSchools.includes(s.id);
               return (
                 <li key={s.id}>
-                  <div
-                    role="button"
-                    tabIndex={0}
-                    onClick={() => setSel(s.id)}
-                    onKeyDown={(e) => e.key === "Enter" && setSel(s.id)}
-                    className={`card flex cursor-pointer items-start gap-3 p-3 transition hover:border-brand-200 ${sel === s.id ? "border-brand-400 ring-2 ring-brand-100" : ""}`}
-                  >
-                    <span className="mt-1 h-3 w-3 shrink-0 rounded-full" style={{ background: KIND_INFO[s.kind].color }} />
-                    <div className="min-w-0 flex-1">
-                      <div className="truncate font-bold">{s.name}</div>
-                      <div className="text-xs text-slate-500">
-                        {s.region} · {KIND_INFO[s.kind].name} · {s.coedu || "-"} · {s.found}
-                        {s.zone && ` · ${s.zone}`}
-                        {s.nationwide && " · 전국모집"}
-                      </div>
-                      {s.depts.length > 0 && <div className="truncate text-xs text-emerald-700">{s.depts.map((d) => d.name).join(" · ")}</div>}
-                    </div>
-                    {d !== null && <span className="shrink-0 text-xs font-bold text-brand-600">{d.toFixed(1)}km</span>}
+                  <div className={`card flex items-start gap-1 p-0 transition hover:border-brand-200 ${sel === s.id ? "border-brand-400 ring-2 ring-brand-100" : ""}`}>
+                    <button type="button" aria-pressed={sel === s.id} onClick={() => setSel(s.id)} className="flex min-w-0 flex-1 items-start gap-3 p-3 text-left">
+                      <span className="mt-1 h-3 w-3 shrink-0 rounded-full" style={{ background: KIND_INFO[s.kind].color }} aria-hidden />
+                      <span className="block min-w-0 flex-1">
+                        <span className="block truncate font-bold">{s.name}</span>
+                        <span className="block text-xs text-slate-500">
+                          {s.region} · {KIND_INFO[s.kind].name} · {s.coedu || "-"} · {s.found}
+                          {s.zone && ` · ${s.zone}`}
+                          {s.nationwide && " · 전국모집"}
+                        </span>
+                        {s.depts.length > 0 && <span className="block truncate text-xs text-emerald-700">{s.depts.map((d) => d.name).join(" · ")}</span>}
+                      </span>
+                      {d !== null && <span className="shrink-0 text-xs font-bold text-brand-600">{d.toFixed(1)}km</span>}
+                    </button>
                     <button
                       aria-label={on ? "저장 해제" : "저장"}
                       aria-pressed={on}
-                      className="shrink-0 text-lg"
+                      className="shrink-0 p-3 text-lg"
                       onClick={(e) => {
                         e.stopPropagation();
                         update((st) => ({ ...st, favSchools: toggleIn(st.favSchools, s.id) }));

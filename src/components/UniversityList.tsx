@@ -57,7 +57,7 @@ export function UniversityList({ match, groupIndex, title = "개설 대학" }: P
           </a>
         )}
         {r.s[5] && (
-          <a href={r.s[5]} target="_blank" rel="noreferrer" className="chip" aria-label={`${r.s[0]} 2028 전형 기본계획`}>
+          <a href={r.s[5]} target="_blank" rel="noreferrer" className="chip" aria-label={`${r.s[0]} 2028 계획 (전형 기본계획)`}>
             <FileText className="h-3 w-3" /> 2028 계획
           </a>
         )}

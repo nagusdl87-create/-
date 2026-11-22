@@ -50,7 +50,7 @@ function TermPicker() {
           return (
             <button key={x.id} onClick={() => update((s) => ({ ...s, currentTerm: x.id }))} className={`shrink-0 rounded-xl border px-3 py-2 text-left ${x.id === t.id ? "border-brand-500 bg-brand-600 text-white" : "border-slate-200 bg-white"}`}>
               <div className="text-sm font-bold">{x.label}</div>
-              <div className={`text-[11px] ${x.id === t.id ? "text-brand-100" : "text-slate-400"}`}>
+              <div className={`text-[11px] ${x.id === t.id ? "text-white" : "text-slate-500"}`}>
                 {d}/{tasks.length} 완료
               </div>
             </button>

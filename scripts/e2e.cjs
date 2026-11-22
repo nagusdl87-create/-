@@ -76,10 +76,10 @@ async function answerDiscover(p) {
   await m.goto(B + '/schools'); await m.waitForTimeout(1500);
   await m.selectOption('select[aria-label="내 중학교"]', { index: 30 });
   await m.click('button:has-text("마이스터고")'); await m.waitForTimeout(500);
-  await m.locator('main ul li [role=button]').first().click(); await m.waitForTimeout(500);
+  await m.locator('main ul li button[aria-pressed]').first().click(); await m.waitForTimeout(500);
   await m.locator('text=☆ 관심 학교 저장').click();
   await m.screenshot({ path: D + '10-schools.png' });
-  console.log('schools list count:', await m.locator('main ul li [role=button]').count());
+  console.log('schools list count:', await m.locator('main ul li button[aria-pressed]').count());
   await m.goto(B + '/highschool#gn'); await m.waitForTimeout(400); await m.screenshot({ path: D + '11-gn-admission.png', fullPage: true });
   await m.goto(B + '/subjects'); await m.click('role=tab >> text=과목 위계도'); await m.click('button:has-text("미적분Ⅰ")');
   await m.waitForSelector('[role=dialog]'); await m.screenshot({ path: D + '12-subject-modal.png' });

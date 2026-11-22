@@ -9,7 +9,7 @@ const TONES: Record<Tone, { bg: string; blob1: string; blob2: string; eyebrow: s
   violet: { bg: "from-violet-50 via-white to-sky-50", blob1: "#c4b5fd", blob2: "#7dd3fc", eyebrow: "text-violet-700" },
   sky: { bg: "from-sky-50 via-white to-brand-50", blob1: "#7dd3fc", blob2: "#79cdb9", eyebrow: "text-sky-700" },
   rose: { bg: "from-rose-50 via-white to-amber-50", blob1: "#fda4af", blob2: "#fcd34d", eyebrow: "text-rose-700" },
-  coral: { bg: "from-coral-50 via-white to-sun-100/60", blob1: "#ff8a65", blob2: "#ffbe55", eyebrow: "text-coral-600" },
+  coral: { bg: "from-coral-50 via-white to-sun-100/60", blob1: "#ff8a65", blob2: "#ffbe55", eyebrow: "text-coral-700" },
   emerald: { bg: "from-emerald-50 via-white to-sky-50", blob1: "#6ee7b7", blob2: "#7dd3fc", eyebrow: "text-emerald-700" },
   indigo: { bg: "from-indigo-50 via-white to-violet-50", blob1: "#a5b4fc", blob2: "#f0abfc", eyebrow: "text-indigo-700" },
 };

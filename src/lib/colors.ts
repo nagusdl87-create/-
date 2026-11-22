@@ -7,7 +7,7 @@ const P = {
   violet: H("bg-violet-50", "text-violet-700", "bg-violet-400"),
   sky: H("bg-sky-50", "text-sky-700", "bg-sky-400"),
   rose: H("bg-rose-50", "text-rose-700", "bg-rose-400"),
-  coral: H("bg-coral-50", "text-coral-600", "bg-coral-400"),
+  coral: H("bg-coral-50", "text-coral-700", "bg-coral-400"),
   emerald: H("bg-emerald-50", "text-emerald-700", "bg-emerald-400"),
   indigo: H("bg-indigo-50", "text-indigo-700", "bg-indigo-400"),
   lime: H("bg-lime-50", "text-lime-700", "bg-lime-500"),

@@ -1,4 +1,5 @@
 import type { Config } from "tailwindcss";
+import colors from "tailwindcss/colors";
 
 // 디자인 토큰: 차분한 청록(브랜드) + 따뜻한 강조(sun) + 중립 회색(slate)
 export default {
@@ -19,7 +20,9 @@ export default {
           900: "#0f3a34",
         },
         sun: { 100: "#fff3dc", 400: "#ffbe55", 500: "#f2a516" },
-        coral: { 50: "#fff3ef", 100: "#ffe1d6", 400: "#ff8a65", 500: "#f4693f", 600: "#e0532a" },
+        coral: { 50: "#fff3ef", 100: "#ffe1d6", 400: "#ff8a65", 500: "#f4693f", 600: "#e0532a", 700: "#b93d18" },
+        // 접근성(WCAG AA 4.5:1): 밝은 배경 위 보조 글씨가 충분히 진하도록 slate 400·500만 조정
+        slate: { ...colors.slate, 400: "#606d80", 500: "#5b6679" },
         ink: { 800: "#14302c", 900: "#0c221f" },
         canvas: "#f7f6f2",
       },

@@ -230,10 +230,10 @@ export function CreditPlanner({ embedded = false }: { embedded?: boolean }) {
               </div>
               <div className="mt-2 flex flex-wrap gap-1">
                 {a.trackFit.core.map((s) => (
-                  <span key={s} className={`chip ${a.trackFit!.coreHave.includes(s) ? "border-amber-300 bg-amber-50 text-amber-800" : "opacity-50"}`}>★ {s}</span>
+                  <span key={s} className={`chip ${a.trackFit!.coreHave.includes(s) ? "border-amber-300 bg-amber-50 text-amber-800" : "border-dashed text-slate-500"}`}>★ {s}</span>
                 ))}
                 {a.trackFit.rec.map((s) => (
-                  <span key={s} className={`chip ${a.trackFit!.recHave.includes(s) ? "border-sky-300 bg-sky-50 text-sky-800" : "opacity-50"}`}>☆ {s}</span>
+                  <span key={s} className={`chip ${a.trackFit!.recHave.includes(s) ? "border-sky-300 bg-sky-50 text-sky-800" : "border-dashed text-slate-500"}`}>☆ {s}</span>
                 ))}
               </div>
             </div>
