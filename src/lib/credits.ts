@@ -22,7 +22,43 @@ export const TEMPLATE_Y1: Record<"1-1" | "1-2", string[]> = {
 
 const SUNEUNG_REQ = ["화법과 언어", "독서와 작문", "문학", "대수", "미적분Ⅰ", "확률과 통계", "영어Ⅰ", "영어Ⅱ"];
 
-export type Check = { level: "ok" | "warn" | "info"; text: string };
+// 진단 문구: 화면에서 번역할 수 있게 한국어 문구 틀(key)과 변수(vars)를 함께 돌려준다.
+// text는 한국어로 채운 완성 문구(기존과 같음). 화면은 formatCheck(c, { t, … })로 영어/한국어를 그린다.
+export type CheckVar = string | number | { sem: Sem } | { sems: Sem[] } | { subj: string } | { subjs: string[] } | { area: string } | { track: TrackId };
+export type Check = { level: "ok" | "warn" | "info"; text: string; key: string; vars?: Record<string, CheckVar> };
+export type CheckFmt = {
+  /** 문구 번역 (useT의 t). 없으면 한국어 그대로 */
+  t?: (ko: string, vars?: Record<string, string | number>) => string;
+  /** 과목명 표기 */
+  subject?: (name: string) => string;
+  /** 계열 이름 표기 */
+  track?: (id: TrackId) => string;
+};
+
+const fillVars = (s: string, vars?: Record<string, string | number>) => {
+  if (vars) for (const [k, v] of Object.entries(vars)) s = s.split(`{${k}}`).join(String(v));
+  return s;
+};
+
+export function formatCheck(c: Pick<Check, "key" | "vars">, f: CheckFmt = {}): string {
+  const t = f.t ?? fillVars;
+  const subj = f.subject ?? ((n: string) => n);
+  const track = f.track ?? ((id: TrackId) => t(TRACKS[id].name));
+  const sem = (s: Sem) => t(SEM_LABEL[s]);
+  const out: Record<string, string | number> = {};
+  for (const [k, v] of Object.entries(c.vars ?? {})) {
+    if (typeof v === "string" || typeof v === "number") out[k] = v;
+    else if ("sem" in v) out[k] = sem(v.sem);
+    else if ("sems" in v) out[k] = v.sems.map(sem).join(", ");
+    else if ("subj" in v) out[k] = subj(v.subj);
+    else if ("subjs" in v) out[k] = v.subjs.map(subj).join(", ");
+    else if ("area" in v) out[k] = t(v.area);
+    else if ("track" in v) out[k] = track(v.track);
+  }
+  return t(c.key, out);
+}
+
+const mk = (level: Check["level"], key: string, vars?: Record<string, CheckVar>): Check => ({ level, key, vars, text: formatCheck({ key, vars }) });
 
 export function analyze(plan: Record<Sem, string[]>, track: TrackId | "") {
   const semTotals = {} as Record<Sem, number>;
@@ -44,8 +80,8 @@ export function analyze(plan: Record<Sem, string[]>, track: TrackId | "") {
   const g = (k: Group) => byGroup[k] ?? 0;
 
   // 총 학점
-  if (total >= CREDIT_RULES.subjectTotal) checks.push({ level: "ok", text: `교과 ${total}학점 + 창체 18학점 = ${total + 18}학점으로 졸업 기준 192학점을 채웠어요.` });
-  else checks.push({ level: "warn", text: `교과 학점이 ${CREDIT_RULES.subjectTotal - total}학점 부족해요. (현재 ${total} / ${CREDIT_RULES.subjectTotal})` });
+  if (total >= CREDIT_RULES.subjectTotal) checks.push(mk("ok", "교과 {total}학점 + 창체 18학점 = {sum}학점으로 졸업 기준 192학점을 채웠어요.", { total, sum: total + 18 }));
+  else checks.push(mk("warn", "교과 학점이 {lack}학점 부족해요. (현재 {total} / {goal})", { lack: CREDIT_RULES.subjectTotal - total, total, goal: CREDIT_RULES.subjectTotal }));
 
   // 필수 이수 학점
   const areaResults = CREDIT_RULES.requiredByArea.map((a) => {
@@ -53,23 +89,23 @@ export function analyze(plan: Record<Sem, string[]>, track: TrackId | "") {
     return { ...a, have, ok: have >= a.min };
   });
   const missing = areaResults.filter((a) => !a.ok);
-  if (missing.length === 0) checks.push({ level: "ok", text: "교과(군)별 필수 이수 학점(총 84학점)을 모두 채웠어요." });
-  else missing.forEach((a) => checks.push({ level: "warn", text: `${a.area} 필수 이수 학점이 부족해요 (${a.have}/${a.min}).` }));
+  if (missing.length === 0) checks.push(mk("ok", "교과(군)별 필수 이수 학점(총 84학점)을 모두 채웠어요."));
+  else missing.forEach((a) => checks.push(mk("warn", "{area} 필수 이수 학점이 부족해요 ({have}/{min}).", { area: { area: a.area }, have: a.have, min: a.min })));
 
   // 국영수 상한
   const basic = g("국어") + g("수학") + g("영어");
-  if (basic > CREDIT_RULES.basicCap) checks.push({ level: "warn", text: `국어·수학·영어 합계가 ${basic}학점(국어 ${g("국어")}·수학 ${g("수학")}·영어 ${g("영어")})으로 상한 81학점을 넘었어요. 총 ${basic - CREDIT_RULES.basicCap}학점을 줄여야 해요.` });
-  else checks.push({ level: "ok", text: `국어·수학·영어 합계 ${basic}학점 (상한 81학점 이내)` });
+  if (basic > CREDIT_RULES.basicCap) checks.push(mk("warn", "국어·수학·영어 합계가 {basic}학점(국어 {ko}·수학 {ma}·영어 {en})으로 상한 81학점을 넘었어요. 총 {over}학점을 줄여야 해요.", { basic, ko: g("국어"), ma: g("수학"), en: g("영어"), over: basic - CREDIT_RULES.basicCap }));
+  else checks.push(mk("ok", "국어·수학·영어 합계 {basic}학점 (상한 81학점 이내)", { basic }));
 
   // 체육 매 학기 편성
   const filledSems = SEMS.filter((s) => (plan[s] ?? []).length > 0);
   const noPE = filledSems.filter((s) => !(plan[s] ?? []).some((e) => parseEntry(e).subject?.group === "체육"));
-  if (filledSems.length === 6 && noPE.length) checks.push({ level: "warn", text: `체육은 매 학기 편성하는 것이 원칙이에요. ${noPE.map((s) => SEM_LABEL[s]).join(", ")}에 체육 과목이 없어요.` });
+  if (filledSems.length === 6 && noPE.length) checks.push(mk("warn", "체육은 매 학기 편성하는 것이 원칙이에요. {sems}에 체육 과목이 없어요.", { sems: { sems: noPE } }));
 
   // 학기 균형
   SEMS.forEach((sem) => {
     const t = semTotals[sem];
-    if (t > 0 && (t < 25 || t > 33)) checks.push({ level: "info", text: `${SEM_LABEL[sem]}은 ${t}학점이에요. 학기당 약 28~30학점이 고르게 편성되는 것이 일반적이에요.` });
+    if (t > 0 && (t < 25 || t > 33)) checks.push(mk("info", "{sem}은 {n}학점이에요. 학기당 약 28~30학점이 고르게 편성되는 것이 일반적이에요.", { sem: { sem }, n: t }));
   });
 
   // 선수과목
@@ -77,22 +113,22 @@ export function analyze(plan: Record<Sem, string[]>, track: TrackId | "") {
     const s = SUBJECT_MAP[name];
     for (const p of s?.prereq ?? []) {
       const pi = placed.get(p);
-      if (pi === undefined) checks.push({ level: "info", text: `'${name}'을(를) 듣기 전에 '${p}'을(를) 먼저 배우는 것을 권장해요.` });
-      else if (pi > idx) checks.push({ level: "warn", text: `'${p}'이(가) '${name}'보다 늦게 배치되어 있어요. 순서를 바꿔 보세요.` });
-      else if (pi === idx) checks.push({ level: "warn", text: `'${p}'와(과) '${name}'이(가) 같은 학기에 있어요. 선수과목은 이전 학기에 배우는 것이 좋아요.` });
+      if (pi === undefined) checks.push(mk("info", "'{name}'을(를) 듣기 전에 '{pre}'을(를) 먼저 배우는 것을 권장해요.", { name: { subj: name }, pre: { subj: p } }));
+      else if (pi > idx) checks.push(mk("warn", "'{pre}'이(가) '{name}'보다 늦게 배치되어 있어요. 순서를 바꿔 보세요.", { name: { subj: name }, pre: { subj: p } }));
+      else if (pi === idx) checks.push(mk("warn", "'{pre}'와(과) '{name}'이(가) 같은 학기에 있어요. 선수과목은 이전 학기에 배우는 것이 좋아요.", { name: { subj: name }, pre: { subj: p } }));
     }
   }
 
   // 같은 학기 중복
   SEMS.forEach((sem) => {
     const names = (plan[sem] ?? []).map((e) => parseEntry(e).name);
-    names.filter((n, i) => names.indexOf(n) !== i).forEach((n) => checks.push({ level: "warn", text: `${SEM_LABEL[sem]}에 '${n}'이(가) 두 번 담겨 있어요.` }));
+    names.filter((n, i) => names.indexOf(n) !== i).forEach((n) => checks.push(mk("warn", "{sem}에 '{name}'이(가) 두 번 담겨 있어요.", { sem: { sem }, name: { subj: n } })));
   });
 
   // 수능 출제 과목
   const noSuneung = SUNEUNG_REQ.filter((s) => !placed.has(s));
-  if (noSuneung.length === 0) checks.push({ level: "ok", text: "2028 수능 국어·수학·영어 출제 과목을 모두 담았어요." });
-  else checks.push({ level: "info", text: `수능 출제 과목 중 ${noSuneung.join(", ")}이(가) 빠져 있어요. 수능 응시 계획이 있다면 확인하세요.` });
+  if (noSuneung.length === 0) checks.push(mk("ok", "2028 수능 국어·수학·영어 출제 과목을 모두 담았어요."));
+  else checks.push(mk("info", "수능 출제 과목 중 {list}이(가) 빠져 있어요. 수능 응시 계획이 있다면 확인하세요.", { list: { subjs: noSuneung } }));
 
   // 계열 적합도
   let trackFit: { core: string[]; coreHave: string[]; rec: string[]; recHave: string[]; pct: number } | null = null;
@@ -103,8 +139,8 @@ export function analyze(plan: Record<Sem, string[]>, track: TrackId | "") {
     const pct = Math.round(((coreHave.length * 2 + recHave.length) / (t.core.length * 2 + t.rec.length)) * 100);
     trackFit = { core: t.core, coreHave, rec: t.rec, recHave, pct };
     const lack = t.core.filter((s) => !placed.has(s) && SUBJECT_MAP[s]);
-    if (lack.length) checks.push({ level: "warn", text: `${t.name} 계열 핵심 과목 중 ${lack.join(", ")}이(가) 빠져 있어요.` });
-    else checks.push({ level: "ok", text: `${t.name} 계열 핵심 과목을 모두 담았어요.` });
+    if (lack.length) checks.push(mk("warn", "{track} 계열 핵심 과목 중 {list}이(가) 빠져 있어요.", { track: { track }, list: { subjs: lack } }));
+    else checks.push(mk("ok", "{track} 계열 핵심 과목을 모두 담았어요.", { track: { track } }));
   }
 
   return { total, semTotals, byGroup, areaResults, basic, checks, placed, trackFit };
