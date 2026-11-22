@@ -17,6 +17,8 @@ h1, h2, h3 { letter-spacing: -0.025em; line-height: 1.3; }
 ::selection { background: theme("colors.brand.100"); }
 
 @layer components {
+  /* 형광펜 강조(진로 노트 느낌): 글자 아래쪽 40%만 칠함 */
+  .mark-hl { background: linear-gradient(transparent 58%, rgb(var(--c-sun-300) / 0.75) 58%); padding: 0 0.1em; -webkit-box-decoration-break: clone; box-decoration-break: clone; }
   .card { @apply rounded-2xl border border-slate-200/80 bg-surface p-5 sm:p-6; }
   .btn { @apply inline-flex items-center justify-center gap-1.5 rounded-xl px-4 py-2.5 text-sm font-semibold transition active:scale-[0.98] disabled:pointer-events-none disabled:opacity-40; }
   .btn-primary { @apply btn bg-accent text-white hover:bg-accent-hover; }

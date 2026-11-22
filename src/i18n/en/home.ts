@@ -198,4 +198,11 @@ export const HOME: Record<string, string> = {
   "전자기와 양자": "Electromagnetism and Quantum",
   "경제": "Economics",
   "세포와 물질대사": "Cells and Metabolism",
+  // 홈 개편(2026-11-22)
+  "학과 백과 →": "Majors guide →",
+  "고교학점제 핵심 숫자": "Key numbers of the credit system",
+  "이수 기준 →": "Completion rules →",
+  "결과 보기": "See results",
+  "이렇게 진행해요": "How it works",
+  "경남 고입 일정": "Gyeongnam high school admission schedule",
 };

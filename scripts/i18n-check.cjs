@@ -8,6 +8,11 @@ const ROUTES = process.argv.slice(2).length ? process.argv.slice(2) : ['/', '/di
   const errs = []; p.on('pageerror', (e) => errs.push(e.message.slice(0, 100)));
   await p.goto(B + '/'); await p.evaluate(() => { localStorage.setItem('myroad:lang', 'en'); const k = 'myroad:v1'; const s = JSON.parse(localStorage.getItem(k) || 'null'); if (s) { s.profile.stage = 'hs'; localStorage.setItem(k, JSON.stringify(s)); } });
   let total = 0;
+  { // 첫 방문 홈(학년을 고르기 전)
+    const c2 = await b.newContext(); const q = await c2.newPage(); await q.goto(B + '/'); await q.evaluate(() => localStorage.setItem('myroad:lang', 'en')); await q.goto(B + '/'); await q.waitForTimeout(1500);
+    const n = await q.evaluate(() => { let n = 0; const w = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT); while (w.nextNode()) { const t = w.currentNode; if (t.parentElement.closest('[translate="no"],[data-keep-ko],script,style,noscript')) continue; n += (t.textContent.match(/[가-힣]/g) || []).length; } return n; });
+    console.log(`/ (첫 방문) 한글 ${n}자`); total += n; await c2.close();
+  }
   for (const r of ROUTES) {
     await p.goto(B + r); await p.waitForTimeout(1500);
     const res = await p.evaluate(() => {
