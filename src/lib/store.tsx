@@ -1,6 +1,7 @@
 "use client";
 
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
+import { useMounted } from "@/lib/useMounted";
 import type { ValueId } from "@/data/riasec";
 import type { HsTypeId } from "@/data/jobs";
 import type { TrackId } from "@/data/subjects";
@@ -125,12 +126,15 @@ type Ctx = {
   update: (fn: (s: AppState) => AppState) => void;
   reset: () => void;
   replace: (s: unknown) => void;
+  /** 처음 상태(서버 HTML과 같은 값). 컴포넌트가 화면에 붙기 전에 쓴다. */
+  initial: AppState;
 };
 
 const StoreContext = createContext<Ctx | null>(null);
 
 export function StoreProvider({ children }: { children: React.ReactNode }) {
   const [state, setState] = useState<AppState>(initialState);
+  const [initial] = useState(() => state);
   const [ready, setReady] = useState(false);
 
   useEffect(() => {
@@ -156,14 +160,17 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
   const reset = useCallback(() => setState(initialState()), []);
   const replace = useCallback((s: unknown) => setState(sanitize(s)), []);
 
-  const value = useMemo(() => ({ state, ready, update, reset, replace }), [state, ready, update, reset, replace]);
+  const value = useMemo(() => ({ state, ready, update, reset, replace, initial }), [state, ready, update, reset, replace, initial]);
   return <StoreContext.Provider value={value}>{children}</StoreContext.Provider>;
 }
 
 export function useStore() {
   const ctx = useContext(StoreContext);
   if (!ctx) throw new Error("useStore must be used within StoreProvider");
-  return ctx;
+  // 이 컴포넌트가 붙기 전에는 처음 상태로 그린다(화면 불일치 방지, src/lib/useMounted.ts 설명 참고)
+  const mounted = useMounted();
+  const before = useMemo(() => ({ ...ctx, state: ctx.initial, ready: false }), [ctx]);
+  return mounted ? ctx : before;
 }
 
 export function toggleIn<T>(arr: T[], v: T): T[] {

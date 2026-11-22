@@ -6,6 +6,7 @@
 // - 한국어 사용자는 영어 사전·자료를 내려받지 않는다(동적 import).
 // - 처음 그릴 때는 서버 HTML과 같게 한국어로 그리고, 화면이 붙은 뒤 영어로 바꾼다(화면 불일치 방지).
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
+import { useMounted } from "@/lib/useMounted";
 
 export type Lang = "ko" | "en";
 // 번역이 끝나기 전에는 전환 버튼을 숨김. ?lang=en 으로 들어오면 그 브라우저에서 미리보기.
@@ -47,7 +48,13 @@ export function LangProvider({ children }: { children: React.ReactNode }) {
   return <LangContext.Provider value={value}>{children}</LangContext.Provider>;
 }
 
-export const useLang = () => useContext(LangContext);
+/** 이 컴포넌트가 붙기 전에는 한국어로 그린다(서버 HTML과 같게, src/lib/useMounted.ts 설명 참고) */
+const BEFORE: Ctx = { lang: "ko", setLang: () => {}, dict: null, toggle: LANG_PUBLIC };
+export function useLang(): Ctx {
+  const ctx = useContext(LangContext);
+  const mounted = useMounted();
+  return mounted ? ctx : { ...BEFORE, setLang: ctx.setLang };
+}
 
 /** 화면 문구 번역. 변수는 {name} 자리표시: t("{n}개 직업", { n: 51 }) */
 export function useT() {

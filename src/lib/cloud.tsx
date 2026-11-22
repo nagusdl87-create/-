@@ -6,6 +6,7 @@
 // - 개인정보 처리 방침(/privacy) 게시와 함께 공개. NEXT_PUBLIC_LOGIN=off 로 빌드하면 숨김(/account?preview=1 미리보기).
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
 import { initialState, useStore, type AppState } from "@/lib/store";
+import { useMounted } from "@/lib/useMounted";
 
 export const LOGIN_PUBLIC = process.env.NEXT_PUBLIC_LOGIN !== "off"; // 2026-11-22 공개(결정 D3=A). 끄려면 빌드 때 NEXT_PUBLIC_LOGIN=off
 const FLAG = "myroad:cloud"; // 이 기기에서 로그인한 적 있음 → 시작할 때 세션 확인
@@ -65,6 +66,7 @@ type Ctx = {
   enablePreview: () => void;
 };
 const CloudContext = createContext<Ctx | null>(null);
+const CloudInitialContext = createContext<Ctx | null>(null);
 
 const isEmpty = (s: AppState) => JSON.stringify({ ...s, currentTerm: "" }) === JSON.stringify({ ...initialState(), currentTerm: "" });
 const msg = (e: unknown) => {
@@ -208,11 +210,19 @@ export function CloudProvider({ children }: { children: React.ReactNode }) {
     () => ({ visible, user, status, error, lastSync, conflict, signIn, signOutNow, deleteAccount, resolve, enablePreview }),
     [visible, user, status, error, lastSync, conflict, signIn, signOutNow, deleteAccount, resolve, enablePreview],
   );
-  return <CloudContext.Provider value={value}>{children}</CloudContext.Provider>;
+  // 처음 값(서버 HTML과 같은 값)을 따로 둔다: 컴포넌트가 화면에 붙기 전에 쓴다(src/lib/useMounted.ts 설명 참고)
+  const [initial] = useState(() => value);
+  return (
+    <CloudInitialContext.Provider value={initial}>
+      <CloudContext.Provider value={value}>{children}</CloudContext.Provider>
+    </CloudInitialContext.Provider>
+  );
 }
 
 export function useCloud() {
   const c = useContext(CloudContext);
-  if (!c) throw new Error("useCloud must be used within CloudProvider");
-  return c;
+  const first = useContext(CloudInitialContext);
+  const mounted = useMounted();
+  if (!c || !first) throw new Error("useCloud must be used within CloudProvider");
+  return mounted ? c : first;
 }
