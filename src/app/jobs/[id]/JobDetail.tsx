@@ -14,11 +14,11 @@ import { jobVideos } from "@/data/videos";
 import { Videos } from "@/components/Videos";
 import { GN_INDUSTRIES } from "@/data/gn";
 import { JOB_DETAILS } from "@/data/jobDetails";
-import { JOB_DEEP } from "@/data/deep";
+import type { JobDeep } from "@/data/deep/types";
 import { Faq, JobDeepMain, JobDeepWork, JobFuture } from "@/components/Deep";
 import { Award, Building2, Sparkles, TrendingUp } from "lucide-react";
 
-export function JobDetail({ id }: { id: string }) {
+export function JobDetail({ id, deep }: { id: string; deep?: JobDeep }) {
   const job = JOB_MAP[id];
   const { state, ready, update } = useStore();
   // 열람 기록 (직업 열람 진행률)
@@ -32,7 +32,6 @@ export function JobDetail({ id }: { id: string }) {
   const tested = ready && isTestComplete(state.answers);
   const score = tested ? jobMatch(job, riasecScores(state.answers), state.values) : null;
   const more = JOB_DETAILS[job.id];
-  const deep = JOB_DEEP[job.id];
   const majors = MAJORS.filter((m) => m.jobs.includes(job.id));
   const inds = GN_INDUSTRIES.filter((i) => i.jobs.includes(job.id));
   const similar = JOBS.filter((j) => j.id !== job.id && (j.field === job.field || j.riasec[0] === job.riasec[0])).slice(0, 4);

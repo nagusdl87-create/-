@@ -44,6 +44,7 @@ BASE=http://localhost:5000 node scripts/e2e.cjs   # 전체 흐름 브라우저 �
 - 다크 모드: tailwind 색(slate·brand 등)은 CSS 변수(`src/app/theme.css`, `node scripts/gen-theme.cjs`로 생성)라 `html.dark`에서 자동으로 바뀐다. 새 색 계열을 쓰면 `tailwind.config.ts`의 `FAMILIES`와 생성 스크립트에 추가. 흰 글씨 버튼은 `bg-accent`, 카드 면은 `bg-surface`. 바꾼 뒤 밝게·어둡게 모두 접근성 검사.
 - 지도: 카카오맵(`src/components/KakaoSchoolMap.tsx`, 키 `src/lib/site.ts`) 우선, 실패 시 Leaflet + OpenStreetMap(`SchoolMap.tsx`) 자동 대체.
 - 홈·메뉴 숫자: `src/data/stats.ts` 한곳에서 관리, `npm run check:stats`로 매일 점검.
+- 직업·학과 상세: `src/data/deep/`(형식 `types.ts`), 기준 `docs/content-standard.md`. 페이지(`page.tsx`, 서버)에서 해당 항목만 골라 넘긴다(전체를 화면 코드에 싣지 않기). 새 직업·학과(커리어넷 포함)는 기준의 모든 항목을 채워야 `npm run validate` 통과.
 
 ## 지켜야 할 결정 사항
 

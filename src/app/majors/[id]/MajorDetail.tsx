@@ -2,7 +2,7 @@
 
 import { Award, Heart, Lightbulb, Sparkles } from "lucide-react";
 import { MAJOR_DETAILS } from "@/data/majorDetails";
-import { MAJOR_DEEP } from "@/data/deep";
+import type { MajorDeep } from "@/data/deep/types";
 import { Faq, MajorDeepMain } from "@/components/Deep";
 
 import Link from "next/link";
@@ -18,13 +18,12 @@ import { majorVideos, relatedJobVideos } from "@/data/videos";
 import { Videos } from "@/components/Videos";
 import { toggleIn, useStore } from "@/lib/store";
 
-export function MajorDetail({ id }: { id: string }) {
+export function MajorDetail({ id, deep }: { id: string; deep?: MajorDeep }) {
   const m = MAJOR_MAP[id];
   const router = useRouter();
   const { state, update } = useStore();
   const on = state.favMajors.includes(m.id);
   const more = MAJOR_DETAILS[m.id];
-  const deep = MAJOR_DEEP[m.id];
   const similar = MAJORS.filter((x) => x.track === m.track && x.id !== m.id).slice(0, 6);
   const placed = new Set(Object.values(state.credits.plan).flat().map((e) => e.split("|")[0]));
 
