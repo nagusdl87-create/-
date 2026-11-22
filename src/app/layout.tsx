@@ -6,6 +6,7 @@ import { CloudProvider } from "@/lib/cloud";
 import { CloudConflict } from "@/components/Account";
 import { Nav } from "@/components/Nav";
 import { ScrollTop } from "@/components/ScrollTop";
+import { OfflineSupport } from "@/components/Offline";
 import { Footer } from "@/components/Footer";
 
 export const metadata: Metadata = {
@@ -40,6 +41,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           <main id="main" className="mx-auto w-full max-w-6xl px-4 pb-28 pt-8 sm:pb-20 sm:pt-12">{children}</main>
           <Footer />
           <ScrollTop />
+          <OfflineSupport />
           <CloudConflict />
           </CloudProvider>
         </StoreProvider>
