@@ -29,8 +29,9 @@ if (R.required !== reqSum) errs.push(`필수 이수 ${R.required} ≠ 교과(군
 if (R.required !== 84) errs.push(`필수 이수 ${R.required} ≠ 84`);
 if (R.basicCap !== 174 / 2 - 6) errs.push(`국·수·영 상한 ${R.basicCap} ≠ 교과 174의 50%(87) − 한국사 6 = 81`);
 
-// 고입 대상이 아닌 학교(목록에서 제외하는 것이 맞음)
-const NOT_ADMISSION = new Set(["경남온라인학교"]);
+// 나이스에는 있지만 경남교육청 고입포털 고교현황 목록에 없는 학교(사이트 목록에서 제외하는 것이 맞음)
+// - 경남온라인학교: 온라인 공동교육과정 학교 / - 창원예술학교: 공립 각종학교(고입포털 일반 전형 목록에 없음)
+const NOT_ADMISSION = new Set(["경남온라인학교", "창원예술학교"]);
 
 // 나이스 공식 학교 수 (키 없이 개수만 조회 가능, 키가 있으면 학교 이름까지 대조)
 async function neisCount(kind: string) {
