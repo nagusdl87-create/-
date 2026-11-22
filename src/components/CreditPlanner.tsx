@@ -9,12 +9,19 @@ import { CAT_INFO, CREDIT_RULES, GROUPS, SUBJECTS, TRACKS, type Cat, type Group,
 import { MAJOR_MAP } from "@/data/majors";
 import { PageHead } from "@/components/ui";
 import { useEscape } from "@/components/useEscape";
+import { useNeisSubjects } from "@/components/Neis";
+import { OfferCaveat, OfferDiagnosis, SchoolOfferCard } from "@/components/SchoolOffer";
+import { School } from "lucide-react";
+import { schoolOffer, type SchoolOffer } from "@/lib/schoolSubjects";
 
 export function CreditPlanner({ embedded = false }: { embedded?: boolean }) {
   const { state, update, ready } = useStore();
   const { plan, track } = state.credits;
   const [adding, setAdding] = useState<Sem | null>(null);
   const a = useMemo(() => analyze(plan, track), [plan, track]);
+  const neis = useNeisSubjects();
+  const school = state.credits.school;
+  const offer = useMemo(() => schoolOffer(neis, school?.code ?? ""), [neis, school?.code]);
 
   if (!ready) return <div className="h-96" />;
 
@@ -119,6 +126,8 @@ export function CreditPlanner({ embedded = false }: { embedded?: boolean }) {
           )}
         </div>
       </div>
+
+      <SchoolOfferCard data={neis} offer={offer} school={school} onChange={(v) => update((s) => ({ ...s, credits: { ...s.credits, school: v } }))} />
 
       <div className="hidden print:block">
         <h2 className="text-xl font-extrabold">3개년 진로·학업 설계서</h2>
@@ -268,6 +277,7 @@ export function CreditPlanner({ embedded = false }: { embedded?: boolean }) {
               ))}
             </ul>
           </div>
+          {offer && school && <OfferDiagnosis plan={plan} offer={offer} schoolName={school.name} />}
           <Link href="/subjects" className="no-print block text-center text-sm font-semibold text-brand-600">
             과목 백과에서 자세히 보기 →
           </Link>
@@ -280,6 +290,7 @@ export function CreditPlanner({ embedded = false }: { embedded?: boolean }) {
           track={track}
           placed={a.placed}
           majorSubjects={majorHints.flatMap((m) => [...m.core, ...m.rec])}
+          offer={offer}
           onClose={() => setAdding(null)}
           onPick={(name) => (cur ? setCurr((c) => ({ extra: { ...c.extra, [adding]: [...(c.extra[adding] ?? []), name] } })) : setPlan((p) => ({ ...p, [adding]: [...p[adding], name] })))}
         />
@@ -288,12 +299,14 @@ export function CreditPlanner({ embedded = false }: { embedded?: boolean }) {
   );
 }
 
-function SubjectPicker({ sem, track, placed, majorSubjects, onClose, onPick }: { sem: Sem; track: TrackId | ""; placed: Map<string, number>; majorSubjects: string[]; onClose: () => void; onPick: (n: string) => void }) {
+function SubjectPicker({ sem, track, placed, majorSubjects, offer, onClose, onPick }: { sem: Sem; track: TrackId | ""; placed: Map<string, number>; majorSubjects: string[]; offer: SchoolOffer | null; onClose: () => void; onPick: (n: string) => void }) {
   const [group, setGroup] = useState<Group | "all" | "star">(track || majorSubjects.length ? "star" : "all");
   useEscape(onClose);
   const [cat, setCat] = useState<Cat | "all">("all");
   const [q, setQ] = useState("");
   const [custom, setCustom] = useState("");
+  const [ours, setOurs] = useState(false);
+  const onlyOurs = ours && !!offer;
   const semIdx = SEMS.indexOf(sem);
   const list = SUBJECTS.filter((s) => {
     if (group === "star") {
@@ -301,9 +314,12 @@ function SubjectPicker({ sem, track, placed, majorSubjects, onClose, onPick }: {
       if (!rec.includes(s.name)) return false;
     } else if (group !== "all" && s.group !== group) return false;
     if (cat !== "all" && s.cat !== cat) return false;
+    if (onlyOurs && !offer!.offered.has(s.name)) return false;
     if (q && !(s.name + s.desc).includes(q)) return false;
     return true;
   });
+  // 우리 학교 개설 과목만 볼 때: 과목 백과에 없는 학교 고유·전문 과목도 바로 담을 수 있게
+  const ownList = onlyOurs && group === "all" && cat === "all" ? offer!.unknown.filter((n) => !q || n.includes(q)) : [];
 
   return (
     <div className="no-print fixed inset-0 z-50 flex items-end justify-center bg-slate-900/40 sm:items-center" onClick={onClose}>
@@ -338,7 +354,12 @@ function SubjectPicker({ sem, track, placed, majorSubjects, onClose, onPick }: {
               <button key={g} className={`chip shrink-0 ${group === g ? "chip-on" : ""}`} onClick={() => setGroup(g)}>{g}</button>
             ))}
           </div>
-          <div className="mt-1 flex gap-1">
+          {offer && (
+            <button aria-pressed={ours} className={`chip mt-1 ${ours ? "chip-on" : ""}`} onClick={() => setOurs((v) => !v)}>
+              <School className="h-3.5 w-3.5" aria-hidden /> 우리 학교 개설 과목만
+            </button>
+          )}
+          <div className="mt-1 flex flex-wrap gap-1">
             {(["all", "공통", "일반", "진로", "융합"] as const).map((c) => (
               <button key={c} className={`chip ${cat === c ? "chip-on" : ""}`} onClick={() => setCat(c)}>{c === "all" ? "모든 유형" : CAT_INFO[c].label}</button>
             ))}
@@ -355,6 +376,7 @@ function SubjectPicker({ sem, track, placed, majorSubjects, onClose, onPick }: {
                     {s.name}
                     <span className="ml-1.5 rounded px-1 text-[11px] font-bold text-white" style={{ background: CAT_INFO[s.cat].color }}>{CAT_INFO[s.cat].label}</span>
                     {s.suneung && <span className="ml-1 rounded bg-rose-100 px-1 text-[11px] font-bold text-rose-700">수능</span>}
+                    {offer?.offered.has(s.name) && <span className="ml-1 rounded bg-emerald-100 px-1 text-[11px] font-bold text-emerald-800">우리 학교</span>}
                   </div>
                   <div className="text-xs text-slate-500">{s.desc} · {s.credits}학점 · {s.eval}</div>
                   {missingPre.length > 0 && <div className="text-[11px] text-amber-600">선수과목: {missingPre.join(", ")}을(를) 이전 학기에 먼저 담아 주세요</div>}
@@ -366,7 +388,23 @@ function SubjectPicker({ sem, track, placed, majorSubjects, onClose, onPick }: {
               </li>
             );
           })}
-          {list.length === 0 && <li className="p-6 text-center text-sm text-slate-500">조건에 맞는 과목이 없어요.</li>}
+          {list.length === 0 && ownList.length === 0 && <li className="p-6 text-center text-sm text-slate-500">조건에 맞는 과목이 없어요.</li>}
+          {ownList.length > 0 && (
+            <li className="px-2 py-3">
+              <div className="text-xs font-bold text-slate-600">학교 고유·전문 과목</div>
+              <p className="text-[11px] text-slate-500">과목 백과에 없는 우리 학교 과목이에요. 눌러서 담고, 학점은 편제표를 보고 맞춰 주세요.</p>
+              <div className="mt-1.5 flex flex-wrap gap-1">
+                {ownList.map((n) => (
+                  <button key={n} className="chip max-w-full break-words" onClick={() => onPick(n.replace(/\|/g, "").slice(0, 30))} aria-label={`${n} 담기`}>+ {n}</button>
+                ))}
+              </div>
+            </li>
+          )}
+          {offer && (
+            <li className="px-2 py-2">
+              <OfferCaveat asOf={offer.asOf} />
+            </li>
+          )}
         </ul>
       </div>
     </div>
