@@ -1,5 +1,9 @@
+"use client";
+
+import { useT } from "@/lib/i18n";
 // 마이로드 로고: 갈림길(진로)을 단순한 선으로 표현
 export function Logo({ compact = false }: { compact?: boolean }) {
+  const t = useT();
   return (
     <span className="flex items-center gap-2">
       <svg viewBox="0 0 32 32" className="h-8 w-8" aria-hidden>
@@ -10,7 +14,7 @@ export function Logo({ compact = false }: { compact?: boolean }) {
       </svg>
       {!compact && (
         <span className="text-[1.05rem] font-bold tracking-tight text-slate-900">
-          마이로드<span className="ml-1.5 rounded-md bg-brand-50 px-1.5 py-0.5 text-[0.7rem] font-semibold text-brand-700 align-middle">경남</span>
+          {t("마이로드")}<span className="ml-1.5 rounded-md bg-brand-50 px-1.5 py-0.5 text-[0.7rem] font-semibold text-brand-700 align-middle">{t("경남")}</span>
         </span>
       )}
     </span>
