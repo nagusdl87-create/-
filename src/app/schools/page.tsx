@@ -3,15 +3,14 @@
 import { Star } from "lucide-react";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
-import dynamic from "next/dynamic";
 import Link from "next/link";
 import { toggleIn, useStore } from "@/lib/store";
 import { DATA_AS_OF, GN_INDUSTRIES, GN_MIDDLE, GN_SCHOOLS, KIND_INFO, OFFICIAL, REGIONS, GENERAL_WITH_VOC, type GnSchool, type HsKind } from "@/data/gn";
 import { JOB_MAP } from "@/data/jobs";
 import { PageHead } from "@/components/ui";
+import { SchoolMapSwitch } from "@/components/SchoolMapSwitch";
 import { SchoolMeal, SchoolSubjects } from "@/components/Neis";
 
-const SchoolMap = dynamic(() => import("@/components/SchoolMap"), { ssr: false, loading: () => <div className="grid h-full min-h-[320px] place-items-center rounded-2xl bg-slate-100 text-sm text-slate-400">지도를 불러오는 중…</div> });
 
 function km(a: { lat: number; lng: number }, b: { lat: number; lng: number }) {
   const R = 6371, d2r = Math.PI / 180;
@@ -206,7 +205,7 @@ export default function SchoolsPage() {
 
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-[1.1fr_0.9fr] [&>*]:min-w-0">
         <div className="h-[340px] lg:sticky lg:top-20 lg:h-[calc(100vh-7rem)]">
-          <SchoolMap schools={mapSchools} selected={sel} origin={origin} onSelect={onSelect} />
+          <SchoolMapSwitch schools={mapSchools} selected={sel} origin={origin} onSelect={onSelect} />
         </div>
         <div>
           {selected && <Detail s={selected} d={origin && selected.lat != null && selected.lng != null ? km(origin, { lat: selected.lat, lng: selected.lng }) : null} origin={origin} onClose={() => setSel(null)} />}
