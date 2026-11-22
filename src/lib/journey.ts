@@ -1,4 +1,5 @@
 import type { LucideIcon } from "lucide-react";
+import { STATS } from "@/data/stats";
 import {
   BookMarked, BookOpen, Briefcase, Calculator, ClipboardCheck, Compass, Factory, FolderOpen, GraduationCap,
   Lightbulb, ListChecks, MapPinned, Percent, Route, School, Target, Backpack, Rocket, HardDriveDownload } from "lucide-react";
@@ -25,10 +26,10 @@ export const JOURNEY: Record<Stage, Step[]> = {
 };
 
 export const EXPLORE: NavItem[] = [
-  { href: "/jobs", label: "직업 백과", icon: Briefcase, desc: "51개 직업 · 경남 주력산업 직업 포함" },
-  { href: "/majors", label: "학과 백과", icon: GraduationCap, desc: "학과 가이드 56개 · 전국 학과·개설 대학 탐색" },
-  { href: "/subjects", label: "과목 백과", icon: BookOpen, desc: "2022 개정 290과목 · 위계도 · 평가" },
-  { href: "/schools", label: "경남 고교 찾기", icon: MapPinned, desc: "경남 203개 고교 지도 · 거리 · 학과" },
+  { href: "/jobs", label: "직업 백과", icon: Briefcase, desc: `${STATS.jobs}개 직업 · 경남 주력산업 직업 포함` },
+  { href: "/majors", label: "학과 백과", icon: GraduationCap, desc: `학과 가이드 ${STATS.majors}개 · 전국 학과·개설 대학 탐색` },
+  { href: "/subjects", label: "과목 백과", icon: BookOpen, desc: `2022 개정 ${STATS.subjects}과목 · 위계도 · 평가` },
+  { href: "/schools", label: "경남 고교 찾기", icon: MapPinned, desc: `경남 ${STATS.schools}개 고교 지도 · 거리 · 학과` },
   { href: "/highschool", label: "고교 유형·경남 고입", icon: School, desc: "유형 비교 · 학군 · 2027 전형 일정" },
   { href: "/admission", label: "2028 대입", icon: Target, desc: "수능 개편 · 5등급 내신 · 전형" },
   { href: "/industry", label: "경남 산업 진로 지도", icon: Factory, desc: "지역 산업 · 직업 · 학교 연결" },

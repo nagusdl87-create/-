@@ -28,6 +28,10 @@ jobs:
         env:
           NEIS_API_KEY: ${{ secrets.NEIS_API_KEY }}
       - run: npm run validate
+      - name: 홈·메뉴 숫자 점검 (매일)
+        run: npm run check:stats
+        env:
+          NEIS_API_KEY: ${{ secrets.NEIS_API_KEY }}
       - run: npm run build
       - uses: FirebaseExtended/action-hosting-deploy@v0
         with:

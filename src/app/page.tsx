@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { STATS } from "@/data/stats";
 import { MySchoolMeal } from "@/components/Neis";
 import { BackupReminder } from "@/components/Backup";
 import { ArrowRight, Backpack, BookOpenCheck, CalendarClock, Check, GraduationCap, MapPinned, Calculator, Sparkles, Route, Compass } from "lucide-react";
@@ -21,7 +22,7 @@ const FLOW = [
   { icon: Compass, t: "흥미·가치관 알기", d: "5분 흥미 탐색" },
   { icon: GraduationCap, t: "직업·학과 찾기", d: "나와 맞는 순서로 추천" },
   { icon: Route, t: "고교 과목으로 잇기", d: "핵심·권장 과목 연결" },
-  { icon: MapPinned, t: "경남 고교 고르기", d: "203개교 지도·학과" },
+  { icon: MapPinned, t: "경남 고교 고르기", d: `${STATS.schools}개교 지도·학과` },
   { icon: Calculator, t: "192학점·대입 설계", d: "실시간 진단" },
 ];
 
@@ -180,11 +181,11 @@ export default function Home() {
         </section>
         <section className="grid grid-cols-2 gap-px overflow-hidden rounded-3xl bg-ink-800 sm:grid-cols-5">
           {[
-            ["203", "경남 고등학교"],
-            ["290", "고교 과목"],
-            ["444", "전국 대학·캠퍼스"],
-            ["51", "직업"],
-            ["20", "공식 진로검사"],
+            [String(STATS.schools), "경남 고등학교"],
+            [String(STATS.subjects), "고교 과목"],
+            [String(STATS.univ), "전국 대학·캠퍼스"],
+            [String(STATS.jobs), "직업"],
+            [String(STATS.tests), "공식 진로검사"],
           ].map(([n, l]) => (
             <div key={l} className="bg-ink-900 px-5 py-6 text-center">
               <div className="text-3xl font-bold text-white">{n}</div>
