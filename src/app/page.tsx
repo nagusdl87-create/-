@@ -485,7 +485,7 @@ export default function Home() {
         </div>
         <KeyNumbers />
         <div className="lg:col-span-2">
-          <GnJobs limit={4} />
+          <GnJobs limit={6} />
         </div>
         <PopularMajors narrow />
         <div className="lg:col-span-3">
