@@ -104,8 +104,8 @@ export default function SubjectsPage() {
 function Badges({ s }: { s: Subject }) {
   return (
     <span className="inline-flex flex-wrap gap-1">
-      <span className="rounded px-1.5 py-0.5 text-[10px] font-bold text-white" style={{ background: CAT_INFO[s.cat].color }}>{CAT_INFO[s.cat].label}</span>
-      {s.suneung && <span className="rounded bg-rose-100 px-1.5 py-0.5 text-[10px] font-bold text-rose-700">2028 수능</span>}
+      <span className="rounded px-1.5 py-0.5 text-[11px] font-bold text-white" style={{ background: CAT_INFO[s.cat].color }}>{CAT_INFO[s.cat].label}</span>
+      {s.suneung && <span className="rounded bg-rose-100 px-1.5 py-0.5 text-[11px] font-bold text-rose-700">2028 수능</span>}
     </span>
   );
 }
@@ -146,7 +146,7 @@ function Tree({ group, onOpen }: { group: Group; onOpen: (n: string) => void }) 
                   <li key={s.name}>
                     <button onClick={() => onOpen(s.name)} className="w-full rounded-xl border border-slate-200 bg-white p-2.5 text-left text-sm hover:border-brand-300">
                       <div className="font-semibold">
-                        {s.name} {s.suneung && <span className="text-[10px] font-bold text-rose-600">수능</span>}
+                        {s.name} {s.suneung && <span className="text-[11px] font-bold text-rose-600">수능</span>}
                       </div>
                       {s.prereq && <div className="text-[11px] text-slate-400">← {s.prereq.join(", ")}</div>}
                       {next.length > 0 && <div className="text-[11px] text-brand-600">→ {next.map((n) => n.name).join(", ")}</div>}

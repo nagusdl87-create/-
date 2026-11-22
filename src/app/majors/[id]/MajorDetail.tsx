@@ -31,8 +31,8 @@ export function MajorDetail({ id }: { id: string }) {
       className={`inline-flex items-center gap-1 rounded-lg border px-2.5 py-1.5 text-sm font-semibold ${core ? "border-amber-200 bg-amber-50 text-amber-900" : "border-sky-200 bg-sky-50 text-sky-900"}`}
     >
       {core ? "★" : "☆"} {name}
-      {SUBJECT_MAP[name]?.suneung && <span className="text-[10px] text-rose-600">수능</span>}
-      {placed.has(name) && <span className="text-[10px] text-emerald-600">✓담음</span>}
+      {SUBJECT_MAP[name]?.suneung && <span className="text-[11px] text-rose-600">수능</span>}
+      {placed.has(name) && <span className="text-[11px] text-emerald-600">✓담음</span>}
     </Link>
   );
 

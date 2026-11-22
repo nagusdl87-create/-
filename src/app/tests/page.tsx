@@ -101,7 +101,7 @@ export default function TestsPage() {
                       <td className="p-3 font-medium">
                         {t.n}
                         {t.pc && (
-                          <span className="ml-1 inline-flex items-center gap-0.5 rounded bg-slate-100 px-1 text-[10px] text-slate-600">
+                          <span className="ml-1 inline-flex items-center gap-0.5 rounded bg-slate-100 px-1 text-[11px] text-slate-600">
                             <Monitor className="h-3 w-3" /> PC 권장
                           </span>
                         )}

@@ -138,7 +138,7 @@ function ReportBody({ s }: { s: AppState }) {
                   <tr key={j.id} className="border-b border-slate-100 align-top">
                     <td className="py-2 pr-2 font-semibold">
                       {j.emoji} {j.name}
-                      {i === 0 && <span className="ml-1 rounded bg-brand-600 px-1 text-[10px] text-white">대표</span>}
+                      {i === 0 && <span className="ml-1 rounded bg-brand-600 px-1 text-[11px] text-white">대표</span>}
                     </td>
                     <td className="py-2 pr-2 text-slate-600">{j.majors.slice(0, 3).join(", ")}</td>
                     <td className="py-2 text-slate-600">{j.hsSubjects.slice(0, 5).join(", ")}</td>

@@ -198,7 +198,7 @@ export default function SchoolsPage() {
                   </button>
                 </li>
               ))}
-              <li className="px-2 text-[10px] text-slate-400">주소 검색: © OpenStreetMap 기여자 (Nominatim)</li>
+              <li className="px-2 text-[11px] text-slate-400">주소 검색: © OpenStreetMap 기여자 (Nominatim)</li>
             </ul>
           )}
         </div>

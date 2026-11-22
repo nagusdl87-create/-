@@ -42,7 +42,7 @@ export function UniversityList({ match, groupIndex, title = "개설 대학" }: P
       <div className="min-w-0">
         <div className="font-semibold text-slate-900">
           {r.s[0]}
-          <span className="ml-1.5 rounded bg-slate-100 px-1.5 py-0.5 text-[10px] font-medium text-slate-600">{r.s[3]}</span>
+          <span className="ml-1.5 rounded bg-slate-100 px-1.5 py-0.5 text-[11px] font-medium text-slate-600">{r.s[3]}</span>
         </div>
         <div className="text-xs text-slate-500">
           <MapPin className="mr-0.5 inline h-3 w-3" aria-hidden />

@@ -157,7 +157,7 @@ export function CreditPlanner({ embedded = false }: { embedded?: boolean }) {
                         {st === "core" && <b className="text-amber-500">★ </b>}
                         {st === "rec" && <b className="text-sky-500">☆ </b>}
                         {name}
-                        {subject?.suneung && <span className="ml-1 rounded bg-rose-100 px-1 text-[10px] font-bold text-rose-700">수능</span>}
+                        {subject?.suneung && <span className="ml-1 rounded bg-rose-100 px-1 text-[11px] font-bold text-rose-700">수능</span>}
                       </span>
                       <select
                         aria-label={`${name} 학점`}
@@ -353,8 +353,8 @@ function SubjectPicker({ sem, track, placed, majorSubjects, onClose, onPick }: {
                 <div className="flex-1">
                   <div className="text-sm font-bold">
                     {s.name}
-                    <span className="ml-1.5 rounded px-1 text-[10px] font-bold text-white" style={{ background: CAT_INFO[s.cat].color }}>{CAT_INFO[s.cat].label}</span>
-                    {s.suneung && <span className="ml-1 rounded bg-rose-100 px-1 text-[10px] font-bold text-rose-700">수능</span>}
+                    <span className="ml-1.5 rounded px-1 text-[11px] font-bold text-white" style={{ background: CAT_INFO[s.cat].color }}>{CAT_INFO[s.cat].label}</span>
+                    {s.suneung && <span className="ml-1 rounded bg-rose-100 px-1 text-[11px] font-bold text-rose-700">수능</span>}
                   </div>
                   <div className="text-xs text-slate-500">{s.desc} · {s.credits}학점 · {s.eval}</div>
                   {missingPre.length > 0 && <div className="text-[11px] text-amber-600">선수과목: {missingPre.join(", ")}을(를) 이전 학기에 먼저 담아 주세요</div>}

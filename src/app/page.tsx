@@ -97,7 +97,7 @@ function Hubs() {
         </Link>
       ))}
     </section>
-    <section className="grid gap-8 md:grid-cols-2">
+    <section className="grid grid-cols-1 gap-8 md:grid-cols-2 [&>*]:min-w-0">
       <div>
         <h2 className="mb-3 text-lg font-bold text-slate-900">탐색 백과</h2>
         <HubList items={EXPLORE} />
