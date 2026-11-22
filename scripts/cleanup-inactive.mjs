@@ -5,6 +5,12 @@ import { getAuth } from "firebase-admin/auth";
 import { getFirestore } from "firebase-admin/firestore";
 
 const DRY = process.env.DRY_RUN === "1";
+// 실패 원인을 GitHub 주석(annotation)으로 남긴다(개인정보 없이 오류 코드·메시지만)
+process.on("unhandledRejection", (e) => {
+  const code = e?.code ?? e?.errorInfo?.code ?? "";
+  console.log(`::error title=정리 실패::${code} ${String(e?.message ?? e).slice(0, 300).replace(/\n/g, " ")}`);
+  process.exit(1);
+});
 initializeApp({ credential: applicationDefault(), projectId: "my-job-c1e50" });
 const auth = getAuth();
 const db = getFirestore();
