@@ -15,6 +15,23 @@ export const JOB_VIDEOS: Record<string, Video[]> = {
   "robot-engineer": [{ id: "aZOwKcEbguA", title: "안드로이드 로봇 공학 기술자", channel: "한국고용정보원 직업진로동영상" }],
   "software-dev": [{ id: "RneNxRQbjaw", title: "소프트웨어개발자", channel: "한국고용정보원 직업진로동영상" }],
   police: [{ id: "T95qvO5dmP0", title: "사이버경찰관", channel: "한국고용정보원 직업진로동영상" }],
+  // 2026-11-22 보강(oEmbed로 임베드 가능 확인)
+  accountant: [{ id: "dtAuwfsLriA", title: "내일을 잡아라 - 회계사", channel: "한국고용정보원 직업진로동영상" }],
+  pd: [
+    { id: "U-Az-YLJcC8", title: "[직업소개] 예능PD", channel: "한국고용정보원 직업진로동영상" },
+    { id: "83T_D8BvU68", title: "예능PD", channel: "한국고용정보원 직업진로동영상" },
+  ],
+  biologist: [
+    { id: "rUVu_UuvAXQ", title: "워크넷이 만난 사람들 - 생명정보학자", channel: "한국고용정보원" },
+    { id: "vfimZIazgR0", title: "유전자감식연구원", channel: "한국고용정보원 직업진로동영상" },
+  ],
+  "anti-aging": [
+    { id: "2cvUzO_SGEs", title: "Work&Life - 바이오기술", channel: "한국고용정보원 직업진로동영상" },
+    { id: "qbknknBCLrw", title: "발효식품연구원", channel: "한국고용정보원 직업진로동영상" },
+  ],
+  pharmacist: [{ id: "r4f-xJ1U8R4", title: "학과정보 - 의약계열(약학 포함)", channel: "한국고용정보원 직업진로동영상" }],
+  "public-officer": [{ id: "Vx5sWsinpxc", title: "2021 내일을 JOB아라 - 공무원", channel: "한국고용정보원 직업진로동영상" }],
+  "flight-attendant": [{ id: "ytFQembQTJg", title: "항공기 승무원", channel: "한국고용정보원 직업진로동영상" }],
 };
 export const MAJOR_VIDEOS: Record<string, Video[]> = {
   nursing: [{ id: "3tt2-No2IkA", title: "간호학과", channel: "한국고용정보원 직업진로동영상" }],

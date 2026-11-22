@@ -136,7 +136,9 @@ function pick(all, kws, isMajor = false) {
       const kk = norm(k);
       const w = 1 - ki * 0.05; // 앞쪽 키워드 우선
       let s = 0;
+      const segs = v.title.split(/[_|｜\-–:\[\]()]/).map(norm).filter(Boolean);
       if (h === kk || n === kk) s = 3;
+      else if (segs.includes(kk)) s = 2.5; // "내일을 잡아라_회계사_한국고용정보원"처럼 가운데에 있는 직업명
       else if (isMajor && parts.includes(stem(kk))) s = 3 - (parts.length - 1) * 0.3;
       else if (h.startsWith(kk) || n.startsWith(kk)) s = 2;
       else if (kk.length >= 4 && n.includes(kk)) s = 1;
