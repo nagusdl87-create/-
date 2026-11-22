@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import { JOBS, JOB_MAP } from "@/data/jobs";
 import { JobDetail } from "./JobDetail";
 import { JOB_DEEP } from "@/data/deep"; // 서버에서만 읽고 해당 직업 것만 넘김(전체를 화면 코드에 싣지 않음)
+import { JOB_DEEP_EN } from "@/data/deep/jobs-en"; // 영어판도 서버에서 해당 직업 것만 골라 넘김
 
 export function generateStaticParams() {
   return JOBS.map((j) => ({ id: j.id }));
@@ -16,5 +17,5 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
 export default async function Page({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   if (!JOB_MAP[id]) notFound();
-  return <JobDetail id={id} deep={JOB_DEEP[id]} />;
+  return <JobDetail id={id} deep={JOB_DEEP[id]} deepEn={JOB_DEEP_EN[id]} />;
 }
