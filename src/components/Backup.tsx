@@ -36,7 +36,7 @@ export function downloadBackup(state: AppState) {
 }
 
 /** 파일 내용 → 기록 (새 형식·예전 형식 모두) */
-function parseBackup(text: string): { data: unknown; savedAt?: string } | null {
+export function parseBackup(text: string): { data: unknown; savedAt?: string } | null {
   try {
     const o = JSON.parse(text);
     if (o && o.app === APP && o.data) return { data: o.data, savedAt: o.savedAt };
