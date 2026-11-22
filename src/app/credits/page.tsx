@@ -3,11 +3,13 @@
 import { useEffect, useState } from "react";
 import { CreditPlanner } from "@/components/CreditPlanner";
 import { CreditStandards, CreditSystemGuide } from "@/components/CreditGuide";
+import { useT } from "@/lib/i18n";
 
 type Tab = "plan" | "standards" | "system";
 
 export default function CreditsPage() {
   const [tab, setTab] = useState<Tab>("plan");
+  const t = useT();
   useEffect(() => {
     const h = window.location.hash.slice(1);
     if (h === "standards" || h === "system") setTab(h);
@@ -23,7 +25,7 @@ export default function CreditsPage() {
           ] as const
         ).map(([k, l]) => (
           <button key={k} role="tab" aria-selected={tab === k} onClick={() => setTab(k)} className={`flex-1 shrink-0 whitespace-nowrap rounded-lg px-3 py-2 text-sm font-semibold ${tab === k ? "bg-white shadow-sm" : "text-slate-500"}`}>
-            {l}
+            {t(l)}
           </button>
         ))}
       </div>

@@ -8,7 +8,7 @@ import { useT } from "@/lib/i18n";
 // 192학점 이수 기준표 (카드형/표형)
 export function CreditStandards() {
   const [view, setView] = useState<"card" | "table">("card");
-  const tr = useT();
+  const t = useT();
   return (
     <div className="space-y-4">
       <div className="grid gap-3 sm:grid-cols-4">
@@ -17,25 +17,25 @@ export function CreditStandards() {
           ["창의적 체험활동", "18학점", "288시간"],
           ["국·수·영 상한", "81학점", "교과 174 × 50% − 한국사 6"],
           ["1학점 수업량", "50분 × 16회", "학기 단위 이수"],
-        ].map(([t, v, d]) => (
-          <div key={t} className="card p-4">
-            <div className="text-xs font-semibold text-slate-500">{tr(t)}</div>
-            <div className="text-2xl font-bold">{tr(v)}</div>
-            <div className="text-xs text-slate-500">{tr(d)}</div>
+        ].map(([k, v, d]) => (
+          <div key={k} className="card p-4">
+            <div className="text-xs font-semibold text-slate-500">{t(k)}</div>
+            <div className="text-2xl font-bold">{t(v)}</div>
+            <div className="text-xs text-slate-500">{t(d)}</div>
           </div>
         ))}
       </div>
       <div className="flex gap-1.5">
-        <button aria-pressed={view === "card"} className={`chip px-3 py-1.5 ${view === "card" ? "chip-on" : ""}`} onClick={() => setView("card")}>{tr("카드형 (모바일 추천)")}</button>
-        <button aria-pressed={view === "table"} className={`chip px-3 py-1.5 ${view === "table" ? "chip-on" : ""}`} onClick={() => setView("table")}>{tr("표 전체 보기")}</button>
+        <button aria-pressed={view === "card"} className={`chip px-3 py-1.5 ${view === "card" ? "chip-on" : ""}`} onClick={() => setView("card")}>{t("카드형 (모바일 추천)")}</button>
+        <button aria-pressed={view === "table"} className={`chip px-3 py-1.5 ${view === "table" ? "chip-on" : ""}`} onClick={() => setView("table")}>{t("표 전체 보기")}</button>
       </div>
       {view === "card" ? (
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
           {CREDIT_RULES.requiredByArea.map((r) => (
             <div key={r.area} className="card p-4">
-              <div className="text-sm font-semibold text-slate-700">{tr(r.area)}</div>
-              <div className="text-2xl font-bold text-brand-700">{tr("{n}학점", { n: r.min })}</div>
-              <div className="text-xs text-slate-500">{tr("필수 이수")}</div>
+              <div className="text-sm font-semibold text-slate-700">{t(r.area)}</div>
+              <div className="text-2xl font-bold text-brand-700">{t("{n}학점", { n: r.min })}</div>
+              <div className="text-xs text-slate-500">{t("필수 이수")}</div>
             </div>
           ))}
         </div>
@@ -44,35 +44,35 @@ export function CreditStandards() {
           <table className="w-full min-w-[480px] text-left text-sm">
             <thead className="bg-slate-50 text-xs text-slate-500">
               <tr>
-                <th className="p-3">{tr("교과(군)")}</th>
-                <th className="p-3">{tr("필수 이수 학점")}</th>
-                <th className="p-3">{tr("비고")}</th>
+                <th className="p-3">{t("교과(군)")}</th>
+                <th className="p-3">{t("필수 이수 학점")}</th>
+                <th className="p-3">{t("비고")}</th>
               </tr>
             </thead>
             <tbody>
               {CREDIT_RULES.requiredByArea.map((r) => (
                 <tr key={r.area} className="border-t border-slate-100">
-                  <td className="p-3">{tr(r.area)}</td>
-                  <td className="p-3 font-semibold">{tr("{n}학점", { n: r.min })}</td>
-                  <td className="p-3 text-xs text-slate-500">{tr(r.area.startsWith("과학") ? "과학탐구실험 2학점 포함" : r.area.startsWith("체육") ? "매 학기 편성" : r.area.startsWith("사회") ? "통합사회 8 + 한국사 6" : "")}</td>
+                  <td className="p-3">{t(r.area)}</td>
+                  <td className="p-3 font-semibold">{t("{n}학점", { n: r.min })}</td>
+                  <td className="p-3 text-xs text-slate-500">{t(r.area.startsWith("과학") ? "과학탐구실험 2학점 포함" : r.area.startsWith("체육") ? "매 학기 편성" : r.area.startsWith("사회") ? "통합사회 8 + 한국사 6" : "")}</td>
                 </tr>
               ))}
               <tr className="border-t border-slate-200 bg-slate-50 font-bold">
-                <td className="p-3">{tr("필수 이수 합계")}</td>
-                <td className="p-3">{tr("{n}학점", { n: 84 })}</td>
-                <td className="p-3 text-xs font-normal">{tr("나머지 자율 이수 90학점은 진로·적성에 따라 선택")}</td>
+                <td className="p-3">{t("필수 이수 합계")}</td>
+                <td className="p-3">{t("{n}학점", { n: 84 })}</td>
+                <td className="p-3 text-xs font-normal">{t("나머지 자율 이수 90학점은 진로·적성에 따라 선택")}</td>
               </tr>
             </tbody>
           </table>
         </div>
       )}
       <div className="card text-sm leading-relaxed text-slate-700">
-        <div className="font-bold text-slate-900">{tr("알아 두면 좋은 규칙")}</div>
+        <div className="font-bold text-slate-900">{t("알아 두면 좋은 규칙")}</div>
         <ul className="mt-2 list-disc space-y-1 pl-5">
-          <li>{tr("공통과목을 제외한 선택과목은 기본 학점(4학점)에서 ±1학점 범위로 학교가 증감해 편성할 수 있어요.")}</li>
-          <li>{tr("국어·수학·영어 합계는 81학점을 넘을 수 없어요(교과 174학점의 50%에서 한국사 6학점을 뺀 값).")}</li>
-          <li>{tr("체육은 매 학기 편성하는 것이 원칙이에요.")}</li>
-          <li>{tr("과목 출석률 3분의 2 이상, 학업성취율 40% 이상이면 이수로 인정돼요. 미치지 못하면 보충 지도(최소 성취수준 보장지도)를 받아요.")}</li>
+          <li>{t("공통과목을 제외한 선택과목은 기본 학점(4학점)에서 ±1학점 범위로 학교가 증감해 편성할 수 있어요.")}</li>
+          <li>{t("국어·수학·영어 합계는 81학점을 넘을 수 없어요(교과 174학점의 50%에서 한국사 6학점을 뺀 값).")}</li>
+          <li>{t("체육은 매 학기 편성하는 것이 원칙이에요.")}</li>
+          <li>{t("과목 출석률 3분의 2 이상, 학업성취율 40% 이상이면 이수로 인정돼요. 미치지 못하면 보충 지도(최소 성취수준 보장지도)를 받아요.")}</li>
         </ul>
       </div>
     </div>

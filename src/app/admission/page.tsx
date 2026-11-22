@@ -9,6 +9,7 @@ import { OFFICIAL } from "@/data/gn";
 import { PageHead } from "@/components/ui";
 import { NaesinSimulator } from "@/components/Naesin";
 import { UnivDirectory } from "@/components/UnivDirectory";
+import { useT } from "@/lib/i18n";
 
 const CHANGES = [
   { t: "통합형 수능", d: "국어·수학 선택과목이 없어지고 모든 수험생이 같은 과목으로 시험을 봐요. 사회·과학탐구는 문·이과 구분 없이 통합사회와 통합과학을 모두 응시해요." },
@@ -38,16 +39,17 @@ function gradeFromRank(rank: number, ties: number, total: number) {
 }
 
 export default function AdmissionPage() {
+  const t = useT();
   return (
     <div className="space-y-8">
-      <PageHead tone="rose" eyebrow="2028 대입" title="2028 대입" desc="2025년 고1부터 적용되는 2028학년도 대입 제도의 핵심을 정리했어요. 수능 구조, 5등급 내신, 전형 종류와 학년별 준비를 확인하고 내신을 직접 계산해 보세요." />
+      <PageHead tone="rose" eyebrow={t("2028 대입")} title={t("2028 대입")} desc={t("2025년 고1부터 적용되는 2028학년도 대입 제도의 핵심을 정리했어요. 수능 구조, 5등급 내신, 전형 종류와 학년별 준비를 확인하고 내신을 직접 계산해 보세요.")} />
 
       <section className="grid gap-3 md:grid-cols-3">
         {CHANGES.map((c, i) => (
           <div key={c.t} className="card">
-            <div className="text-xs font-bold text-brand-600">변화 {i + 1}</div>
-            <div className="text-lg font-extrabold">{c.t}</div>
-            <p className="mt-1 text-sm leading-relaxed text-slate-600">{c.d}</p>
+            <div className="text-xs font-bold text-brand-600">{t("변화 {n}", { n: i + 1 })}</div>
+            <div className="text-lg font-extrabold">{t(c.t)}</div>
+            <p className="mt-1 text-sm leading-relaxed text-slate-600">{t(c.d)}</p>
           </div>
         ))}
       </section>
@@ -55,16 +57,16 @@ export default function AdmissionPage() {
       <section className="card overflow-x-auto p-0">
         <table className="w-full min-w-[620px] text-left text-sm">
           <caption className="p-4 text-left">
-            <span className="text-lg font-bold">2028학년도 수능 시간표</span>
-            <span className="ml-2 text-sm text-slate-500">시험일 2027년 11월 18일(목) · 성적 통지 12월 10일</span>
+            <span className="text-lg font-bold">{t("2028학년도 수능 시간표")}</span>
+            <span className="ml-2 text-sm text-slate-500">{t("시험일 2027년 11월 18일(목) · 성적 통지 12월 10일")}</span>
           </caption>
           <thead className="bg-slate-50 text-xs text-slate-500">
             <tr>
-              <th className="p-3">교시</th>
-              <th className="p-3">영역</th>
-              <th className="p-3">시간</th>
-              <th className="p-3">문항 수</th>
-              <th className="p-3">배점</th>
+              <th className="p-3">{t("교시")}</th>
+              <th className="p-3">{t("영역")}</th>
+              <th className="p-3">{t("시간")}</th>
+              <th className="p-3">{t("문항 수")}</th>
+              <th className="p-3">{t("배점")}</th>
             </tr>
           </thead>
           <tbody>
@@ -79,83 +81,83 @@ export default function AdmissionPage() {
             ].map((r) => (
               <tr key={r[1]} className="border-t border-slate-100">
                 <td className="p-3">{r[0]}</td>
-                <td className="p-3 font-semibold">{r[1]}</td>
-                <td className="p-3">{r[2]}</td>
-                <td className="p-3">{r[3]}</td>
+                <td className="p-3 font-semibold">{t(r[1])}</td>
+                <td className="p-3">{t(r[2])}</td>
+                <td className="p-3">{t(r[3])}</td>
                 <td className="p-3">{r[4]}</td>
               </tr>
             ))}
           </tbody>
         </table>
         <p className="px-4 pb-4 text-xs text-slate-500">
-          입실 08:10. 한국교육과정평가원 2028학년도 수능 시험 시간표 안내(2026.8.) 기준이며, 배점과 시험 순서는 현행과 같아요. 시험일·통지일은 교육부·대교협 발표를 참고했고 최종 일정은 시행 기본계획으로 확인하세요.{" "}
-          <a className="underline" href="https://www.suneung.re.kr/boardCnts/fileDown.do?fileSeq=48896b8d358a73737e560d1820dea649" target="_blank" rel="noreferrer">2028 예시문항 안내(PDF)</a>
+          {t("입실 08:10. 한국교육과정평가원 2028학년도 수능 시험 시간표 안내(2026.8.) 기준이며, 배점과 시험 순서는 현행과 같아요. 시험일·통지일은 교육부·대교협 발표를 참고했고 최종 일정은 시행 기본계획으로 확인하세요.")}{" "}
+          <a className="underline" href="https://www.suneung.re.kr/boardCnts/fileDown.do?fileSeq=48896b8d358a73737e560d1820dea649" target="_blank" rel="noreferrer">{t("2028 예시문항 안내(PDF)")}</a>
         </p>
       </section>
 
       <section>
-        <h2 className="mb-1 text-lg font-bold">대학별 2028학년도 대입전형 기본계획</h2>
+        <h2 className="mb-1 text-lg font-bold">{t("대학별 2028학년도 대입전형 기본계획")}</h2>
         <p className="mb-3 text-sm text-slate-600">
-          2028학년도에는 194개 대학이 34만 8천여 명을 모집할 계획이에요(한국대학교육협의회 발표, 2026.4.). 지원하고 싶은 대학의 기본계획을 직접 확인해 보세요.{" "}
-          <a className="text-brand-700 underline" href="https://www.kcue.or.kr/_upload/news/2026/04/30/application_ea0382f8ef4d92cda46a7e015aec3fef.pdf" target="_blank" rel="noreferrer">2028 시행계획 주요사항(PDF)</a>
+          {t("2028학년도에는 194개 대학이 34만 8천여 명을 모집할 계획이에요(한국대학교육협의회 발표, 2026.4.). 지원하고 싶은 대학의 기본계획을 직접 확인해 보세요.")}{" "}
+          <a className="text-brand-700 underline" href="https://www.kcue.or.kr/_upload/news/2026/04/30/application_ea0382f8ef4d92cda46a7e015aec3fef.pdf" target="_blank" rel="noreferrer">{t("2028 시행계획 주요사항(PDF)")}</a>
         </p>
         <UnivDirectory />
       </section>
 
       <section className="card overflow-x-auto p-0">
         <table className="w-full min-w-[560px] text-left text-sm">
-          <caption className="p-4 text-left text-lg font-bold">2028 수능 영역별 출제 과목</caption>
+          <caption className="p-4 text-left text-lg font-bold">{t("2028 수능 영역별 출제 과목")}</caption>
           <thead className="bg-slate-50 text-xs text-slate-500">
             <tr>
-              <th className="p-3">영역</th>
-              <th className="p-3">출제 과목</th>
-              <th className="p-3">비고</th>
+              <th className="p-3">{t("영역")}</th>
+              <th className="p-3">{t("출제 과목")}</th>
+              <th className="p-3">{t("비고")}</th>
             </tr>
           </thead>
           <tbody>
             {SUNEUNG_2028.map((r) => (
               <tr key={r.area} className="border-t border-slate-100">
-                <td className="p-3 font-semibold">{r.area}</td>
-                <td className="p-3">{r.subjects}</td>
-                <td className="p-3 text-slate-500">{r.note}</td>
+                <td className="p-3 font-semibold">{t(r.area)}</td>
+                <td className="p-3">{t(r.subjects)}</td>
+                <td className="p-3 text-slate-500">{t(r.note)}</td>
               </tr>
             ))}
           </tbody>
         </table>
         <p className="px-4 pb-4 text-xs text-slate-400">
-          출처: 교육부 2028 대입제도 개편 확정안(2023.12.). 예시 문항과 세부 사항은{" "}
-          <a className="underline" href={OFFICIAL.suneung.url} target="_blank" rel="noreferrer">한국교육과정평가원</a>에서 확인하세요.
+          {t("출처: 교육부 2028 대입제도 개편 확정안(2023.12.). 예시 문항과 세부 사항은")}{" "}
+          <a className="underline" href={OFFICIAL.suneung.url} target="_blank" rel="noreferrer">{t("한국교육과정평가원")}</a>{t("에서 확인하세요.")}
         </p>
       </section>
 
       <section>
-        <h2 className="mb-3 text-lg font-bold">실시간 5등급 내신 시뮬레이터</h2>
+        <h2 className="mb-3 text-lg font-bold">{t("실시간 5등급 내신 시뮬레이터")}</h2>
         <NaesinSimulator />
       </section>
 
       <Calculator />
 
       <section>
-        <h2 className="mb-3 text-lg font-bold">대입 전형 한눈에 보기</h2>
+        <h2 className="mb-3 text-lg font-bold">{t("대입 전형 한눈에 보기")}</h2>
         <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-3">
-          {TYPES.map((t) => (
-            <div key={t.t} className="card">
-              <span className={`rounded px-1.5 py-0.5 text-[11px] font-bold text-white ${t.w === "수시" ? "bg-brand-600" : "bg-emerald-700"}`}>{t.w}</span>
-              <div className="mt-1 font-bold">{t.t}</div>
-              <p className="mt-1 text-sm text-slate-600">{t.d}</p>
-              <p className="mt-2 text-xs text-slate-500">👍 {t.fit}</p>
+          {TYPES.map((x) => (
+            <div key={x.t} className="card">
+              <span className={`rounded px-1.5 py-0.5 text-[11px] font-bold text-white ${x.w === "수시" ? "bg-brand-600" : "bg-emerald-700"}`}>{t(x.w)}</span>
+              <div className="mt-1 font-bold">{t(x.t)}</div>
+              <p className="mt-1 text-sm text-slate-600">{t(x.d)}</p>
+              <p className="mt-2 text-xs text-slate-500">👍 {t(x.fit)}</p>
             </div>
           ))}
         </div>
       </section>
 
       <section>
-        <h2 className="mb-3 text-lg font-bold">학년별 대입 준비</h2>
+        <h2 className="mb-3 text-lg font-bold">{t("학년별 대입 준비")}</h2>
         <div className="grid gap-3 md:grid-cols-3">
-          {TIMELINE.map((t) => (
-            <div key={t.g} className="card">
-              <div className="text-xl font-extrabold text-brand-700">{t.g}</div>
-              <ul className="mt-2 space-y-1.5 text-sm text-slate-700">{t.items.map((i) => <li key={i}>✓ {i}</li>)}</ul>
+          {TIMELINE.map((x) => (
+            <div key={x.g} className="card">
+              <div className="text-xl font-extrabold text-brand-700">{t(x.g)}</div>
+              <ul className="mt-2 space-y-1.5 text-sm text-slate-700">{x.items.map((i) => <li key={i}>✓ {t(i)}</li>)}</ul>
             </div>
           ))}
         </div>
@@ -163,28 +165,28 @@ export default function AdmissionPage() {
 
       <section className="grid gap-3 md:grid-cols-2">
         <div className="card">
-          <h2 className="font-bold">대학별 권장과목 확인하기</h2>
+          <h2 className="font-bold">{t("대학별 권장과목 확인하기")}</h2>
           <p className="mt-1 text-sm text-slate-600">
-            주요 대학들은 학과별 핵심·권장 과목을 발표하고 있어요. 마이로드의 학과 백과에서 일반적인 권장과목을 보고, 지원할 대학의 실제 발표 자료로 꼭 확인하세요.
+            {t("주요 대학들은 학과별 핵심·권장 과목을 발표하고 있어요. 마이로드의 학과 백과에서 일반적인 권장과목을 보고, 지원할 대학의 실제 발표 자료로 꼭 확인하세요.")}
           </p>
           <div className="mt-3 flex flex-wrap gap-2">
-            <Link href="/majors" className="btn-primary">학과별 권장과목</Link>
-            <a className="btn-ghost" href={OFFICIAL.adiga.url} target="_blank" rel="noreferrer">어디가 ↗</a>
+            <Link href="/majors" className="btn-primary">{t("학과별 권장과목")}</Link>
+            <a className="btn-ghost" href={OFFICIAL.adiga.url} target="_blank" rel="noreferrer">{t("어디가 ↗")}</a>
           </div>
         </div>
         <div className="card">
-          <h2 className="font-bold">대입 상담 받기</h2>
+          <h2 className="font-bold">{t("대입 상담 받기")}</h2>
           <ul className="mt-2 space-y-2 text-sm text-slate-700">
             <li>
-              <b>학교 진로전담교사·담임 선생님</b> — 학교생활기록부와 과목 선택을 가장 잘 아는 분이에요.
+              <b>{t("학교 진로전담교사·담임 선생님")}</b> — {t("학교생활기록부와 과목 선택을 가장 잘 아는 분이에요.")}
             </li>
             <li>
-              <b>경상남도교육청 대입정보센터</b> — 현직 교사 진학지도단의 1:1 대입 상담. 신청 방법은{" "}
-              <a className="text-brand-600 underline" href={OFFICIAL.gne.url} target="_blank" rel="noreferrer">경남교육청 누리집</a> 공지를 확인하세요.
+              <b>{t("경상남도교육청 대입정보센터")}</b> — {t("현직 교사 진학지도단의 1:1 대입 상담. 신청 방법은")}{" "}
+              <a className="text-brand-600 underline" href={OFFICIAL.gne.url} target="_blank" rel="noreferrer">{t("경남교육청 누리집")}</a> {t("공지를 확인하세요.")}
             </li>
             <li>
-              <b>대학입학상담센터 1600-1615</b> — 한국대학교육협의회 무료 전화·온라인 상담 (
-              <a className="text-brand-600 underline" href={OFFICIAL.adiga.url} target="_blank" rel="noreferrer">어디가</a>)
+              <b>{t("대학입학상담센터 1600-1615")}</b> — {t("한국대학교육협의회 무료 전화·온라인 상담 (")}
+              <a className="text-brand-600 underline" href={OFFICIAL.adiga.url} target="_blank" rel="noreferrer">{t("어디가")}</a>)
             </li>
           </ul>
         </div>
@@ -200,6 +202,7 @@ function Calculator() {
   const [credits, setCredits] = useState(4);
   const [grade, setGrade] = useState(1);
   const [rank, setRank] = useState({ r: "", t: "", total: "" });
+  const t = useT();
   const rows = state.grades;
   const avg = (rs: typeof rows) => {
     const c = rs.reduce((s, r) => s + r.credits, 0);
@@ -210,7 +213,7 @@ function Calculator() {
 
   return (
     <section id="calc" className="scroll-mt-20">
-      <h2 className="mb-3 text-lg font-bold">5등급 내신 계산기</h2>
+      <h2 className="mb-3 text-lg font-bold">{t("5등급 내신 계산기")}</h2>
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-[1.4fr_0.6fr] [&>*]:min-w-0">
         <div className="card">
           <form
@@ -222,17 +225,17 @@ function Calculator() {
               setSubject("");
             }}
           >
-            <select className="input" value={sem} onChange={(e) => setSem(e.target.value as Sem)} aria-label="학기">
-              {SEMS.map((s) => <option key={s} value={s}>{SEM_LABEL[s]}</option>)}
+            <select className="input" value={sem} onChange={(e) => setSem(e.target.value as Sem)} aria-label={t("학기")}>
+              {SEMS.map((s) => <option key={s} value={s}>{t(SEM_LABEL[s])}</option>)}
             </select>
-            <input className="input" placeholder="과목명" value={subject} onChange={(e) => setSubject(e.target.value)} aria-label="과목명" maxLength={30} />
-            <select className="input" value={credits} onChange={(e) => setCredits(Number(e.target.value))} aria-label="학점">
-              {[1, 2, 3, 4, 5].map((c) => <option key={c} value={c}>{c}학점</option>)}
+            <input className="input" placeholder={t("과목명")} value={subject} onChange={(e) => setSubject(e.target.value)} aria-label={t("과목명")} maxLength={30} />
+            <select className="input" value={credits} onChange={(e) => setCredits(Number(e.target.value))} aria-label={t("학점")}>
+              {[1, 2, 3, 4, 5].map((c) => <option key={c} value={c}>{t("{n}학점", { n: c })}</option>)}
             </select>
-            <select className="input" value={grade} onChange={(e) => setGrade(Number(e.target.value))} aria-label="등급">
-              {[1, 2, 3, 4, 5].map((g) => <option key={g} value={g}>{g}등급</option>)}
+            <select className="input" value={grade} onChange={(e) => setGrade(Number(e.target.value))} aria-label={t("등급")}>
+              {[1, 2, 3, 4, 5].map((g) => <option key={g} value={g}>{t("{n}등급", { n: g })}</option>)}
             </select>
-            <button className="btn-primary">추가</button>
+            <button className="btn-primary">{t("추가")}</button>
           </form>
           {ready && rows.length > 0 ? (
             <div className="mt-4 space-y-3">
@@ -241,16 +244,16 @@ function Calculator() {
                 return (
                   <div key={s}>
                     <div className="flex justify-between text-xs font-semibold text-slate-500">
-                      <span>{SEM_LABEL[s]}</span>
-                      <span>평균 {avg(rs)?.toFixed(2)}등급</span>
+                      <span>{t(SEM_LABEL[s])}</span>
+                      <span>{t("평균 {n}등급", { n: avg(rs)?.toFixed(2) ?? "-" })}</span>
                     </div>
                     <ul className="mt-1 divide-y divide-slate-100 rounded-xl border border-slate-100">
                       {rs.map((r) => (
                         <li key={r.id} className="flex items-center gap-2 px-3 py-1.5 text-sm">
                           <span className="flex-1">{r.subject}</span>
-                          <span className="text-slate-500">{r.credits}학점</span>
-                          <span className="w-12 text-right font-bold">{r.grade}등급</span>
-                          <button className="text-xs text-slate-300 hover:text-rose-500" aria-label={`${r.subject} 삭제`} onClick={() => update((st) => ({ ...st, grades: st.grades.filter((x) => x.id !== r.id) }))}>✕</button>
+                          <span className="text-slate-500">{t("{n}학점", { n: r.credits })}</span>
+                          <span className="min-w-[3rem] text-right font-bold">{t("{n}등급", { n: r.grade })}</span>
+                          <button className="text-xs text-slate-300 hover:text-rose-500" aria-label={t("{name} 삭제", { name: r.subject })} onClick={() => update((st) => ({ ...st, grades: st.grades.filter((x) => x.id !== r.id) }))}>✕</button>
                         </li>
                       ))}
                     </ul>
@@ -259,32 +262,32 @@ function Calculator() {
               })}
             </div>
           ) : (
-            <p className="mt-4 text-sm text-slate-500">석차등급이 나오는 과목의 학점과 등급을 입력하면 학점 가중 평균을 계산해요. (성취도만 기록되는 과목은 제외)</p>
+            <p className="mt-4 text-sm text-slate-500">{t("석차등급이 나오는 과목의 학점과 등급을 입력하면 학점 가중 평균을 계산해요. (성취도만 기록되는 과목은 제외)")}</p>
           )}
         </div>
         <div className="space-y-3">
           <div className="card text-center">
-            <div className="text-xs font-semibold text-slate-500">전체 학점 가중 평균</div>
+            <div className="text-xs font-semibold text-slate-500">{t("전체 학점 가중 평균")}</div>
             <div className="text-4xl font-extrabold text-brand-700">{all ? all.toFixed(2) : "-"}</div>
-            <div className="text-xs text-slate-500">등급 · {rows.reduce((s, r) => s + r.credits, 0)}학점</div>
+            <div className="text-xs text-slate-500">{t("등급 · {n}학점", { n: rows.reduce((s, r) => s + r.credits, 0) })}</div>
           </div>
           <div className="card">
-            <div className="text-xs font-semibold text-slate-500">석차로 등급 알아보기</div>
+            <div className="text-xs font-semibold text-slate-500">{t("석차로 등급 알아보기")}</div>
             <div className="mt-2 grid grid-cols-3 gap-1.5">
-              <input className="input px-2" inputMode="numeric" placeholder="석차" value={rank.r} onChange={(e) => setRank({ ...rank, r: e.target.value.replace(/\D/g, "") })} aria-label="석차" />
-              <input className="input px-2" inputMode="numeric" placeholder="동석차" value={rank.t} onChange={(e) => setRank({ ...rank, t: e.target.value.replace(/\D/g, "") })} aria-label="동석차 인원" />
-              <input className="input px-2" inputMode="numeric" placeholder="수강자" value={rank.total} onChange={(e) => setRank({ ...rank, total: e.target.value.replace(/\D/g, "") })} aria-label="수강자 수" />
+              <input className="input px-2" inputMode="numeric" placeholder={t("석차")} value={rank.r} onChange={(e) => setRank({ ...rank, r: e.target.value.replace(/\D/g, "") })} aria-label={t("석차")} />
+              <input className="input px-2" inputMode="numeric" placeholder={t("동석차")} value={rank.t} onChange={(e) => setRank({ ...rank, t: e.target.value.replace(/\D/g, "") })} aria-label={t("동석차 인원")} />
+              <input className="input px-2" inputMode="numeric" placeholder={t("수강자")} value={rank.total} onChange={(e) => setRank({ ...rank, total: e.target.value.replace(/\D/g, "") })} aria-label={t("수강자 수")} />
             </div>
             {conv && (
               <p className="mt-2 text-sm">
-                상위 <b>{conv.pct.toFixed(1)}%</b> → <b className="text-brand-700">{conv.g}등급</b>
+                {t("상위")} <b>{conv.pct.toFixed(1)}%</b> → <b className="text-brand-700">{t("{n}등급", { n: conv.g })}</b>
               </p>
             )}
-            <p className="mt-2 text-[11px] text-slate-400">석차백분율 = (석차 + (동석차 인원 − 1) ÷ 2) ÷ 수강자 수 × 100. 학교 산출 방식과 다를 수 있어요.</p>
+            <p className="mt-2 text-[11px] text-slate-400">{t("석차백분율 = (석차 + (동석차 인원 − 1) ÷ 2) ÷ 수강자 수 × 100. 학교 산출 방식과 다를 수 있어요.")}</p>
           </div>
         </div>
       </div>
-      <p className="mt-2 text-xs text-slate-400">대학마다 내신 반영 방법(반영 과목·학년별 비율·성취도 활용)이 달라요. 이 평균은 참고용이에요.</p>
+      <p className="mt-2 text-xs text-slate-400">{t("대학마다 내신 반영 방법(반영 과목·학년별 비율·성취도 활용)이 달라요. 이 평균은 참고용이에요.")}</p>
     </section>
   );
 }

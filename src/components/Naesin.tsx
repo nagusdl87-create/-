@@ -27,13 +27,13 @@ function achievement(score: number, kind: string) {
 }
 
 export function NaesinSimulator() {
-  const tr = useT();
   const [type, setType] = useState<(typeof TYPES)[number]["id"]>("elective");
   const [n, setN] = useState(200);
   const [rank, setRank] = useState(21);
   const [ties, setTies] = useState(1);
   const [score, setScore] = useState(88);
   const [avg, setAvg] = useState(68.5);
+  const tr = useT();
   const t = TYPES.find((x) => x.id === type)!;
   const r = Math.min(Math.max(1, rank), n);
   const pct = ((r + (Math.max(1, ties) - 1) / 2) / n) * 100;
@@ -86,7 +86,7 @@ export function NaesinSimulator() {
         <div className="grid grid-cols-3 gap-2 text-center">
           <div className="card p-3">
             <div className="text-xs text-slate-500">{tr("석차등급(5등급)")}</div>
-            <div className="text-3xl font-bold text-brand-700">{t.rank ? tr("{g}등급", { g: g5 }) : "—"}</div>
+            <div className="text-3xl font-bold text-brand-700">{t.rank ? tr("{n}등급", { n: g5 }) : "—"}</div>
             {t.rank && <div className="text-xs text-slate-500">{tr("상위 {p}%", { p: pct.toFixed(1) })}</div>}
           </div>
           <div className="card p-3">
@@ -95,7 +95,7 @@ export function NaesinSimulator() {
           </div>
           <div className="card p-3">
             <div className="text-xs text-slate-500">{tr("예전 9등급이었다면")}</div>
-            <div className="text-3xl font-bold text-slate-400">{t.rank ? tr("{g}등급", { g: g9 }) : "—"}</div>
+            <div className="text-3xl font-bold text-slate-400">{t.rank ? tr("{n}등급", { n: g9 }) : "—"}</div>
           </div>
         </div>
         {t.rank && (
@@ -133,7 +133,7 @@ export function NaesinSimulator() {
             <ul className="mt-2 grid grid-cols-5 gap-1 text-center text-xs">
               {cut.map((c, i) => (
                 <li key={c.g} className={`rounded-lg p-2 ${c.g === g5 ? "bg-brand-600 text-white" : "bg-slate-50"}`}>
-                  <b>{tr("{g}등급", { g: c.g })}</b>
+                  <b>{tr("{n}등급", { n: c.g })}</b>
                   <div>
                     {tr("{a}~{b}등", { a: i === 0 ? 1 : cut[i - 1].last + 1, b: c.last })}
                   </div>
@@ -148,9 +148,9 @@ export function NaesinSimulator() {
 }
 
 export function NaesinGuide() {
-  const t = useT();
   const rows9 = NINE.map((c, i) => ({ g: i + 1, n: Math.round((200 * (c - (i ? NINE[i - 1] : 0))) / 100) }));
   const rows5 = GRADE5.map((g, i) => ({ g: g.g, n: Math.round((200 * (g.cum - (i ? GRADE5[i - 1].cum : 0))) / 100) }));
+  const t = useT();
   return (
     <div className="space-y-4">
       <div className="grid gap-4 md:grid-cols-2">
