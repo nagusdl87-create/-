@@ -1,0 +1,77 @@
+// 영어 자료: 고3 진로 전환기 10차시(transition.ts). 순서(index)로 맞춘다. 체크 항목 저장 키는 한국어 그대로.
+
+export const LESSONS_EN: { t: string; goal: string; points: string[]; activity: string; check: string[]; help?: string[] }[] = [
+  {
+    t: "Well done, my 19-year-old self",
+    goal: "Look back on three years of high school, encourage yourself and get ready for the next step.",
+    points: ["Look back on what went well and what was hard over three years", "Recognize your effort, whatever the results", "Thank the people who helped you"],
+    activity: "Write a 'Letter to myself after three years' and make thank-you cards",
+    check: ["I wrote down 3 of my strengths", "I sent a thank-you message to at least 1 person"],
+  },
+  {
+    t: "Certificates and cultural life",
+    goal: "Plan certificates and cultural experiences that enrich your career and life.",
+    points: ["Find certificates linked to your career (national technical qualifications, etc.)", "Everyday licenses such as a driver's license", "Cultural life such as performances, exhibitions and local festivals"],
+    activity: "Make a list and schedule of 'things I want to try' for the three months before and after graduation",
+    check: ["I checked the exam schedule for 1 certificate I'm interested in", "I made at least 1 cultural activity plan"],
+  },
+  {
+    t: "Reading and travel",
+    goal: "Design experiences that broaden your view through books and travel.",
+    points: ["Choosing books linked to your career", "Planning a safe, budget-friendly trip", "How to keep a record of your experiences"],
+    activity: "Choose 1 career-related book + write a plan for a 2-day, 1-night trip (including budget and safety rules)",
+    check: ["I chose a book to read", "I checked travel safety rules"],
+  },
+  {
+    t: "Planning college life: scholarships, exchange programs, multiple majors, credit exchange",
+    goal: "Learn about the many programs universities offer and plan your four years.",
+    points: ["Scholarships such as the National Scholarship and when to apply", "Exchange student and study-abroad programs", "Double majors, minors, interdisciplinary majors and credit exchange"],
+    activity: "Find scholarship and multiple-major programs on your target university's website and draw a 'four-year college roadmap'",
+    check: ["I checked when to apply for scholarships", "I found a multiple-major program I'm interested in"],
+  },
+  {
+    t: "If you want to change paths: changing majors, transferring, military service, trying again",
+    goal: "Learn the ways to change your career path and how to choose carefully.",
+    points: ["Conditions and timing for changing majors and transferring", "Understanding the timing and system of military service", "Pros and cons of trying again, such as retaking the exam"],
+    activity: "Compare the options that suit you in a pros-and-cons table and write questions for counseling",
+    check: ["I listed the pros and cons of each option", "I know where to get counseling"],
+  },
+  {
+    t: "College classes and relationships: course registration, getting along with people, group projects",
+    goal: "Learn how college classes work and the skills you need for life in a community.",
+    points: ["How to register for courses and read graduation requirements", "Building new relationships and how to say no", "Dividing roles and solving conflicts in group projects"],
+    activity: "Make a sample timetable + role-play a group project conflict",
+    check: ["I understand the terms in graduation requirements", "I can name 2 ways to solve conflicts"],
+  },
+  {
+    t: "Rights and responsibilities at 18",
+    goal: "Understand the legal rights and responsibilities that change.",
+    points: ["The right to vote at 18 and taking part in elections", "Under the Civil Act, adulthood starts at 19: before then, contracts may need a parent's consent", "Driver's licenses, work and other changes, and the responsibilities that come with them"],
+    activity: "A 'What changes when I turn 18' quiz and getting ready for your first vote",
+    check: ["I know the difference between voting age and the age of adulthood", "I know what to check before signing a contract"],
+  },
+  {
+    t: "Part-time jobs and employment contracts",
+    goal: "Know the rights you have at work and protect yourself.",
+    points: ["Always make an employment contract in writing and keep it", "Minimum wage (announced every year), weekly holiday pay, break time", "Where to get help if you are treated unfairly"],
+    activity: "Find the missing items in a sample employment contract",
+    check: ["I know the required items in an employment contract", "I saved contact numbers for help"],
+    help: ["Ministry of Employment and Labor Customer Center (고용노동부 고객상담센터)"],
+  },
+  {
+    t: "Money, finance and fraud prevention",
+    goal: "Build habits for starting your financial life safely.",
+    points: ["Saving, budgeting and the basics of managing credit", "Voice phishing and messenger phishing tricks and how to respond", "What to check before renting or signing a jeonse lease (property register, move-in report and fixed date, deposit insurance)"],
+    activity: "Make a monthly budget + a quiz to spot scam text messages",
+    check: ["I made a monthly budget", "I know what to do if I suspect phishing"],
+    help: ["Police (report voice phishing) (경찰)", "Financial Supervisory Service counseling (금융감독원)"],
+  },
+  {
+    t: "The strength to protect myself: preventing gambling, drugs and depression",
+    goal: "Learn to notice risky behavior and how to ask for help.",
+    points: ["The dangers of online gambling and illegal drugs, and how people get drawn in", "Noticing signs of stress and depression", "Don't go through it alone: ask for help"],
+    activity: "Make a card with your own ways to handle stress and a card with help contacts",
+    check: ["I saved help contacts on my phone", "I practiced what to say when a friend is struggling"],
+    help: ["Suicide prevention hotline (자살예방 상담전화)", "Youth counseling (청소년 상담)", "Gambling problem counseling (도박 문제 상담)", "Drug addiction counseling (마약류 중독 상담)"],
+  },
+];

@@ -3,10 +3,13 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useStore } from "@/lib/store";
-import { QUESTIONS, RIASEC, RIASEC_ORDER, SCALE, STRENGTHS, VALUES } from "@/data/riasec";
+import { QUESTIONS, RIASEC, RIASEC_ORDER, SCALE, STRENGTHS, VALUES, type RiasecKey } from "@/data/riasec";
 import { isTestComplete, rankedJobs, riasecScores, topTypes } from "@/lib/match";
 import { Radar } from "@/components/Radar";
 import { NextStep, PageHead } from "@/components/ui";
+import { useEnData, useT } from "@/lib/i18n";
+
+const useRiasecEn = () => useEnData(() => import("@/i18n/data/riasec.en"), "riasec");
 
 const PER_PAGE = 6;
 const Q_PAGES = Math.ceil(QUESTIONS.length / PER_PAGE);
@@ -15,6 +18,7 @@ const TOTAL = Q_PAGES + 2;
 
 export default function Discover() {
   const { state, update, ready } = useStore();
+  const t = useT();
   const complete = isTestComplete(state.answers) && state.values.length > 0;
   const [page, setPage] = useState<number | null>(null);
 
@@ -30,7 +34,7 @@ export default function Discover() {
 
   return (
     <div>
-      <PageHead tone="violet" step={1} title="나 알기" desc="정답은 없어요. 평소의 나와 가장 가까운 답을 솔직하게 골라 주세요." />
+      <PageHead tone="violet" step={1} title={t("나 알기")} desc={t("정답은 없어요. 평소의 나와 가장 가까운 답을 솔직하게 골라 주세요.")} />
       <div className="mb-5 flex items-center gap-3">
         <div className="h-2 flex-1 overflow-hidden rounded-full bg-slate-200">
           <div className="h-full rounded-full bg-brand-500 transition-all" style={{ width: `${pct}%` }} />
@@ -46,7 +50,7 @@ export default function Discover() {
 
       <div className="mt-6 flex justify-between">
         <button className="btn-ghost" onClick={() => setPage(Math.max(0, page - 1))} disabled={page === 0}>
-          ← 이전
+          {t("← 이전")}
         </button>
         <button
           className="btn-primary"
@@ -57,7 +61,7 @@ export default function Discover() {
             window.scrollTo({ top: 0, behavior: "smooth" });
           }}
         >
-          {page === TOTAL - 1 ? "결과 보기 ✨" : "다음 →"}
+          {page === TOTAL - 1 ? t("결과 보기 ✨") : t("다음 →")}
         </button>
       </div>
     </div>
@@ -72,15 +76,16 @@ export default function Discover() {
 
 function QuestionPage({ page }: { page: number }) {
   const { state, update } = useStore();
+  const en = useRiasecEn();
   const qs = QUESTIONS.slice(page * PER_PAGE, (page + 1) * PER_PAGE);
   return (
     <div className="space-y-3">
       {qs.map((q) => (
         <fieldset key={q.id} className="card p-4">
-          <legend className="sr-only">{q.text}</legend>
+          <legend className="sr-only">{en?.QUESTIONS_EN[q.id] ?? q.text}</legend>
           <div className="mb-3 font-semibold text-slate-900">
             <span className="mr-2 text-brand-700">Q{q.id}.</span>
-            {q.text}
+            {en?.QUESTIONS_EN[q.id] ?? q.text}
           </div>
           <div className="grid grid-cols-4 gap-2">
             {SCALE.map((s) => {
@@ -95,7 +100,7 @@ function QuestionPage({ page }: { page: number }) {
                     on ? "border-brand-500 bg-brand-600 text-white" : "border-slate-200 bg-white text-slate-600 hover:border-brand-200"
                   }`}
                 >
-                  {s.label}
+                  {en?.SCALE_EN[s.v] ?? s.label}
                 </button>
               );
             })}
@@ -108,10 +113,12 @@ function QuestionPage({ page }: { page: number }) {
 
 function ValuesPage() {
   const { state, update } = useStore();
+  const t = useT();
+  const en = useRiasecEn();
   return (
     <div className="card">
-      <h2 className="text-lg font-bold">내가 일할 때 가장 중요하게 생각하는 것 3가지를 골라 주세요</h2>
-      <p className="mt-1 text-sm text-slate-500">{state.values.length}/3 선택</p>
+      <h2 className="text-lg font-bold">{t("내가 일할 때 가장 중요하게 생각하는 것 3가지를 골라 주세요")}</h2>
+      <p className="mt-1 text-sm text-slate-500">{t("{n}/3 선택", { n: state.values.length })}</p>
       <div className="mt-4 grid grid-cols-2 gap-2 sm:grid-cols-4">
         {VALUES.map((v) => {
           const on = state.values.includes(v.id);
@@ -129,8 +136,8 @@ function ValuesPage() {
               className={`rounded-2xl border p-3 text-left transition ${on ? "border-brand-500 bg-brand-50" : "border-slate-200 hover:border-brand-200"}`}
             >
               <div className="text-2xl">{v.emoji}</div>
-              <div className="mt-1 font-bold">{v.label}</div>
-              <div className="text-xs text-slate-500">{v.desc}</div>
+              <div className="mt-1 font-bold">{en?.VALUES_EN[v.id]?.label ?? v.label}</div>
+              <div className="text-xs text-slate-500">{en?.VALUES_EN[v.id]?.desc ?? v.desc}</div>
             </button>
           );
         })}
@@ -141,11 +148,13 @@ function ValuesPage() {
 
 function StrengthPage() {
   const { state, update } = useStore();
+  const t = useT();
+  const en = useRiasecEn();
   return (
     <div className="card space-y-5">
       <div>
-        <h2 className="text-lg font-bold">나의 강점을 골라 주세요 (최대 5개)</h2>
-        <p className="mt-1 text-sm text-slate-500">친구나 가족에게 자주 듣는 칭찬을 떠올려 보세요.</p>
+        <h2 className="text-lg font-bold">{t("나의 강점을 골라 주세요 (최대 5개)")}</h2>
+        <p className="mt-1 text-sm text-slate-500">{t("친구나 가족에게 자주 듣는 칭찬을 떠올려 보세요.")}</p>
         <div className="mt-3 flex flex-wrap gap-2">
           {STRENGTHS.map((s) => {
             const on = state.strengths.includes(s);
@@ -162,7 +171,7 @@ function StrengthPage() {
                 }
                 className={`chip px-3.5 py-2 text-sm ${on ? "chip-on" : ""}`}
               >
-                {s}
+                {en?.STRENGTHS_EN[s] ?? s}
               </button>
             );
           })}
@@ -171,7 +180,7 @@ function StrengthPage() {
       <div className="grid gap-3 sm:grid-cols-3">
         <div>
           <label className="label" htmlFor="nm">
-            이름 또는 별명 (선택)
+            {t("이름 또는 별명 (선택)")}
           </label>
           <input
             id="nm"
@@ -183,7 +192,7 @@ function StrengthPage() {
         </div>
         <div>
           <label className="label" htmlFor="sc">
-            학교 (선택)
+            {t("학교 (선택)")}
           </label>
           <input
             id="sc"
@@ -195,7 +204,7 @@ function StrengthPage() {
         </div>
         <div>
           <label className="label" htmlFor="gr">
-            학년
+            {t("학년")}
           </label>
           <select
             id="gr"
@@ -207,29 +216,32 @@ function StrengthPage() {
               update((s) => ({ ...s, profile: { ...s.profile, grade: g, stage: st }, currentTerm: (st === "hs" ? `h${g}-1` : `${g}-1`) as typeof s.currentTerm }));
             }}
           >
-            {["1", "2", "3"].map((g) => <option key={"ms" + g} value={"ms" + g}>중학교 {g}학년</option>)}
-            {["1", "2", "3"].map((g) => <option key={"hs" + g} value={"hs" + g}>고등학교 {g}학년</option>)}
+            {["1", "2", "3"].map((g) => <option key={"ms" + g} value={"ms" + g}>{t("중학교 {g}학년", { g })}</option>)}
+            {["1", "2", "3"].map((g) => <option key={"hs" + g} value={"hs" + g}>{t("고등학교 {g}학년", { g })}</option>)}
           </select>
         </div>
       </div>
-      <p className="text-xs text-slate-400">입력한 정보는 서버로 전송되지 않고 이 기기에만 저장돼요.</p>
+      <p className="text-xs text-slate-400">{t("입력한 정보는 서버로 전송되지 않고 이 기기에만 저장돼요.")}</p>
     </div>
   );
 }
 
 function Result({ onRetry }: { onRetry: () => void }) {
   const { state } = useStore();
+  const t = useT();
+  const en = useRiasecEn();
+  const R = (k: RiasecKey) => ({ ...RIASEC[k], ...(en?.RIASEC_EN[k] ?? {}) });
   const scores = riasecScores(state.answers);
   const [a, b] = topTypes(scores);
   const recs = rankedJobs(state).slice(0, 4);
   return (
     <div>
-      <PageHead step={1} title="나의 흥미 탐색 결과" desc="흥미는 경험에 따라 계속 변해요. 학기마다 다시 해 보며 나의 변화를 살펴보세요." />
+      <PageHead step={1} title={t("나의 흥미 탐색 결과")} desc={t("흥미는 경험에 따라 계속 변해요. 학기마다 다시 해 보며 나의 변화를 살펴보세요.")} />
       <div className="grid gap-4 md:grid-cols-2">
         <div className="card flex flex-col items-center">
           <Radar scores={scores} />
           <div className="mt-2 text-center">
-            <div className="text-xs font-semibold text-slate-500">나의 흥미 코드</div>
+            <div className="text-xs font-semibold text-slate-500">{t("나의 흥미 코드")}</div>
             <div className="text-3xl font-extrabold tracking-widest text-slate-900">
               {a}
               {b}
@@ -239,13 +251,13 @@ function Result({ onRetry }: { onRetry: () => void }) {
         <div className="space-y-3">
           {[a, b].map((k, i) => (
             <div key={k} className="card" style={{ borderLeft: `5px solid ${RIASEC[k].color}` }}>
-              <div className="text-xs font-semibold text-slate-500">{i === 0 ? "가장 강한 흥미" : "두 번째 흥미"}</div>
+              <div className="text-xs font-semibold text-slate-500">{i === 0 ? t("가장 강한 흥미") : t("두 번째 흥미")}</div>
               <div className="mt-1 text-xl font-extrabold">
-                {RIASEC[k].emoji} {RIASEC[k].name} <span className="text-sm font-semibold text-slate-500">· {RIASEC[k].short}</span>
+                {R(k).emoji} {R(k).name} <span className="text-sm font-semibold text-slate-500">· {R(k).short}</span>
               </div>
-              <p className="mt-1 text-sm leading-relaxed text-slate-600">{RIASEC[k].desc}</p>
+              <p className="mt-1 text-sm leading-relaxed text-slate-600">{R(k).desc}</p>
               <div className="mt-2 flex flex-wrap gap-1">
-                {RIASEC[k].keywords.map((w) => (
+                {R(k).keywords.map((w) => (
                   <span key={w} className="chip">
                     #{w}
                   </span>
@@ -254,19 +266,19 @@ function Result({ onRetry }: { onRetry: () => void }) {
             </div>
           ))}
           <div className="card">
-            <div className="text-xs font-semibold text-slate-500">내가 중요하게 여기는 가치 · 나의 강점</div>
+            <div className="text-xs font-semibold text-slate-500">{t("내가 중요하게 여기는 가치 · 나의 강점")}</div>
             <div className="mt-2 flex flex-wrap gap-1.5">
               {state.values.map((v) => {
                 const x = VALUES.find((y) => y.id === v)!;
                 return (
                   <span key={v} className="chip chip-on">
-                    {x.emoji} {x.label}
+                    {x.emoji} {en?.VALUES_EN[x.id]?.label ?? x.label}
                   </span>
                 );
               })}
               {state.strengths.map((s) => (
                 <span key={s} className="chip">
-                  💪 {s}
+                  💪 {en?.STRENGTHS_EN[s] ?? s}
                 </span>
               ))}
             </div>
@@ -276,9 +288,9 @@ function Result({ onRetry }: { onRetry: () => void }) {
 
       <div className="card mt-4">
         <div className="mb-3 flex items-center justify-between">
-          <h2 className="font-bold">흥미 + 가치관으로 추천하는 직업</h2>
+          <h2 className="font-bold">{t("흥미 + 가치관으로 추천하는 직업")}</h2>
           <Link href="/jobs" className="text-sm font-semibold text-brand-600">
-            전체 추천 보기 →
+            {t("전체 추천 보기 →")}
           </Link>
         </div>
         <div className="grid gap-2 sm:grid-cols-4">
@@ -286,37 +298,37 @@ function Result({ onRetry }: { onRetry: () => void }) {
             <Link key={job.id} href={`/jobs/${job.id}`} className="rounded-xl border border-slate-200 p-3 hover:border-brand-300">
               <div className="text-2xl">{job.emoji}</div>
               <div className="mt-1 text-sm font-bold">{job.name}</div>
-              <div className="text-xs font-semibold text-brand-600">{score}% 일치</div>
+              <div className="text-xs font-semibold text-brand-600">{t("{n}% 일치", { n: score })}</div>
             </Link>
           ))}
         </div>
       </div>
 
       <div className="card mt-4 text-sm text-slate-600">
-        <div className="font-semibold text-slate-800">📌 더 정확하게 알고 싶다면</div>
+        <div className="font-semibold text-slate-800">{t("📌 더 정확하게 알고 싶다면")}</div>
         <p className="mt-1">
-          이 탐색은 간단한 자기 이해 활동이에요. 학교나{" "}
+          {t("이 탐색은 간단한 자기 이해 활동이에요. 학교나")}{" "}
           <a className="font-semibold text-brand-600 underline" href="https://www.career.go.kr/" target="_blank" rel="noreferrer">
-            커리어넷
+            {t("커리어넷")}
           </a>
-          의 표준화된 진로심리검사(직업흥미검사·직업적성검사 등)도 함께 해 보고 결과를 비교해 보세요.
+          {t("의 표준화된 진로심리검사(직업흥미검사·직업적성검사 등)도 함께 해 보고 결과를 비교해 보세요.")}
         </p>
         <div className="mt-2 grid grid-cols-3 gap-2 sm:grid-cols-6">
           {RIASEC_ORDER.map((k) => (
             <div key={k} className="rounded-lg bg-slate-50 p-2 text-center text-xs">
               <div className="font-bold" style={{ color: RIASEC[k].color }}>
-                {RIASEC[k].name}
+                {R(k).name}
               </div>
-              <div className="text-slate-500">{scores[k]}점</div>
+              <div className="text-slate-500">{t("{n}점", { n: scores[k] })}</div>
             </div>
           ))}
         </div>
         <button className="btn-ghost mt-3" onClick={onRetry}>
-          다시 해 보기
+          {t("다시 해 보기")}
         </button>
       </div>
 
-      <NextStep href={state.profile.stage === "hs" ? "/majors" : "/jobs"} label={state.profile.stage === "hs" ? "학과·직업 찾기" : "직업 찾기"} hint={state.profile.stage === "hs" ? "관심 학과와 직업을 찜해 보세요" : "나와 잘 맞는 직업을 찾아 찜해 보세요"} />
+      <NextStep href={state.profile.stage === "hs" ? "/majors" : "/jobs"} label={state.profile.stage === "hs" ? t("학과·직업 찾기") : t("직업 찾기")} hint={state.profile.stage === "hs" ? t("관심 학과와 직업을 찜해 보세요") : t("나와 잘 맞는 직업을 찾아 찜해 보세요")} />
     </div>
   );
 }
