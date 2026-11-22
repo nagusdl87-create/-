@@ -5,6 +5,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Check, Monitor, Moon, Sun } from "lucide-react";
 import { useEscape } from "./useEscape";
+import { useT } from "@/lib/i18n";
 
 type Mode = "system" | "light" | "dark";
 const KEY = "myroad:theme";
@@ -25,6 +26,7 @@ export const THEME_INIT = `(function(){try{var m=localStorage.getItem("${KEY}")|
 const read = (): Mode => { try { return (localStorage.getItem(KEY) as Mode) || "system"; } catch { return "system"; } };
 
 export function ThemeToggle() {
+  const t = useT();
   const [mode, setMode] = useState<Mode>("system");
   const [open, setOpen] = useState(false);
   const box = useRef<HTMLDivElement>(null);
@@ -60,15 +62,15 @@ export function ThemeToggle() {
         onClick={() => setOpen(!open)}
         aria-haspopup="menu"
         aria-expanded={open}
-        aria-label={`화면 밝기: ${cur.label} (바꾸기)`}
+        aria-label={t("화면 밝기: {mode} (바꾸기)", { mode: t(cur.label) })}
         className="flex h-10 items-center gap-1.5 rounded-full px-2.5 text-sm font-medium text-slate-600 hover:bg-slate-100"
       >
         <cur.Icon className="h-5 w-5" aria-hidden />
-        <span className="hidden lg:inline">화면</span>
+        <span className="hidden lg:inline">{t("화면")}</span>
       </button>
       {open && (
-        <div role="menu" aria-label="화면 밝기" className="absolute right-0 top-12 z-50 w-64 rounded-2xl border border-slate-200 bg-surface p-2 shadow-xl">
-          <div className="px-2 pb-1.5 pt-1 text-xs font-semibold text-slate-500">화면 밝기</div>
+        <div role="menu" aria-label={t("화면 밝기")} className="absolute right-0 top-12 z-50 w-64 rounded-2xl border border-slate-200 bg-surface p-2 shadow-xl">
+          <div className="px-2 pb-1.5 pt-1 text-xs font-semibold text-slate-500">{t("화면 밝기")}</div>
           {OPTIONS.map(({ m, label, desc, Icon }) => (
             <button
               key={m}
@@ -80,8 +82,8 @@ export function ThemeToggle() {
             >
               <Icon className={`mt-0.5 h-5 w-5 shrink-0 ${mode === m ? "text-brand-700" : "text-slate-500"}`} aria-hidden />
               <span className="min-w-0 flex-1">
-                <span className="block text-sm font-semibold text-slate-900">{label}</span>
-                <span className="block text-xs text-slate-500">{desc}</span>
+                <span className="block text-sm font-semibold text-slate-900">{t(label)}</span>
+                <span className="block text-xs text-slate-500">{t(desc)}</span>
               </span>
               {mode === m && <Check className="mt-0.5 h-4 w-4 text-brand-700" aria-hidden />}
             </button>

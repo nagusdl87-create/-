@@ -1,8 +1,14 @@
+"use client";
+
 // 다문화 학생·보호자용 영어 요약 (결정 D2=A: 홈·고교 유형·고입 일정)
 import { Globe } from "lucide-react";
 import { ADMISSION_SCHEDULE } from "@/data/gn";
+import { useLang } from "@/lib/i18n";
 
+// 영어 모드에서는 페이지 전체가 영어라 이 요약 상자를 숨긴다.
 function Box({ title, children }: { title: string; children: React.ReactNode }) {
+  const { lang } = useLang();
+  if (lang === "en") return null;
   return (
     <details className="card group" lang="en">
       <summary className="flex cursor-pointer list-none items-center justify-between gap-2">

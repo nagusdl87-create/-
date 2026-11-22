@@ -15,9 +15,11 @@ import { GN_SCHOOLS, KIND_INFO } from "@/data/gn";
 import { TRACKS } from "@/data/subjects";
 import { analyze, parseEntry, SEM_LABEL } from "@/lib/credits";
 import { SEMS } from "@/lib/store";
+import { useLang, useT } from "@/lib/i18n";
 
 export default function ReportPage() {
   const store = useStore();
+  const t = useT();
   const [shared, setShared] = useState<AppState | null>(null);
 
   useEffect(() => {
@@ -37,7 +39,7 @@ export default function ReportPage() {
     <div>
       {shared && (
         <div className="no-print mb-4 flex flex-wrap items-center justify-between gap-2 rounded-2xl bg-amber-50 p-4 text-sm text-amber-900">
-          <span>👀 공유받은 진로 리포트를 보고 있어요 (읽기 전용).</span>
+          <span>👀 {t("공유받은 진로 리포트를 보고 있어요 (읽기 전용).")}</span>
           <button
             className="btn-ghost py-1.5"
             onClick={() => {
@@ -45,13 +47,13 @@ export default function ReportPage() {
               setShared(null);
             }}
           >
-            내 리포트로 돌아가기
+            {t("내 리포트로 돌아가기")}
           </button>
         </div>
       )}
       <div className="no-print mb-4 flex justify-end">
         <Link href={`/report/summary${shared ? window.location.hash : ""}`} className="btn-ghost py-1.5">
-          상담용 한 장 요약
+          {t("상담용 한 장 요약")}
         </Link>
       </div>
       <ReportBody s={s} />
@@ -61,6 +63,8 @@ export default function ReportPage() {
 }
 
 function ReportBody({ s }: { s: AppState }) {
+  const t = useT();
+  const { lang } = useLang();
   const tested = isTestComplete(s.answers);
   const scores = riasecScores(s.answers);
   const [a, b] = topTypes(scores);
@@ -74,79 +78,79 @@ function ReportBody({ s }: { s: AppState }) {
     <article className="space-y-4">
       <header className="flex flex-wrap items-end justify-between gap-3 border-b-2 border-slate-900 pb-3">
         <div>
-          <div className="text-xs font-bold text-brand-600">마이로드 경남 · 진로·학업 설계 리포트</div>
-          <h1 className="text-2xl font-extrabold text-slate-900 sm:text-3xl">{s.profile.name ? `${s.profile.name}의 진로 지도` : "나의 진로 지도"}</h1>
+          <div className="text-xs font-bold text-brand-600">{t("마이로드 경남 · 진로·학업 설계 리포트")}</div>
+          <h1 className="text-2xl font-extrabold text-slate-900 sm:text-3xl">{s.profile.name ? t("{name}의 진로 지도", { name: s.profile.name }) : t("나의 진로 지도")}</h1>
           <div className="text-sm text-slate-500">
-            {[s.profile.school, g ? `${s.profile.stage === "hs" ? "고등학교" : "중학교"} ${g}학년` : ""].filter(Boolean).join(" · ")}
+            {[s.profile.school, g ? t(s.profile.stage === "hs" ? "고등학교 {g}학년" : "중학교 {g}학년", { g }) : ""].filter(Boolean).join(" · ")}
           </div>
         </div>
         <div className="text-right text-xs text-slate-500">
-          진행 {p.doneCount}/5 단계 · 할 일 {p.taskDone}/{p.taskTotal}
+          {t("진행 {d}/5 단계 · 할 일 {a}/{b}", { d: p.doneCount, a: p.taskDone, b: p.taskTotal })}
           <br />
-          {new Date().toLocaleDateString("ko-KR")} 기준
+          {t("{date} 기준", { date: new Date().toLocaleDateString(lang === "en" ? "en-US" : "ko-KR") })}
         </div>
       </header>
 
       {s.hypothesis && (
         <section className="card border-brand-200 bg-brand-50">
-          <div className="text-xs font-bold text-brand-700">✍️ 나의 진로 가설</div>
+          <div className="text-xs font-bold text-brand-700">✍️ {t("나의 진로 가설")}</div>
           <p className="mt-1 whitespace-pre-wrap text-base font-semibold leading-relaxed text-slate-800">&ldquo;{s.hypothesis}&rdquo;</p>
         </section>
       )}
 
       <section className="grid gap-4 md:grid-cols-[auto_1fr]">
         <div className="card flex flex-col items-center">
-          <div className="self-start text-xs font-bold text-slate-500">흥미 유형</div>
-          {tested ? <Radar scores={scores} size={240} /> : <p className="py-10 text-sm text-slate-400">아직 흥미 탐색 전이에요</p>}
+          <div className="self-start text-xs font-bold text-slate-500">{t("흥미 유형")}</div>
+          {tested ? <Radar scores={scores} size={240} /> : <p className="py-10 text-sm text-slate-400">{t("아직 흥미 탐색 전이에요")}</p>}
         </div>
         <div className="card space-y-3">
           {tested && (
             <div>
-              <div className="text-xs font-bold text-slate-500">흥미 코드</div>
+              <div className="text-xs font-bold text-slate-500">{t("흥미 코드")}</div>
               <div className="text-lg font-extrabold">
-                {RIASEC[a].emoji} {RIASEC[a].name}({a}) · {RIASEC[b].name}({b})
+                {RIASEC[a].emoji} {t(RIASEC[a].name)}({a}) · {t(RIASEC[b].name)}({b})
               </div>
-              <p className="text-sm text-slate-600">{RIASEC[a].desc}</p>
+              <p className="text-sm text-slate-600">{t(RIASEC[a].desc)}</p>
             </div>
           )}
           <div>
-            <div className="text-xs font-bold text-slate-500">중요한 가치</div>
+            <div className="text-xs font-bold text-slate-500">{t("중요한 가치")}</div>
             <div className="mt-1 flex flex-wrap gap-1.5">
-              {s.values.length ? s.values.map((v) => <span key={v} className="chip chip-on">{VALUES.find((x) => x.id === v)?.emoji} {VALUES.find((x) => x.id === v)?.label}</span>) : <span className="text-sm text-slate-400">-</span>}
+              {s.values.length ? s.values.map((v) => <span key={v} className="chip chip-on">{VALUES.find((x) => x.id === v)?.emoji} {t(VALUES.find((x) => x.id === v)?.label ?? "")}</span>) : <span className="text-sm text-slate-400">-</span>}
             </div>
           </div>
           <div>
-            <div className="text-xs font-bold text-slate-500">나의 강점</div>
+            <div className="text-xs font-bold text-slate-500">{t("나의 강점")}</div>
             <div className="mt-1 flex flex-wrap gap-1.5">
-              {s.strengths.length ? s.strengths.map((x) => <span key={x} className="chip">💪 {x}</span>) : <span className="text-sm text-slate-400">-</span>}
+              {s.strengths.length ? s.strengths.map((x) => <span key={x} className="chip">💪 {t(x)}</span>) : <span className="text-sm text-slate-400">-</span>}
             </div>
           </div>
         </div>
       </section>
 
       <section className="card">
-        <div className="text-xs font-bold text-slate-500">관심 직업과 가는 길</div>
+        <div className="text-xs font-bold text-slate-500">{t("관심 직업과 가는 길")}</div>
         {favs.length === 0 ? (
-          <p className="mt-2 text-sm text-slate-400">찜한 직업이 없어요.</p>
+          <p className="mt-2 text-sm text-slate-400">{t("찜한 직업이 없어요.")}</p>
         ) : (
           <div className="mt-2 overflow-x-auto">
             <table className="w-full min-w-[560px] text-left text-sm">
               <thead className="text-xs text-slate-500">
                 <tr className="border-b border-slate-200">
-                  <th className="py-2 pr-2">직업</th>
-                  <th className="py-2 pr-2">대학 학과</th>
-                  <th className="py-2">고교 선택과목</th>
+                  <th className="py-2 pr-2">{t("직업")}</th>
+                  <th className="py-2 pr-2">{t("대학 학과")}</th>
+                  <th className="py-2">{t("고교 선택과목")}</th>
                 </tr>
               </thead>
               <tbody>
                 {favs.map((j, i) => (
                   <tr key={j.id} className="border-b border-slate-100 align-top">
                     <td className="py-2 pr-2 font-semibold">
-                      {j.emoji} {j.name}
-                      {i === 0 && <span className="ml-1 rounded bg-brand-600 px-1 text-[11px] text-white">대표</span>}
+                      {j.emoji} {t(j.name)}
+                      {i === 0 && <span className="ml-1 rounded bg-brand-600 px-1 text-[11px] text-white">{t("대표")}</span>}
                     </td>
-                    <td className="py-2 pr-2 text-slate-600">{j.majors.slice(0, 3).join(", ")}</td>
-                    <td className="py-2 text-slate-600">{j.hsSubjects.slice(0, 5).join(", ")}</td>
+                    <td className="py-2 pr-2 text-slate-600">{j.majors.slice(0, 3).map((x) => t(x)).join(", ")}</td>
+                    <td className="py-2 text-slate-600">{j.hsSubjects.slice(0, 5).map((x) => t(x)).join(", ")}</td>
                   </tr>
                 ))}
               </tbody>
@@ -157,31 +161,31 @@ function ReportBody({ s }: { s: AppState }) {
 
       <section className="grid gap-4 md:grid-cols-2">
         <div className="card">
-          <div className="text-xs font-bold text-slate-500">관심 고교 유형</div>
+          <div className="text-xs font-bold text-slate-500">{t("관심 고교 유형")}</div>
           <ul className="mt-2 space-y-1 text-sm">
             {s.hsInterest.map((h) => (
-              <li key={h} className="font-semibold">⭐ {HS_MAP[h].emoji} {HS_MAP[h].name}</li>
+              <li key={h} className="font-semibold">⭐ {HS_MAP[h].emoji} {t(HS_MAP[h].name)}</li>
             ))}
             {hasHs &&
               hs
                 .filter((x) => !s.hsInterest.includes(x.type.id))
                 .map((x) => (
                   <li key={x.type.id} className="text-slate-600">
-                    {x.type.emoji} {x.type.name} <span className="text-xs text-slate-400">(퀴즈 추천)</span>
+                    {x.type.emoji} {t(x.type.name)} <span className="text-xs text-slate-400">{t("(퀴즈 추천)")}</span>
                   </li>
                 ))}
             {!hasHs && s.hsInterest.length === 0 && <li className="text-slate-400">-</li>}
           </ul>
         </div>
         <div className="card">
-          <div className="text-xs font-bold text-slate-500">학기별 실천</div>
+          <div className="text-xs font-bold text-slate-500">{t("학기별 실천")}</div>
           <ul className="mt-2 grid grid-cols-3 gap-2 text-center text-xs">
-            {TERMS_BY_STAGE[s.profile.stage || "ms"].map((t) => {
-              const ts = s.tasks[t.id] ?? [];
+            {TERMS_BY_STAGE[s.profile.stage || "ms"].map((term) => {
+              const ts = s.tasks[term.id] ?? [];
               const d = ts.filter((x) => x.done).length;
               return (
-                <li key={t.id} className="rounded-lg bg-slate-50 p-2">
-                  <div className="font-semibold text-slate-600">{t.label}</div>
+                <li key={term.id} className="rounded-lg bg-slate-50 p-2">
+                  <div className="font-semibold text-slate-600">{t(term.label)}</div>
                   <div className="text-base font-extrabold text-slate-900">
                     {d}/{ts.length}
                   </div>
@@ -195,24 +199,24 @@ function ReportBody({ s }: { s: AppState }) {
       {(s.favMajors.length > 0 || s.favSchools.length > 0) && (
         <section className="grid gap-4 md:grid-cols-2">
           <div className="card">
-            <div className="text-xs font-bold text-slate-500">관심 학과</div>
+            <div className="text-xs font-bold text-slate-500">{t("관심 학과")}</div>
             <ul className="mt-2 space-y-1 text-sm">
               {s.favMajors.map((id) => MAJOR_MAP[id] && (
                 <li key={id}>
-                  <b>{MAJOR_MAP[id].name}</b> <span className="text-xs text-slate-500">핵심: {MAJOR_MAP[id].core.join(", ")}</span>
+                  <b>{t(MAJOR_MAP[id].name)}</b> <span className="text-xs text-slate-500">{t("핵심: {list}", { list: MAJOR_MAP[id].core.map((x) => t(x)).join(", ") })}</span>
                 </li>
               ))}
               {s.favMajors.length === 0 && <li className="text-slate-400">-</li>}
             </ul>
           </div>
           <div className="card">
-            <div className="text-xs font-bold text-slate-500">관심 경남 고교</div>
+            <div className="text-xs font-bold text-slate-500">{t("관심 경남 고교")}</div>
             <ul className="mt-2 space-y-1 text-sm">
               {s.favSchools.map((id) => {
                 const sc = GN_SCHOOLS.find((x) => x.id === id);
                 return sc ? (
                   <li key={id}>
-                    <b>{sc.name}</b> <span className="text-xs text-slate-500">{sc.region} · {KIND_INFO[sc.kind].name} · {sc.round}</span>
+                    <b data-keep-ko>{sc.name}</b> <span className="text-xs text-slate-500">{t(sc.region)} · {t(KIND_INFO[sc.kind].name)} · {t(sc.round)}</span>
                   </li>
                 ) : null;
               })}
@@ -226,7 +230,7 @@ function ReportBody({ s }: { s: AppState }) {
 
       {s.books.length > 0 && (
         <section className="card">
-          <div className="text-xs font-bold text-slate-500">진로 독서 ({s.books.length})</div>
+          <div className="text-xs font-bold text-slate-500">{t("진로 독서 ({n})", { n: s.books.length })}</div>
           <ul className="mt-2 divide-y divide-slate-100 text-sm">
             {s.books.slice(0, 6).map((b) => (
               <li key={b.id} className="py-2">
@@ -240,12 +244,12 @@ function ReportBody({ s }: { s: AppState }) {
 
       {s.logs.length > 0 && (
         <section className="card">
-          <div className="text-xs font-bold text-slate-500">진로 활동 기록 ({s.logs.length})</div>
+          <div className="text-xs font-bold text-slate-500">{t("진로 활동 기록 ({n})", { n: s.logs.length })}</div>
           <ul className="mt-2 divide-y divide-slate-100">
             {s.logs.slice(0, 6).map((l) => (
               <li key={l.id} className="py-2 text-sm">
                 <div className="font-semibold">
-                  {l.title} <span className="text-xs font-normal text-slate-400">{l.date} · {l.kind}</span>
+                  {l.title} <span className="text-xs font-normal text-slate-400">{l.date} · {t(l.kind)}</span>
                 </div>
                 {l.learned && <div className="text-slate-600">💡 {l.learned}</div>}
                 {l.next && <div className="text-slate-500">→ {l.next}</div>}
@@ -256,7 +260,7 @@ function ReportBody({ s }: { s: AppState }) {
       )}
 
       <section className="card hidden print:block">
-        <div className="text-xs font-bold text-slate-500">선생님·보호자 의견</div>
+        <div className="text-xs font-bold text-slate-500">{t("선생님·보호자 의견")}</div>
         <div className="mt-2 h-24 rounded-lg border border-dashed border-slate-300" />
       </section>
     </article>
@@ -265,6 +269,7 @@ function ReportBody({ s }: { s: AppState }) {
 
 function Tools() {
   const { state, reset } = useStore();
+  const t = useT();
   const [msg, setMsg] = useState("");
   const flash = (m: string) => {
     setMsg(m);
@@ -274,10 +279,10 @@ function Tools() {
   return (
     <div className="no-print mt-8 space-y-4">
       <div className="card">
-        <h2 className="font-bold">리포트 활용하기</h2>
+        <h2 className="font-bold">{t("리포트 활용하기")}</h2>
         <div className="mt-3 flex flex-wrap gap-2">
           <button className="btn-primary" onClick={() => window.print()}>
-            🖨️ 인쇄 / PDF 저장
+            🖨️ {t("인쇄 / PDF 저장")}
           </button>
           <button
             className="btn-ghost"
@@ -285,52 +290,53 @@ function Tools() {
               const url = `${location.origin}/report#d=${encodeShare(state)}`;
               try {
                 await navigator.clipboard.writeText(url);
-                flash("공유 링크를 복사했어요. 선생님이나 보호자에게 보내 보세요.");
+                flash(t("공유 링크를 복사했어요. 선생님이나 보호자에게 보내 보세요."));
               } catch {
-                prompt("아래 링크를 복사하세요", url);
+                prompt(t("아래 링크를 복사하세요"), url);
               }
             }}
           >
-            🔗 공유 링크 복사
+            🔗 {t("공유 링크 복사")}
           </button>
         </div>
-        <p className="mt-2 text-xs text-slate-500">공유 링크에는 리포트 내용이 담겨 있어 서버 저장 없이 열람할 수 있어요. 받는 사람에게만 보내 주세요.</p>
+        <p className="mt-2 text-xs text-slate-500">{t("공유 링크에는 리포트 내용이 담겨 있어 서버 저장 없이 열람할 수 있어요. 받는 사람에게만 보내 주세요.")}</p>
         {msg && <p className="mt-2 text-sm font-semibold text-emerald-600">{msg}</p>}
       </div>
 
       <BackupPanel />
       <div className="card">
-        <h2 className="font-bold">처음부터 다시 하기</h2>
-        <p className="mt-1 text-xs text-slate-500">이 기기에 저장된 모든 기록을 지워요. 공용 컴퓨터를 다 쓴 뒤에도 눌러 주세요.</p>
-        <button className="btn-ghost mt-3 text-rose-600" onClick={() => confirm("모든 기록을 지우고 처음부터 시작할까요? 되돌릴 수 없어요. 필요하면 먼저 백업 파일을 내려받아 두세요.") && reset()}>
-          기록 모두 지우기
+        <h2 className="font-bold">{t("처음부터 다시 하기")}</h2>
+        <p className="mt-1 text-xs text-slate-500">{t("이 기기에 저장된 모든 기록을 지워요. 공용 컴퓨터를 다 쓴 뒤에도 눌러 주세요.")}</p>
+        <button className="btn-ghost mt-3 text-rose-600" onClick={() => confirm(t("모든 기록을 지우고 처음부터 시작할까요? 되돌릴 수 없어요. 필요하면 먼저 백업 파일을 내려받아 두세요.")) && reset()}>
+          {t("기록 모두 지우기")}
         </button>
       </div>
       <Link href="/" className="inline-block text-sm font-semibold text-slate-500">
-        ← 홈으로
+        ← {t("홈으로")}
       </Link>
     </div>
   );
 }
 
 function CreditSummary({ s }: { s: AppState }) {
+  const t = useT();
   const count = Object.values(s.credits.plan).flat().length;
   if (!count) return null;
   const a = analyze(s.credits.plan, s.credits.track);
   return (
     <section className="card">
       <div className="flex flex-wrap items-center justify-between gap-2">
-        <div className="text-xs font-bold text-slate-500">3개년 과목 설계 (192학점)</div>
+        <div className="text-xs font-bold text-slate-500">{t("3개년 과목 설계 (192학점)")}</div>
         <div className="text-sm">
-          총 <b>{a.total + 18}</b>/192학점{s.credits.track && ` · ${TRACKS[s.credits.track].name} 계열`}
-          {a.trackFit && ` · 적합도 ${a.trackFit.pct}%`}
+          {t("총")} <b>{a.total + 18}</b>{t("/192학점")}{s.credits.track && ` · ${t("{track} 계열", { track: t(TRACKS[s.credits.track].name) })}`}
+          {a.trackFit && ` · ${t("적합도 {n}%", { n: a.trackFit.pct })}`}
         </div>
       </div>
       <div className="mt-2 grid gap-2 sm:grid-cols-3">
         {SEMS.map((sem) => (
           <div key={sem} className="rounded-lg bg-slate-50 p-2 text-xs">
-            <div className="font-bold text-slate-600">{SEM_LABEL[sem]} · {a.semTotals[sem]}학점</div>
-            <div className="mt-0.5 text-slate-600">{s.credits.plan[sem].map((e) => parseEntry(e).name).join(", ") || "-"}</div>
+            <div className="font-bold text-slate-600">{t(SEM_LABEL[sem])} · {t("{n}학점", { n: a.semTotals[sem] })}</div>
+            <div className="mt-0.5 text-slate-600">{s.credits.plan[sem].map((e) => t(parseEntry(e).name)).join(", ") || "-"}</div>
           </div>
         ))}
       </div>

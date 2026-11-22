@@ -8,9 +8,11 @@ import { usePathname } from "next/navigation";
 import { Languages, X } from "lucide-react";
 import { englishGuideFor } from "@/data/englishGuide";
 import { useEscape } from "./useEscape";
+import { useLang } from "@/lib/i18n";
 
 export function EnglishGuideButton() {
   const path = usePathname();
+  const en = useLang().lang === "en";
   const [open, setOpen] = useState(false);
   const btn = useRef<HTMLButtonElement>(null);
   const panel = useRef<HTMLDivElement>(null);
@@ -56,8 +58,8 @@ export function EnglishGuideButton() {
         onClick={() => setOpen(true)}
         aria-haspopup="dialog"
         aria-expanded={open}
-        aria-label="EN: English guide (영어 안내)"
-        title="English guide (영어 안내)"
+        aria-label={en ? "English guide for this page" : "EN: English guide (영어 안내)"}
+        title={en ? "English guide for this page" : "English guide (영어 안내)"}
         className="flex h-10 items-center gap-0.5 rounded-full px-1.5 text-sm font-semibold text-slate-600 hover:bg-slate-100 sm:gap-1 sm:px-2"
       >
         <Languages className="h-5 w-5" aria-hidden />
@@ -82,7 +84,7 @@ export function EnglishGuideButton() {
                 </div>
                 <h2 id="en-guide-title" className="mt-1 text-lg font-bold text-slate-900">{g.title}</h2>
               </div>
-              <button ref={closeBtn} type="button" onClick={close} className="grid h-9 w-9 shrink-0 place-items-center rounded-full text-slate-600 hover:bg-slate-100" aria-label="Close (닫기)">
+              <button ref={closeBtn} type="button" onClick={close} className="grid h-9 w-9 shrink-0 place-items-center rounded-full text-slate-600 hover:bg-slate-100" aria-label={en ? "Close" : "Close (닫기)"}>
                 <X className="h-5 w-5" aria-hidden />
               </button>
             </div>
@@ -100,7 +102,7 @@ export function EnglishGuideButton() {
                   <dl className="mt-1 divide-y divide-slate-100">
                     {g.sections.map(([ko, en]) => (
                       <div key={ko} className="py-1.5">
-                        <dt className="font-semibold text-slate-800" lang="ko">{ko}</dt>
+                        <dt className="font-semibold text-slate-800" lang="ko" data-keep-ko>{ko}</dt>
                         <dd>{en}</dd>
                       </div>
                     ))}
@@ -113,7 +115,7 @@ export function EnglishGuideButton() {
                   <dl className="mt-1 grid gap-1.5">
                     {g.terms.map(([ko, en]) => (
                       <div key={ko} className="rounded-lg bg-slate-50 px-2.5 py-1.5">
-                        <dt className="mr-1 inline font-semibold text-slate-800" lang="ko">{ko}</dt>
+                        <dt className="mr-1 inline font-semibold text-slate-800" lang="ko" data-keep-ko>{ko}</dt>
                         <dd className="inline"><span aria-hidden>= </span>{en}</dd>
                       </div>
                     ))}

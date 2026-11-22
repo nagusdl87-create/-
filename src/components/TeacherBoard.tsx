@@ -17,6 +17,9 @@ import { MAJOR_MAP } from "@/data/majors";
 import { GN_SCHOOLS } from "@/data/gn";
 import { TRACKS, type TrackId } from "@/data/subjects";
 import type { Term } from "@/data/plan";
+import { useT } from "@/lib/i18n";
+
+type TFn = (ko: string, vars?: Record<string, string | number>) => string;
 
 /* ---------- 들어온 기록 다듬기 (store.tsx의 sanitize보다 엄격하게: 이상한 파일이 와도 화면이 멈추지 않도록) ---------- */
 
@@ -101,25 +104,25 @@ type Row = {
 
 const STAGE_LABEL = { ms: "중학교", hs: "고등학교", "": "미입력" } as const;
 
-function toRow(st: Student, i: number): Row {
+function toRow(st: Student, i: number, t: TFn): Row {
   const s = st.state;
   const tested = isTestComplete(s.answers);
   const planned = Object.values(s.credits.plan).flat().length > 0;
   const a = analyze(s.credits.plan, s.credits.track);
-  const grade = s.profile.grade ? `${s.profile.grade}학년` : "";
+  const grade = s.profile.grade ? t("{g}학년", { g: s.profile.grade }) : "";
   return {
     key: st.key,
     code: st.code,
     source: st.source,
-    name: s.profile.name || `학생 ${i + 1}`,
+    name: s.profile.name || t("학생 {n}", { n: i + 1 }),
     school: [s.profile.school, grade].filter(Boolean).join(" ") || "-",
     stage: s.profile.stage,
     tested,
     top: tested ? topTypes(riasecScores(s.answers), 2) : [],
-    jobs: s.favorites.map((id) => JOB_MAP[id]?.name).filter((x): x is string => !!x),
-    majors: s.favMajors.map((id) => MAJOR_MAP[id]?.name).filter((x): x is string => !!x),
+    jobs: s.favorites.map((id) => JOB_MAP[id]?.name).filter((x): x is string => !!x).map((x) => t(x)),
+    majors: s.favMajors.map((id) => MAJOR_MAP[id]?.name).filter((x): x is string => !!x).map((x) => t(x)),
     schools: s.favSchools.map((id) => GN_SCHOOLS.find((g) => g.id === id)?.name).filter((x): x is string => !!x),
-    track: s.credits.track ? TRACKS[s.credits.track].name : "",
+    track: s.credits.track ? t(TRACKS[s.credits.track].name) : "",
     credits: planned ? a.total + 18 : 0,
     done: progress(s).doneCount,
   };
@@ -138,8 +141,8 @@ const COLS: { key: SortKey; label: string; val: (r: Row) => string | number }[] 
   { key: "done", label: "진행 단계", val: (r) => r.done },
 ];
 
-const topLabel = (r: Row) => (r.tested ? r.top.map((k) => RIASEC[k].name).join(" · ") : "검사 전");
-const creditLabel = (r: Row) => (r.credits ? `${r.track ? `${r.track} · ` : ""}${r.credits}학점` : r.track ? `${r.track} · 설계 전` : "-");
+const topLabel = (r: Row, t: TFn) => (r.tested ? r.top.map((k) => t(RIASEC[k].name)).join(" · ") : t("검사 전"));
+const creditLabel = (r: Row, t: TFn) => (r.credits ? `${r.track ? `${r.track} · ` : ""}${t("{n}학점", { n: r.credits })}` : r.track ? `${r.track} · ${t("설계 전")}` : "-");
 
 /* ---------- 입력 읽기 ---------- */
 
@@ -165,6 +168,7 @@ type Msg = { ok: boolean; text: string };
 type Incoming = { state: AppState; source: string; label: string } | { error: string };
 
 export function TeacherBoard() {
+  const t = useT();
   const [students, setStudents] = useState<Student[]>([]);
   const [links, setLinks] = useState("");
   const [msgs, setMsgs] = useState<Msg[]>([]);
@@ -186,7 +190,7 @@ export function TeacherBoard() {
       }
       const code = encodeShare(it.state);
       if (next.some((s) => s.key === code)) {
-        out.push({ ok: false, text: `${it.label}: 이미 추가한 기록이라 건너뛰었어요.` });
+        out.push({ ok: false, text: t("{label}: 이미 추가한 기록이라 건너뛰었어요.", { label: it.label }) });
         continue;
       }
       const p = it.state.profile;
@@ -194,10 +198,10 @@ export function TeacherBoard() {
       const st: Student = { key: code, code, state: it.state, source: it.source };
       if (idx >= 0) {
         next[idx] = st;
-        out.push({ ok: true, text: `${it.label}: ${p.name} 학생의 기록을 새 내용으로 바꿨어요.` });
+        out.push({ ok: true, text: t("{label}: {name} 학생의 기록을 새 내용으로 바꿨어요.", { label: it.label, name: p.name }) });
       } else {
         next.push(st);
-        out.push({ ok: true, text: `${it.label}: ${p.name ? `${p.name} 학생` : "이름 없는 학생"}을 추가했어요.` });
+        out.push({ ok: true, text: p.name ? t("{label}: {name} 학생을 추가했어요.", { label: it.label, name: p.name }) : t("{label}: 이름 없는 학생을 추가했어요.", { label: it.label }) });
       }
     }
     latest.current = next;
@@ -210,14 +214,14 @@ export function TeacherBoard() {
     const incoming: Incoming[] = [];
     lines.forEach((line, i) => {
       if (!line) return;
-      const label = `${i + 1}번째 줄`;
+      const label = t("{n}번째 줄", { n: i + 1 });
       const code = codeFromLine(line);
-      if (!code) return incoming.push({ error: `${label}: 마이로드 공유 링크가 아니에요. ‘내 리포트 → 공유 링크 복사’로 만든 주소인지 확인해 주세요.` });
+      if (!code) return incoming.push({ error: t("{label}: 마이로드 공유 링크가 아니에요. ‘내 리포트 → 공유 링크 복사’로 만든 주소인지 확인해 주세요.", { label }) });
       const st = normalize(decodeShare(code));
-      if (!st) return incoming.push({ error: `${label}: 링크가 잘렸거나 손상돼서 읽을 수 없어요. 학생에게 링크를 다시 받아 주세요.` });
-      incoming.push({ state: st, source: "공유 링크", label });
+      if (!st) return incoming.push({ error: t("{label}: 링크가 잘렸거나 손상돼서 읽을 수 없어요. 학생에게 링크를 다시 받아 주세요.", { label }) });
+      incoming.push({ state: st, source: t("공유 링크"), label });
     });
-    if (!incoming.length) return setMsgs([{ ok: false, text: "공유 링크를 한 줄에 하나씩 붙여 넣어 주세요." }]);
+    if (!incoming.length) return setMsgs([{ ok: false, text: t("공유 링크를 한 줄에 하나씩 붙여 넣어 주세요.") }]);
     merge(incoming);
     if (incoming.some((it) => !("error" in it))) setLinks("");
   };
@@ -229,28 +233,28 @@ export function TeacherBoard() {
     for (const f of list) {
       const label = f.name;
       if (f.size > 5 * 1024 * 1024) {
-        incoming.push({ error: `${label}: 파일이 너무 커요(5MB 넘음). 마이로드 백업 파일인지 확인해 주세요.` });
+        incoming.push({ error: t("{label}: 파일이 너무 커요(5MB 넘음). 마이로드 백업 파일인지 확인해 주세요.", { label }) });
         continue;
       }
       let text = "";
       try {
         text = await f.text();
       } catch {
-        incoming.push({ error: `${label}: 파일을 열 수 없어요.` });
+        incoming.push({ error: t("{label}: 파일을 열 수 없어요.", { label }) });
         continue;
       }
       const p = parseBackup(text);
       const st = p ? normalize(p.data) : null;
       if (!st) {
-        incoming.push({ error: `${label}: 마이로드 백업 파일이 아니에요. ‘myroad-backup-날짜.json’ 파일을 골라 주세요.` });
+        incoming.push({ error: t("{label}: 마이로드 백업 파일이 아니에요. ‘myroad-backup-날짜.json’ 파일을 골라 주세요.", { label }) });
         continue;
       }
-      incoming.push({ state: st, source: "백업 파일", label });
+      incoming.push({ state: st, source: t("백업 파일"), label });
     }
     merge(incoming);
   };
 
-  const rows = useMemo(() => students.map(toRow), [students]);
+  const rows = useMemo(() => students.map((st, i) => toRow(st, i, t)), [students, t]);
   const shown = useMemo(() => {
     const r = rows.filter((x) => stageFilter === "all" || x.stage === stageFilter);
     if (!sort) return r;
@@ -280,10 +284,10 @@ export function TeacherBoard() {
     setSort((s) => (s?.key !== key ? { key, dir: 1 } : s.dir === 1 ? { key, dir: -1 } : null));
 
   const downloadCsv = () => {
-    const head = ["번호", "이름", "학교·학년", "학교급", "흥미 유형 1", "흥미 유형 2", "관심 직업", "관심 학과", "관심 고교", "학점 설계 계열", "학점 합계", "진행 단계(5단계 중)", "가져온 방법"];
+    const head = ["번호", "이름", "학교·학년", "학교급", "흥미 유형 1", "흥미 유형 2", "관심 직업", "관심 학과", "관심 고교", "학점 설계 계열", "학점 합계", "진행 단계(5단계 중)", "가져온 방법"].map((h) => t(h));
     const body = shown.map((r, i) => [
-      i + 1, r.name, r.school, STAGE_LABEL[r.stage],
-      r.top[0] ? RIASEC[r.top[0]].name : r.tested ? "" : "검사 전", r.top[1] ? RIASEC[r.top[1]].name : "",
+      i + 1, r.name, r.school, t(STAGE_LABEL[r.stage]),
+      r.top[0] ? t(RIASEC[r.top[0]].name) : r.tested ? "" : t("검사 전"), r.top[1] ? t(RIASEC[r.top[1]].name) : "",
       r.jobs.join(" / "), r.majors.join(" / "), r.schools.join(" / "), r.track, r.credits || "", r.done, r.source,
     ]);
     const csv = "﻿" + [head, ...body].map((line) => line.map(csvCell).join(",")).join("\r\n");
@@ -299,9 +303,9 @@ export function TeacherBoard() {
 
   const clearAll = () => {
     if (!students.length) return;
-    if (!window.confirm(`모아 둔 학생 ${students.length}명의 기록을 이 화면에서 모두 지울까요?`)) return;
+    if (!window.confirm(t("모아 둔 학생 {n}명의 기록을 이 화면에서 모두 지울까요?", { n: students.length }))) return;
     setStudents([]);
-    setMsgs([{ ok: true, text: "모아 둔 기록을 모두 지웠어요." }]);
+    setMsgs([{ ok: true, text: t("모아 둔 기록을 모두 지웠어요.") }]);
   };
 
   const remove = (key: string) => setStudents((prev) => prev.filter((s) => s.key !== key));
@@ -310,15 +314,15 @@ export function TeacherBoard() {
     <div className="space-y-6">
       <p className="flex items-start gap-2 rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-900" role="note">
         <ShieldCheck className="mt-0.5 h-4 w-4 shrink-0" aria-hidden />
-        <span>학생 기록은 이 기기의 화면에서만 처리하고 어디에도 저장·전송하지 않아요. 새로고침하면 사라져요. 학생에게 공유 동의를 받고 사용하세요.</span>
+        <span>{t("학생 기록은 이 기기의 화면에서만 처리하고 어디에도 저장·전송하지 않아요. 새로고침하면 사라져요. 학생에게 공유 동의를 받고 사용하세요.")}</span>
       </p>
 
       {/* 학생 추가 */}
-      <section className="no-print grid gap-4 lg:grid-cols-2" aria-label="학생 기록 추가">
+      <section className="no-print grid gap-4 lg:grid-cols-2" aria-label={t("학생 기록 추가")}>
         <div className="card">
-          <h2 className="flex items-center gap-2 font-bold"><Link2 className="h-4 w-4 text-brand-700" aria-hidden /> 공유 링크 붙여 넣기</h2>
-          <p className="mt-1 text-sm text-slate-600">학생이 ‘내 리포트 → 공유 링크 복사’로 보낸 주소를 한 줄에 하나씩 붙여 넣어요. 여러 명을 한꺼번에 넣어도 돼요.</p>
-          <label htmlFor="teacher-links" className="label mt-3">공유 링크 (한 줄에 하나)</label>
+          <h2 className="flex items-center gap-2 font-bold"><Link2 className="h-4 w-4 text-brand-700" aria-hidden /> {t("공유 링크 붙여 넣기")}</h2>
+          <p className="mt-1 text-sm text-slate-600">{t("학생이 ‘내 리포트 → 공유 링크 복사’로 보낸 주소를 한 줄에 하나씩 붙여 넣어요. 여러 명을 한꺼번에 넣어도 돼요.")}</p>
+          <label htmlFor="teacher-links" className="label mt-3">{t("공유 링크 (한 줄에 하나)")}</label>
           <textarea
             id="teacher-links"
             className="input min-h-[7rem] font-mono text-xs"
@@ -328,7 +332,7 @@ export function TeacherBoard() {
             spellCheck={false}
           />
           <button className="btn-primary mt-3 w-full sm:w-auto" onClick={addLinks} disabled={!links.trim()}>
-            <Users className="h-4 w-4" aria-hidden /> 링크로 학생 추가
+            <Users className="h-4 w-4" aria-hidden /> {t("링크로 학생 추가")}
           </button>
         </div>
         <div
@@ -337,10 +341,10 @@ export function TeacherBoard() {
           onDragLeave={() => setDrag(false)}
           onDrop={(e) => { e.preventDefault(); setDrag(false); addFiles(e.dataTransfer.files); }}
         >
-          <h2 className="flex items-center gap-2 font-bold"><FileUp className="h-4 w-4 text-brand-700" aria-hidden /> 백업 파일 올리기</h2>
-          <p className="mt-1 text-sm text-slate-600">학생이 ‘내 기록 백업’에서 내려받은 myroad-backup-날짜.json 파일을 여러 개 골라 올려요. 이 칸에 끌어다 놓아도 돼요.</p>
+          <h2 className="flex items-center gap-2 font-bold"><FileUp className="h-4 w-4 text-brand-700" aria-hidden /> {t("백업 파일 올리기")}</h2>
+          <p className="mt-1 text-sm text-slate-600">{t("학생이 ‘내 기록 백업’에서 내려받은 myroad-backup-날짜.json 파일을 여러 개 골라 올려요. 이 칸에 끌어다 놓아도 돼요.")}</p>
           <button className="btn-ghost mt-3 w-full sm:w-auto" onClick={() => fileRef.current?.click()}>
-            <FileUp className="h-4 w-4" aria-hidden /> 백업 파일 고르기
+            <FileUp className="h-4 w-4" aria-hidden /> {t("백업 파일 고르기")}
           </button>
           <input
             ref={fileRef}
@@ -348,7 +352,7 @@ export function TeacherBoard() {
             multiple
             accept=".json,application/json"
             className="hidden"
-            aria-label="학생 백업 파일 선택 (여러 개 가능)"
+            aria-label={t("학생 백업 파일 선택 (여러 개 가능)")}
             onChange={(e) => { addFiles(e.target.files); e.target.value = ""; }}
           />
         </div>
@@ -357,8 +361,8 @@ export function TeacherBoard() {
       {msgs.length > 0 && (
         <div className="no-print rounded-2xl border border-slate-200 bg-surface p-4" role="status" aria-live="polite">
           <div className="flex items-center justify-between gap-2">
-            <h2 className="text-sm font-bold">가져오기 결과</h2>
-            <button className="grid h-8 w-8 place-items-center rounded-full text-slate-500 hover:bg-slate-100" aria-label="결과 닫기" onClick={() => setMsgs([])}>
+            <h2 className="text-sm font-bold">{t("가져오기 결과")}</h2>
+            <button className="grid h-8 w-8 place-items-center rounded-full text-slate-500 hover:bg-slate-100" aria-label={t("결과 닫기")} onClick={() => setMsgs([])}>
               <X className="h-4 w-4" aria-hidden />
             </button>
           </div>
@@ -372,63 +376,63 @@ export function TeacherBoard() {
 
       {students.length === 0 ? (
         <div className="card text-center text-sm text-slate-500">
-          아직 모은 학생이 없어요. 위에서 공유 링크를 붙여 넣거나 백업 파일을 올려 주세요.
+          {t("아직 모은 학생이 없어요. 위에서 공유 링크를 붙여 넣거나 백업 파일을 올려 주세요.")}
         </div>
       ) : (
         <>
           {/* 도구 */}
           <div className="no-print flex flex-wrap items-center justify-between gap-3">
-            <div className="flex flex-wrap items-center gap-1.5" role="group" aria-label="학교급으로 거르기">
+            <div className="flex flex-wrap items-center gap-1.5" role="group" aria-label={t("학교급으로 거르기")}>
               {([["all", "전체"], ["ms", "중학교"], ["hs", "고등학교"]] as const).map(([k, l]) => (
                 <button key={k} className={`chip ${stageFilter === k ? "chip-on" : ""}`} aria-pressed={stageFilter === k} onClick={() => setStageFilter(k)}>
-                  {l}
+                  {t(l)}
                 </button>
               ))}
             </div>
             <div className="flex flex-wrap gap-2">
-              <button className="btn-ghost py-2" onClick={() => window.print()}><Printer className="h-4 w-4" aria-hidden /> 인쇄</button>
-              <button className="btn-ghost py-2" onClick={downloadCsv}><Download className="h-4 w-4" aria-hidden /> CSV 내려받기</button>
-              <button className="btn-ghost py-2 text-rose-600" onClick={clearAll}><Trash2 className="h-4 w-4" aria-hidden /> 모두 지우기</button>
+              <button className="btn-ghost py-2" onClick={() => window.print()}><Printer className="h-4 w-4" aria-hidden /> {t("인쇄")}</button>
+              <button className="btn-ghost py-2" onClick={downloadCsv}><Download className="h-4 w-4" aria-hidden /> {t("CSV 내려받기")}</button>
+              <button className="btn-ghost py-2 text-rose-600" onClick={clearAll}><Trash2 className="h-4 w-4" aria-hidden /> {t("모두 지우기")}</button>
             </div>
           </div>
 
           <div className="hidden print:block">
-            <h1 className="text-xl font-bold">학급 진로 현황</h1>
-            <p className="text-xs text-slate-500">{ymd(new Date())} · 마이로드 경남 선생님 모아 보기{stageFilter !== "all" && ` · ${STAGE_LABEL[stageFilter]}`}</p>
+            <h1 className="text-xl font-bold">{t("학급 진로 현황")}</h1>
+            <p className="text-xs text-slate-500">{ymd(new Date())} · {t("마이로드 경남 선생님 모아 보기")}{stageFilter !== "all" && ` · ${t(STAGE_LABEL[stageFilter])}`}</p>
           </div>
 
           {/* 요약 */}
-          <section className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4 print:grid-cols-4" aria-label="학급 요약">
+          <section className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4 print:grid-cols-4" aria-label={t("학급 요약")}>
             <div className="card">
-              <h2 className="text-sm font-bold text-slate-600">학생 수</h2>
-              <p className="mt-1 text-3xl font-bold text-slate-900">{shown.length}<span className="ml-0.5 text-base font-semibold">명</span></p>
-              <p className="mt-1 text-xs text-slate-500">중학교 {summary.ms} · 고등학교 {summary.hs}{shown.length - summary.ms - summary.hs > 0 && ` · 미입력 ${shown.length - summary.ms - summary.hs}`}</p>
-              <p className="text-xs text-slate-500">흥미 검사 완료 {summary.tested}명</p>
+              <h2 className="text-sm font-bold text-slate-600">{t("학생 수")}</h2>
+              <p className="mt-1 text-3xl font-bold text-slate-900">{shown.length}<span className="ml-0.5 text-base font-semibold">{t("명")}</span></p>
+              <p className="mt-1 text-xs text-slate-500">{t("중학교 {ms} · 고등학교 {hs}", { ms: summary.ms, hs: summary.hs })}{shown.length - summary.ms - summary.hs > 0 && ` · ${t("미입력 {n}", { n: shown.length - summary.ms - summary.hs })}`}</p>
+              <p className="text-xs text-slate-500">{t("흥미 검사 완료 {n}명", { n: summary.tested })}</p>
             </div>
             <div className="card">
-              <h2 className="text-sm font-bold text-slate-600">흥미 유형 분포</h2>
-              <p className="text-xs text-slate-500">검사를 마친 학생의 1순위 유형</p>
+              <h2 className="text-sm font-bold text-slate-600">{t("흥미 유형 분포")}</h2>
+              <p className="text-xs text-slate-500">{t("검사를 마친 학생의 1순위 유형")}</p>
               <ul className="mt-2 space-y-1">
                 {summary.types.map(({ k, n }) => (
                   <li key={k} className="flex items-center gap-2 text-xs">
-                    <span className="w-12 shrink-0 text-slate-700">{RIASEC[k].name}</span>
+                    <span className="w-12 shrink-0 text-slate-700">{t(RIASEC[k].name)}</span>
                     <span className="h-2.5 flex-1 overflow-hidden rounded-full bg-slate-100" aria-hidden>
                       <span className="block h-full rounded-full" style={{ width: `${(n / summary.maxType) * 100}%`, background: RIASEC[k].color }} />
                     </span>
-                    <span className="w-8 shrink-0 text-right font-semibold text-slate-700">{n}명</span>
+                    <span className="w-8 shrink-0 text-right font-semibold text-slate-700">{t("{n}명", { n })}</span>
                   </li>
                 ))}
               </ul>
             </div>
-            <TopList title="많이 고른 직업 TOP 5" items={summary.jobs} />
-            <TopList title="많이 고른 학과 TOP 5" items={summary.majors} />
+            <TopList title={t("많이 고른 직업 TOP 5")} items={summary.jobs} />
+            <TopList title={t("많이 고른 학과 TOP 5")} items={summary.majors} />
           </section>
 
           {/* 표 */}
-          <section aria-label="학생별 현황">
+          <section aria-label={t("학생별 현황")}>
             <div className="relative overflow-x-auto rounded-2xl border border-slate-200 bg-surface print:overflow-visible print:border-0">
               <table className="w-full min-w-[60rem] text-left text-sm print:min-w-0 print:text-[10px]">
-                <caption className="sr-only">학생별 진로 현황. 열 제목을 누르면 정렬해요.</caption>
+                <caption className="sr-only">{t("학생별 진로 현황. 열 제목을 누르면 정렬해요.")}</caption>
                 <thead className="border-b border-slate-200 bg-slate-50 text-xs text-slate-600">
                   <tr>
                     {COLS.map((c) => {
@@ -437,13 +441,13 @@ export function TeacherBoard() {
                       return (
                         <th key={c.key} scope="col" className="whitespace-nowrap px-3 py-2 font-semibold" aria-sort={on ? (sort!.dir === 1 ? "ascending" : "descending") : "none"}>
                           <button className="inline-flex items-center gap-1 hover:text-slate-900" onClick={() => toggleSort(c.key)}>
-                            {c.label}
+                            {t(c.label)}
                             <Icon className={`no-print h-3.5 w-3.5 ${on ? "text-brand-700" : "text-slate-400"}`} aria-hidden />
                           </button>
                         </th>
                       );
                     })}
-                    <th scope="col" className="no-print px-3 py-2 font-semibold"><span className="sr-only">보기·빼기</span></th>
+                    <th scope="col" className="no-print px-3 py-2 font-semibold"><span className="sr-only">{t("보기·빼기")}</span></th>
                   </tr>
                 </thead>
                 <tbody>
@@ -454,12 +458,12 @@ export function TeacherBoard() {
                         <div className="text-[11px] font-normal text-slate-400">{r.source}</div>
                       </th>
                       <td className="px-3 py-2">{r.school}</td>
-                      <td className="whitespace-nowrap px-3 py-2">{STAGE_LABEL[r.stage]}</td>
-                      <td className="whitespace-nowrap px-3 py-2">{r.tested ? topLabel(r) : <span className="text-slate-400">검사 전</span>}</td>
+                      <td className="whitespace-nowrap px-3 py-2">{t(STAGE_LABEL[r.stage])}</td>
+                      <td className="whitespace-nowrap px-3 py-2">{r.tested ? topLabel(r, t) : <span className="text-slate-400">{t("검사 전")}</span>}</td>
                       <td className="px-3 py-2"><ListCell items={r.jobs} /></td>
                       <td className="px-3 py-2"><ListCell items={r.majors} /></td>
-                      <td className="px-3 py-2"><ListCell items={r.schools} /></td>
-                      <td className="whitespace-nowrap px-3 py-2">{creditLabel(r)}</td>
+                      <td className="px-3 py-2"><span data-keep-ko><ListCell items={r.schools} /></span></td>
+                      <td className="whitespace-nowrap px-3 py-2">{creditLabel(r, t)}</td>
                       <td className="whitespace-nowrap px-3 py-2">
                         <span className="font-semibold">{r.done}</span>/5
                         <span className="mt-1 block h-1.5 w-14 overflow-hidden rounded-full bg-slate-100" aria-hidden>
@@ -472,23 +476,23 @@ export function TeacherBoard() {
                           target="_blank"
                           rel="noopener noreferrer"
                           className="inline-flex items-center gap-1 text-xs font-semibold text-brand-700 hover:underline"
-                          aria-label={`${r.name} 리포트 새 탭에서 보기`}
+                          aria-label={t("{name} 리포트 새 탭에서 보기", { name: r.name })}
                         >
-                          리포트 <ExternalLink className="h-3.5 w-3.5" aria-hidden />
+                          {t("리포트")} <ExternalLink className="h-3.5 w-3.5" aria-hidden />
                         </a>
-                        <button className="ml-2 inline-grid h-7 w-7 place-items-center rounded-full text-slate-400 hover:bg-slate-100 hover:text-rose-600" aria-label={`${r.name} 빼기`} onClick={() => remove(r.key)}>
+                        <button className="ml-2 inline-grid h-7 w-7 place-items-center rounded-full text-slate-400 hover:bg-slate-100 hover:text-rose-600" aria-label={t("{name} 빼기", { name: r.name })} onClick={() => remove(r.key)}>
                           <X className="h-3.5 w-3.5" aria-hidden />
                         </button>
                       </td>
                     </tr>
                   ))}
                   {shown.length === 0 && (
-                    <tr><td colSpan={COLS.length + 1} className="px-3 py-6 text-center text-slate-500">이 학교급 학생이 없어요.</td></tr>
+                    <tr><td colSpan={COLS.length + 1} className="px-3 py-6 text-center text-slate-500">{t("이 학교급 학생이 없어요.")}</td></tr>
                   )}
                 </tbody>
               </table>
             </div>
-            <p className="no-print mt-2 text-xs text-slate-500">표가 화면보다 넓으면 옆으로 밀어서 볼 수 있어요. ‘리포트’를 누르면 그 학생의 리포트를 새 탭에서 읽기 전용으로 열어요(기록은 주소의 # 뒤에만 담겨 서버로 가지 않아요).</p>
+            <p className="no-print mt-2 text-xs text-slate-500">{t("표가 화면보다 넓으면 옆으로 밀어서 볼 수 있어요. ‘리포트’를 누르면 그 학생의 리포트를 새 탭에서 읽기 전용으로 열어요(기록은 주소의 # 뒤에만 담겨 서버로 가지 않아요).")}</p>
           </section>
         </>
       )}
@@ -502,17 +506,18 @@ function ListCell({ items }: { items: string[] }) {
 }
 
 function TopList({ title, items }: { title: string; items: [string, number][] }) {
+  const t = useT();
   return (
     <div className="card">
       <h2 className="text-sm font-bold text-slate-600">{title}</h2>
       {items.length === 0 ? (
-        <p className="mt-2 text-xs text-slate-500">아직 고른 학생이 없어요.</p>
+        <p className="mt-2 text-xs text-slate-500">{t("아직 고른 학생이 없어요.")}</p>
       ) : (
         <ol className="mt-2 space-y-1 text-sm">
           {items.map(([name, n], i) => (
             <li key={name} className="flex items-baseline justify-between gap-2">
               <span className="min-w-0 truncate"><span className="mr-1.5 text-xs font-bold text-brand-700">{i + 1}</span>{name}</span>
-              <span className="shrink-0 text-xs font-semibold text-slate-600">{n}명</span>
+              <span className="shrink-0 text-xs font-semibold text-slate-600">{t("{n}명", { n })}</span>
             </li>
           ))}
         </ol>
