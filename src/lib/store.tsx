@@ -48,6 +48,7 @@ export type AppState = {
     curriculum: SchoolCurriculum | null; // 학교 편제표 (있으면 편제표 모드)
     picks: Record<string, string[]>; // 선택군 id → 고른 과목
     extra: Record<Sem, string[]>; // 편제표 외 추가 과목(공동교육과정 등)
+    school: { code: string; name: string } | null; // 우리 학교(나이스 개설 과목 비교용, 경남 고교 코드)
   };
   grades: GradeRow[];
   portfolio: Record<string, string>;
@@ -81,10 +82,16 @@ export function initialState(): AppState {
     logs: [],
     books: [],
     hypothesis: "",
-    credits: { track: "", plan: emptyPlan(), curriculum: null, picks: {}, extra: emptyPlan() },
+    credits: { track: "", plan: emptyPlan(), curriculum: null, picks: {}, extra: emptyPlan(), school: null },
     grades: [],
     portfolio: {},
   };
+}
+
+function cleanSchool(v: unknown): AppState["credits"]["school"] {
+  if (!v || typeof v !== "object") return null;
+  const { code, name } = v as { code?: unknown; name?: unknown };
+  return typeof code === "string" && code && typeof name === "string" ? { code: code.slice(0, 20), name: name.slice(0, 60) } : null;
 }
 
 function sanitize(raw: unknown): AppState {
@@ -103,6 +110,7 @@ function sanitize(raw: unknown): AppState {
       extra: { ...emptyPlan(), ...(r.credits?.extra ?? {}) },
       picks: r.credits?.picks ?? {},
       curriculum: r.credits?.curriculum ?? null,
+      school: cleanSchool(r.credits?.school),
     },
     version: 2,
   };

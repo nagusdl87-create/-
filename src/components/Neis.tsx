@@ -5,8 +5,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { ArrowRight, BookOpen, CalendarDays, Utensils } from "lucide-react";
 import { SUBJECT_MAP } from "@/data/subjects";
-
-type Subjects = { asOf: string; schools: Record<string, { ay: string; sem: string; grades: Record<string, string[]> }> };
+import type { NeisSubjects as Subjects } from "@/lib/schoolSubjects";
 type Meal = { asOf: string; days: Record<string, { dish: string[]; kcal: string }> };
 type Schedule = { asOf: string; events: { d: string; t: string; g?: number[] }[] };
 
@@ -15,7 +14,7 @@ function load<T>(url: string): Promise<T | null> {
   if (!cache.has(url)) cache.set(url, fetch(url).then((r) => (r.ok ? r.json() : null)).catch(() => null));
   return cache.get(url) as Promise<T | null>;
 }
-function useJson<T>(url: string | null) {
+export function useJson<T>(url: string | null) {
   const [d, setD] = useState<T | null | undefined>(undefined);
   useEffect(() => {
     if (!url) return setD(null);
@@ -36,9 +35,12 @@ const todayKey = () => {
   return `${d.getFullYear()}${String(d.getMonth() + 1).padStart(2, "0")}${String(d.getDate()).padStart(2, "0")}`;
 };
 
+/** 개설 과목 자료 (/data/neis/subjects.json, 한 번만 불러옴). undefined=불러오는 중, null=없음·오프라인 */
+export const useNeisSubjects = () => useJson<Subjects>("/data/neis/subjects.json");
+
 /** 고교 상세: 이번 학기 시간표에 나온 과목 */
 export function SchoolSubjects({ code }: { code: string }) {
-  const data = useJson<Subjects>("/data/neis/subjects.json");
+  const data = useNeisSubjects();
   const s = data?.schools?.[code];
   if (!s) return null;
   const grades = Object.keys(s.grades).sort();
