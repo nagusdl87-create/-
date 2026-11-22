@@ -9,7 +9,7 @@ import { DATA_AS_OF, GN_INDUSTRIES, GN_MIDDLE, GN_SCHOOLS, KIND_INFO, OFFICIAL, 
 import { JOB_MAP } from "@/data/jobs";
 import { PageHead } from "@/components/ui";
 import { SchoolMapSwitch } from "@/components/SchoolMapSwitch";
-import { SchoolMeal, SchoolSubjects } from "@/components/Neis";
+import { SchoolMeal, SchoolSchedule, SchoolSubjects } from "@/components/Neis";
 
 
 function km(a: { lat: number; lng: number }, b: { lat: number; lng: number }) {
@@ -341,6 +341,7 @@ function Detail({ s, d, origin, onClose }: { s: GnSchool; d: number | null; orig
       )}
       <SchoolSubjects code={s.id} />
       <SchoolMeal code={s.id} />
+      <SchoolSchedule code={s.id} />
       {voc && <p className="mt-2 text-xs text-emerald-700">이 일반고에는 특성화과({voc.dept})가 있어 해당 학과는 전기에 선발해요.</p>}
       {d !== null && <Commute d={d} label={origin?.label ?? ""} />}
       {inds.length > 0 && (
