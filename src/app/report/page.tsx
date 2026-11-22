@@ -49,6 +49,11 @@ export default function ReportPage() {
           </button>
         </div>
       )}
+      <div className="no-print mb-4 flex justify-end">
+        <Link href={`/report/summary${shared ? window.location.hash : ""}`} className="btn-ghost py-1.5">
+          상담용 한 장 요약
+        </Link>
+      </div>
       <ReportBody s={s} />
       {!shared && <Tools />}
     </div>
