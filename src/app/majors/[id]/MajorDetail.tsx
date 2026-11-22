@@ -2,6 +2,8 @@
 
 import { Award, Heart, Lightbulb, Sparkles } from "lucide-react";
 import { MAJOR_DETAILS } from "@/data/majorDetails";
+import type { MajorDeep } from "@/data/deep/types";
+import { Faq, MajorDeepMain } from "@/components/Deep";
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -16,7 +18,7 @@ import { majorVideos, relatedJobVideos } from "@/data/videos";
 import { Videos } from "@/components/Videos";
 import { toggleIn, useStore } from "@/lib/store";
 
-export function MajorDetail({ id }: { id: string }) {
+export function MajorDetail({ id, deep }: { id: string; deep?: MajorDeep }) {
   const m = MAJOR_MAP[id];
   const router = useRouter();
   const { state, update } = useStore();
@@ -54,8 +56,11 @@ export function MajorDetail({ id }: { id: string }) {
             <Heart className={`h-[18px] w-[18px] ${on ? "fill-rose-500 text-rose-500" : "text-slate-400"}`} aria-hidden />
           </button>
         </div>
-        <p className="mt-3 leading-relaxed text-slate-700">{m.desc}</p>
+        <p className="mt-3 text-lg font-medium leading-relaxed text-slate-800">{m.desc}</p>
+        {deep && <p className="mt-2 leading-relaxed text-slate-600">{deep.intro}</p>}
       </div>
+
+      <MajorDeepMain d={deep} />
 
       <div className="card">
         <h2 className="font-bold">고등학교에서 들으면 좋은 과목</h2>
@@ -158,6 +163,8 @@ export function MajorDetail({ id }: { id: string }) {
           </div>
         </div>
       )}
+
+      <Faq items={deep?.faq ?? []} />
 
       <div className="card">
         <h2 className="font-bold">같은 계열의 다른 학과</h2>
