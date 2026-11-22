@@ -1,7 +1,8 @@
 "use client";
 
-import { Award, Heart, Lightbulb, Sparkles } from "lucide-react";
+import { Award, ExternalLink, Heart, Lightbulb, Sparkles } from "lucide-react";
 import { MAJOR_DETAILS } from "@/data/majorDetails";
+import { SUBJECT_DOCS, SUBJECT_DOCS_NOTE } from "@/data/univSubjects";
 import type { MajorDeep } from "@/data/deep/types";
 import { Faq, MajorDeepMain } from "@/components/Deep";
 
@@ -79,7 +80,21 @@ export function MajorDetail({ id, deep }: { id: string; deep?: MajorDeep }) {
             이 학과 기준으로 192학점 설계하기
           </button>
         </div>
-        <p className="mt-2 text-xs text-slate-400">일반적인 안내예요. 지원할 대학의 학과별 권장과목은 반드시 대학 발표 자료로 확인하세요.</p>
+        <div className="mt-4 rounded-xl border border-slate-200 p-3">
+          <div className="text-sm font-bold text-slate-800">대학이 발표한 2028학년도 권장과목 원문</div>
+          <p className="mt-1 text-xs text-slate-500">위 과목은 일반적인 안내예요. 지원할 대학이 정한 과목은 아래 공식 자료에서 학과(모집단위)를 찾아 확인하세요.</p>
+          <ul className="mt-2 grid gap-1.5 sm:grid-cols-2">
+            {SUBJECT_DOCS.map((d) => (
+              <li key={d.univ}>
+                <a href={d.url} target="_blank" rel="noreferrer" className="flex items-start gap-1.5 rounded-lg bg-slate-50 px-2.5 py-2 text-sm hover:bg-slate-100">
+                  <ExternalLink className="mt-0.5 h-3.5 w-3.5 shrink-0 text-slate-500" aria-hidden />
+                  <span><b className="text-slate-900">{d.univ}</b> <span className="text-slate-600">{d.title}</span>{d.note && <span className="block text-xs text-slate-500">{d.note}</span>}</span>
+                </a>
+              </li>
+            ))}
+          </ul>
+          <p className="mt-2 text-xs text-slate-500">{SUBJECT_DOCS_NOTE} <a href={OFFICIAL.adiga.url} target="_blank" rel="noreferrer" className="underline">어디가 바로가기</a></p>
+        </div>
       </div>
 
       {more && (

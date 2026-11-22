@@ -8,6 +8,7 @@ import { SUBJECTS, CREDIT_RULES } from "../src/data/subjects";
 import { JOBS } from "../src/data/jobs";
 import { MAJORS } from "../src/data/majors";
 import { CAREERNET_TESTS, WORK24_TESTS } from "../src/data/tests";
+import { SUBJECT_DOCS } from "../src/data/univSubjects";
 
 const errs: string[] = [];
 const warns: string[] = [];
@@ -40,6 +41,13 @@ async function neisCount(kind: string) {
   return j.schoolInfo ? (j.schoolInfo[0].head[0].list_total_count as number) : 0;
 }
 async function main() {
+// 대학 권장과목 원문 링크 접속 확인(깨지면 경고)
+for (const d of SUBJECT_DOCS) {
+  try {
+    const r = await fetch(d.url, { method: "GET", redirect: "follow" });
+    if (!r.ok) warns.push(`권장과목 링크 접속 안 됨(${r.status}): ${d.univ} ${d.url}`);
+  } catch (e) { warns.push(`권장과목 링크 확인 실패: ${d.univ} (${(e as Error).message})`); }
+}
 try {
   const [hs, misc, tech] = await Promise.all([neisCount("고등학교"), neisCount("각종학교(고)"), neisCount("고등기술학교")]);
   const official = hs + misc + tech;
