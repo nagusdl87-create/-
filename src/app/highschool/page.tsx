@@ -179,7 +179,7 @@ export default function HighschoolPage() {
                   {t("찜한 직업 연결:")}{" "}
                   {favJobs
                     .filter((j) => j.hsTypes.includes(h.id))
-                    .map((j) => j.name)
+                    .map((j) => t(j.name))
                     .join(", ")}
                 </div>
               )}

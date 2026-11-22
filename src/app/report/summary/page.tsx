@@ -161,14 +161,14 @@ function Sheet({ s }: { s: AppState }) {
         ].map(([k, v]) => (
           <div key={k} className="min-w-0">
             <dt className="text-xs text-slate-500 print:text-[8pt]">{t(k)}</dt>
-            <dd className="truncate font-semibold text-slate-900">{v}</dd>
+            <dd className="truncate font-semibold text-slate-900" data-keep-ko={k === "이름" || k === "학교" ? "" : undefined}>{v}</dd>
           </div>
         ))}
       </dl>
 
       {s.hypothesis.trim() ? (
         <Box title="진로 가설·목표" className="mb-3 print:mb-2">
-          <p className="line-clamp-3 whitespace-pre-wrap text-sm font-semibold text-slate-800 print:text-[9.5pt]">&ldquo;{s.hypothesis.trim()}&rdquo;</p>
+          <p className="line-clamp-3 whitespace-pre-wrap text-sm font-semibold text-slate-800 print:text-[9.5pt]" data-keep-ko>&ldquo;{s.hypothesis.trim()}&rdquo;</p>
         </Box>
       ) : (
         <Box title="진로 가설·목표" className="mb-3 print:mb-2">
@@ -186,7 +186,7 @@ function Sheet({ s }: { s: AppState }) {
                     {i + 1}. {t(RIASEC[k].name)}({k})
                   </b>{" "}
                   <span className="text-xs text-slate-500 print:text-[8pt]">{t("{n}점", { n: scores[k] })}</span>
-                  <div className="text-slate-600">{t(RIASEC[k].short)} &mdash; {t(RIASEC[k].desc.split(". ")[0].replace(/\.$/, "") + ".")}</div>
+                  <div className="text-slate-600">{t(RIASEC[k].short)} &mdash; {t(RIASEC[k].desc).split(". ")[0].replace(/\.$/, "") + "."}</div>
                 </li>
               ))}
             </ol>

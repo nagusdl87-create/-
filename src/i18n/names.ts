@@ -15,6 +15,10 @@ export type Names = {
   jobById: (id: string, ko: string) => string;
   major: (ko: string) => string;
   majorById: (id: string, ko: string) => string;
+  /** 저장된 한국어 문구(흥미 유형·가치관·강점·활동·할 일·이름) → 영어 */
+  text: (ko: string) => string;
+  /** "가, 나, 다"처럼 쉼표로 이은 이름 목록 */
+  list: (ko: string) => string;
 };
 
 export function useNames(): Names {
@@ -27,6 +31,8 @@ export function useNames(): Names {
       jobById: (id, ko) => en?.jobNameById(id) ?? ko,
       major: (ko) => en?.majorName(ko) ?? ko,
       majorById: (id, ko) => en?.majorNameById(id) ?? ko,
+      text: (ko) => en?.text(ko) ?? ko,
+      list: (ko) => (en ? ko.split(/,\s*/).map((x) => en.text(x) ?? x).join(", ") : ko),
     }),
     [en],
   );

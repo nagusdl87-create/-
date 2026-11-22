@@ -81,7 +81,7 @@ function ReportBody({ s }: { s: AppState }) {
           <div className="text-xs font-bold text-brand-600">{t("마이로드 경남 · 진로·학업 설계 리포트")}</div>
           <h1 className="text-2xl font-extrabold text-slate-900 sm:text-3xl">{s.profile.name ? t("{name}의 진로 지도", { name: s.profile.name }) : t("나의 진로 지도")}</h1>
           <div className="text-sm text-slate-500">
-            {[s.profile.school, g ? t(s.profile.stage === "hs" ? "고등학교 {g}학년" : "중학교 {g}학년", { g }) : ""].filter(Boolean).join(" · ")}
+            {s.profile.school && <span data-keep-ko>{s.profile.school}</span>}{s.profile.school && g ? " · " : ""}{[g ? t(s.profile.stage === "hs" ? "고등학교 {g}학년" : "중학교 {g}학년", { g }) : ""].filter(Boolean).join(" · ")}
           </div>
         </div>
         <div className="text-right text-xs text-slate-500">
@@ -94,7 +94,7 @@ function ReportBody({ s }: { s: AppState }) {
       {s.hypothesis && (
         <section className="card border-brand-200 bg-brand-50">
           <div className="text-xs font-bold text-brand-700">✍️ {t("나의 진로 가설")}</div>
-          <p className="mt-1 whitespace-pre-wrap text-base font-semibold leading-relaxed text-slate-800">&ldquo;{s.hypothesis}&rdquo;</p>
+          <p className="mt-1 whitespace-pre-wrap text-base font-semibold leading-relaxed text-slate-800" data-keep-ko>&ldquo;{s.hypothesis}&rdquo;</p>
         </section>
       )}
 

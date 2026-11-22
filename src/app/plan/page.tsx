@@ -151,8 +151,8 @@ function Tasks() {
             {suggestions.map(({ a, j }) => (
               <li key={a} className="flex items-start justify-between gap-2 rounded-xl border border-slate-200 p-2.5 text-sm">
                 <div>
-                  <div className="text-slate-700">{a}</div>
-                  <div className="text-[11px] text-slate-400">{j}</div>
+                  <div className="text-slate-700">{tr(a)}</div>
+                  <div className="text-[11px] text-slate-400">{tr(j)}</div>
                 </div>
                 <button className="chip shrink-0 hover:border-brand-300" onClick={() => add(a)}>
                   {tr("+ 담기")}
@@ -261,7 +261,7 @@ function Logs() {
             <label className="label" htmlFor="lj">{t("관련 직업")}</label>
             <select id="lj" className="input" value={draft.jobId} onChange={(e) => set("jobId", e.target.value)}>
               <option value="">{t("선택 안 함")}</option>
-              {state.favorites.map((id) => JOB_MAP[id] && <option key={id} value={id}>{JOB_MAP[id].name}</option>)}
+              {state.favorites.map((id) => JOB_MAP[id] && <option key={id} value={id}>{t(JOB_MAP[id].name)}</option>)}
             </select>
           </div>
         </div>
@@ -300,7 +300,7 @@ function Logs() {
                 <div>
                   <div className="text-xs text-slate-500">
                     {l.date} · {t(l.kind)}
-                    {l.jobId && JOB_MAP[l.jobId] && ` · ${JOB_MAP[l.jobId].emoji} ${JOB_MAP[l.jobId].name}`}
+                    {l.jobId && JOB_MAP[l.jobId] && ` · ${JOB_MAP[l.jobId].emoji} ${t(JOB_MAP[l.jobId].name)}`}
                   </div>
                   <div className="font-bold">{l.title}</div>
                 </div>

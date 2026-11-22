@@ -7,10 +7,10 @@ export function PathFlow({ job, compact = false }: { job: Job; compact?: boolean
   const tr = useT();
   const pl = useEnData(() => import("@/i18n/data/plan.en"), "plan");
   const cols = [
-    { t: "중학교 지금", c: "bg-amber-50 border-amber-200", items: job.msActions.slice(0, compact ? 2 : 3) },
+    { t: "중학교 지금", c: "bg-amber-50 border-amber-200", items: job.msActions.slice(0, compact ? 2 : 3).map((a) => tr(a)) },
     { t: "고교 선택과목", c: "bg-emerald-50 border-emerald-200", items: job.hsSubjects.slice(0, compact ? 4 : 6).map((s) => pl?.SUBJECT_NAMES[s] ?? s) },
-    { t: "대학 학과", c: "bg-sky-50 border-sky-200", items: job.majors.slice(0, compact ? 3 : 4) },
-    { t: "꿈", c: "bg-brand-600 border-brand-600 text-white", items: [`${job.emoji} ${job.name}`] },
+    { t: "대학 학과", c: "bg-sky-50 border-sky-200", items: job.majors.slice(0, compact ? 3 : 4).map((m) => tr(m)) },
+    { t: "꿈", c: "bg-brand-600 border-brand-600 text-white", items: [`${job.emoji} ${tr(job.name)}`] },
   ];
   return (
     <div className="grid gap-2 md:grid-cols-[1fr_auto_1fr_auto_1fr_auto_0.7fr] md:items-stretch">

@@ -78,14 +78,14 @@ export default function PathPage() {
               <span className="text-sm font-semibold text-slate-500">{t("대표 꿈 선택:")}</span>
               {favs.map((j) => (
                 <button key={j.id} className={`chip px-3 py-1.5 text-sm ${j.id === mainId ? "chip-on" : ""}`} onClick={() => setMain(j.id)}>
-                  {j.emoji} {j.name}
+                  {j.emoji} {t(j.name)}
                 </button>
               ))}
             </div>
             {mainJob && <PathFlow job={mainJob} />}
             {mainJob && (
               <Link href={`/jobs/${mainJob.id}`} className="mt-3 inline-block text-sm font-semibold text-brand-600">
-                {t("{name} 자세히 보기 →", { name: mainJob.name })}
+                {t("{name} 자세히 보기 →", { name: t(mainJob.name) })}
               </Link>
             )}
           </div>
@@ -118,16 +118,16 @@ export default function PathPage() {
                   .map((j) => (
                     <li key={j.id} className="rounded-xl border border-slate-200 px-3 py-2">
                       <span className="font-semibold">
-                        {j.emoji} {j.name}
+                        {j.emoji} {t(j.name)}
                       </span>
-                      <span className="ml-1 text-xs text-slate-500">· {j.majors[0]}</span>
+                      <span className="ml-1 text-xs text-slate-500">· {t(j.majors[0])}</span>
                     </li>
                   ))}
                 {favs.length < 2 && <li className="text-slate-500">{t("관심 직업을 더 찜해서 대안 경로를 만들어 보세요.")}</li>}
               </ul>
               {commonMajors.length > 0 && (
                 <p className="mt-3 text-xs text-slate-600">
-                  💡 <b>{commonMajors.map(([m]) => m).join(", ")}</b>{t("은(는) 여러 꿈으로 이어지는 학과예요.")}
+                  💡 <b>{commonMajors.map(([m]) => t(m)).join(", ")}</b>{t("은(는) 여러 꿈으로 이어지는 학과예요.")}
                 </p>
               )}
             </div>
@@ -190,7 +190,7 @@ function MajorPaths() {
           return (
             <div key={m.id} className="rounded-2xl border border-slate-200 p-3">
               <div className="flex flex-wrap items-center justify-between gap-2">
-                <Link href={`/majors/${m.id}`} className="font-bold hover:text-brand-700">{m.name} <span className="text-xs font-normal text-slate-500">{pl?.TRACK_NAMES[TRACKS[m.track].name] ?? TRACKS[m.track].name}</span></Link>
+                <Link href={`/majors/${m.id}`} className="font-bold hover:text-brand-700">{t(m.name)} <span className="text-xs font-normal text-slate-500">{pl?.TRACK_NAMES[TRACKS[m.track].name] ?? TRACKS[m.track].name}</span></Link>
                 <span className="text-xs font-semibold text-brand-600">{t("설계 반영 {a}/{n}", { a: have, n: all.length })}</span>
               </div>
               <div className="mt-2 flex flex-wrap gap-1">

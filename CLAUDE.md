@@ -45,7 +45,7 @@ BASE=http://localhost:5000 node scripts/e2e.cjs   # 전체 흐름 브라우저 �
 - 디자인: 색은 `tailwind.config.ts` 토큰(brand=청록, sun=강조, canvas=배경), 공통 클래스는 `globals.css`(`card`, `btn-*`, `chip`, `eyebrow`, `icon-box`). 아이콘은 `lucide-react`만 쓰고 제목·메뉴에 이모지를 넣지 않는다(직업·산업 등 콘텐츠 이모지는 허용). 원본(대구) 플랫폼과 비슷한 어두운 그라데이션 배너·카드 격자를 피한다.
 - 다크 모드: tailwind 색(slate·brand 등)은 CSS 변수(`src/app/theme.css`, `node scripts/gen-theme.cjs`로 생성)라 `html.dark`에서 자동으로 바뀐다. 새 색 계열을 쓰면 `tailwind.config.ts`의 `FAMILIES`와 생성 스크립트에 추가. 흰 글씨 버튼은 `bg-accent`, 카드 면은 `bg-surface`. 바꾼 뒤 밝게·어둡게 모두 접근성 검사.
 - 지도: 카카오맵(`src/components/KakaoSchoolMap.tsx`, 키 `src/lib/site.ts`) 우선, 실패 시 Leaflet + OpenStreetMap(`SchoolMap.tsx`) 자동 대체.
-- 한국어/English: 머리글의 버튼 하나(한국어 화면 'EN', 영어 화면 '한국어')로 전환. 화면 문구는 `useT()`(`src/lib/i18n.tsx`) + 사전 `src/i18n/en/*.ts`, 자료는 `src/i18n/data/*.en.ts`(영어 모드에서만 불러옴), 과목·직업·학과 이름은 `useNames()`(`src/i18n/names.ts`). 새 문구를 넣으면 사전에도 추가하고 `node scripts/i18n-check.cjs`로 남은 한글 0자를 확인. 규칙은 `docs/i18n.md`.
+- 한국어/English: 머리글의 버튼 하나(한국어 화면 'EN', 영어 화면 '한국어')로 전환. 화면 문구는 `useT()`(`src/lib/i18n.tsx`) + 사전 `src/i18n/en/*.ts`, 자료는 `src/i18n/data/*.en.ts`(영어 모드에서만 불러옴), 과목·직업·학과 이름은 `useNames()`(`src/i18n/names.ts`). 새 문구를 넣으면 사전에도 추가하고 `node scripts/i18n-check.cjs`(빈 기록)와 `node scripts/i18n-check-filled.cjs`(기록 있는 학생)로 남은 한글 0자를 확인. 저장된 한국어 문구(직업·학과·과목 이름, 흥미 유형, 활동 등)는 `t()`만 거치면 영어로 바뀐다(`src/i18n/data/names.en.ts`가 사전에 합쳐짐). 규칙은 `docs/i18n.md`.
 - 홈·메뉴 숫자: `src/data/stats.ts` 한곳에서 관리, `npm run check:stats`로 매일 점검.
 - 직업·학과 상세: `src/data/deep/`(형식 `types.ts`), 기준 `docs/content-standard.md`. 페이지(`page.tsx`, 서버)에서 해당 항목만 골라 넘긴다(전체를 화면 코드에 싣지 않기). 새 직업·학과(커리어넷 포함)는 기준의 모든 항목을 채워야 `npm run validate` 통과.
 

@@ -15,7 +15,9 @@ const KEY = "myroad:lang";
 type Dict = Record<string, string>;
 
 let dictPromise: Promise<Dict> | null = null;
-const loadDict = () => (dictPromise ??= import("@/i18n/en").then((m) => m.EN as Dict));
+// 화면 문구 사전 + 과목·직업·학과 이름과 기록 문구 표(사전이 우선)
+const loadDict = () =>
+  (dictPromise ??= Promise.all([import("@/i18n/en"), import("@/i18n/data/names.en")]).then(([d, n]) => ({ ...n.allText(), ...(d.EN as Dict) })));
 
 type Ctx = { lang: Lang; setLang: (l: Lang) => void; dict: Dict | null; toggle: boolean };
 const LangContext = createContext<Ctx>({ lang: "ko", setLang: () => {}, dict: null, toggle: LANG_PUBLIC });
@@ -94,6 +96,7 @@ export function LangToggle({ className = "" }: { className?: string }) {
       type="button"
       onClick={() => setLang(lang === "en" ? "ko" : "en")}
       className={`flex h-10 items-center rounded-full px-2.5 text-sm font-semibold text-slate-600 hover:bg-slate-100 ${className}`}
+      data-keep-ko={lang === "en" ? "" : undefined}
       aria-label={lang === "en" ? "한국어: 한국어로 보기 (Korean)" : "EN: view in English (영어로 보기)"}
       title={lang === "en" ? "한국어로 보기" : "View in English"}
       lang={lang === "en" ? "ko" : "en"}

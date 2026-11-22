@@ -297,7 +297,7 @@ function Result({ onRetry }: { onRetry: () => void }) {
           {recs.map(({ job, score }) => (
             <Link key={job.id} href={`/jobs/${job.id}`} className="rounded-xl border border-slate-200 p-3 hover:border-brand-300">
               <div className="text-2xl">{job.emoji}</div>
-              <div className="mt-1 text-sm font-bold">{job.name}</div>
+              <div className="mt-1 text-sm font-bold">{t(job.name)}</div>
               <div className="text-xs font-semibold text-brand-600">{t("{n}% 일치", { n: score })}</div>
             </Link>
           ))}

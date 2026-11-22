@@ -4,6 +4,9 @@ import { SUBJECTS_EN } from "./subjects.en";
 import { JOBS_EN } from "./jobs.en";
 import { MAJOR_NAME_EN, MAJORS_EN } from "./majors.en";
 import { MAJORS } from "@/data/majors";
+import { RIASEC, VALUES } from "@/data/riasec";
+import { RIASEC_EN, VALUES_EN, STRENGTHS_EN } from "./riasec.en";
+import { TASKS_EN } from "./plan.en";
 
 
 // 직업 화면의 '관련 학과'에 나오지만 학과 백과(56개)에는 없는 학과·안내 문구
@@ -45,3 +48,30 @@ export const jobName = (ko: string) => JOB_BY_NAME[ko];
 export const jobNameById = (id: string) => JOBS_EN[id]?.name;
 export const majorName = (ko: string) => MAJOR_BY_NAME[ko] ?? MAJOR_BY_NAME[ko.replace(/\s+/g, "")];
 export const majorNameById = (id: string) => MAJORS_EN[id]?.name;
+
+// 기록 화면(리포트·상담 요약·계획 등)에 그대로 저장·표시되는 한국어 문구 → 영어
+// (흥미 유형 이름·설명, 가치관, 강점, 직업별 중학생 활동, 학기 할 일)
+const TEXT: Record<string, string> = { ...STRENGTHS_EN, ...TASKS_EN };
+for (const k of Object.keys(RIASEC) as (keyof typeof RIASEC)[]) {
+  const ko = RIASEC[k], en = RIASEC_EN[k];
+  TEXT[ko.name] = en.name; TEXT[ko.short] = en.short; TEXT[ko.desc] = en.desc;
+  ko.keywords.forEach((w, i) => { if (en.keywords[i]) TEXT[w] = en.keywords[i]; });
+}
+for (const v of VALUES) if (VALUES_EN[v.id]) { TEXT[v.label] = VALUES_EN[v.id].label; TEXT[v.desc] = VALUES_EN[v.id].desc; }
+for (const j of JOBS) {
+  const e = JOBS_EN[j.id];
+  if (!e) continue;
+  j.msActions.forEach((a, i) => { if (e.msActions[i]) TEXT[a] = e.msActions[i]; });
+  TEXT[j.summary] = e.summary;
+}
+
+/** 저장된 한국어 문구 하나 → 영어 (과목·직업·학과 이름 포함, 모르면 undefined) */
+export const text = (ko: string) => TEXT[ko] ?? subjectName(ko) ?? jobName(ko) ?? majorName(ko);
+
+/** 영어 사전에 함께 넣을 이름·문구 표 (사전에 없는 한국어 문구를 t()가 찾을 때 씀) */
+export function allText(): Record<string, string> {
+  const o: Record<string, string> = {};
+  for (const [k, v] of Object.entries(SUBJECTS_EN)) o[k] = v.name;
+  Object.assign(o, EXTRA_SUBJECTS, MAJOR_BY_NAME, JOB_BY_NAME, TEXT);
+  return o;
+}
