@@ -191,7 +191,8 @@ const DESC = (o: Off) => {
   const lang = o.name.match(/^(독일어|프랑스어|스페인어|중국어|일본어|러시아어|아랍어|베트남어)/)?.[1];
   if (o.name.endsWith("회화") && lang) return `${lang}로 일상과 진로 상황에서 말하고 듣는 실용 회화`;
   if (o.name.startsWith("심화") && lang) return `${lang} 읽기·쓰기·말하기를 깊이 있게 배우는 심화 과정`;
-  if (o.name.includes("문화")) return `${o.name.replace(" 문화", "").replace("권", "")}권 사회와 문화를 언어와 함께 탐구`;
+  const area = o.name.match(/^(독일어권|프랑스어권|스페인어권|중국|일본|러시아|아랍|베트남) 문화$/)?.[1];
+  if (area) return `${area.endsWith("권") ? area : area + "어권"} 사회와 문화를 언어와 함께 탐구`;
   if (o.curriculum !== "보통 교과") return `${o.group} 학교(과정)에서 주로 편성하는 전문 교과`;
   return `${o.group} ${o.type} 과목`;
 };

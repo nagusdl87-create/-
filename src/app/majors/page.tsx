@@ -12,11 +12,12 @@ import { NextStep, PageHead } from "@/components/ui";
 import { TRACK_HUE } from "@/lib/colors";
 import { NationalMajors } from "@/components/NationalMajors";
 import { useEnData, useT } from "@/lib/i18n";
-import { jobLabel, subjectLabel } from "@/lib/subjectLabelMajors";
+import { useNames } from "@/i18n/names";
 
 export default function MajorsPage() {
   const { state, update, ready } = useStore();
   const t = useT();
+  const { subject: subjectLabel, job: jobLabel } = useNames();
   const en = useEnData(() => import("@/i18n/data/majors.en"), "majors");
   const [view, setView] = useState<"guide" | "national">("guide");
   const [q, setQ] = useState("");

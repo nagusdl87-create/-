@@ -18,7 +18,7 @@ import type { JobDeep } from "@/data/deep/types";
 import { Faq, JobDeepMain, JobDeepWork, JobFuture } from "@/components/Deep";
 import { KeepKo } from "@/components/KeepKo";
 import { useEnData, useLang, useT } from "@/lib/i18n";
-import { majorLabel, subjectLabel } from "@/lib/subjectLabelJobs";
+import { useNames } from "@/i18n/names";
 import { Award, Building2, Sparkles, TrendingUp } from "lucide-react";
 
 export function JobDetail({ id, deep: deepKo, deepEn }: { id: string; deep?: JobDeep; deepEn?: JobDeep }) {
@@ -26,6 +26,9 @@ export function JobDetail({ id, deep: deepKo, deepEn }: { id: string; deep?: Job
   const t = useT();
   const { lang } = useLang();
   const en = useJobsEn();
+  const names = useNames();
+  const subjectLabel = names.subject;
+  const majorLabel = names.major;
   const detEn = useEnData(() => import("@/i18n/data/jobDetails.en"), "jobDetails");
   const isEn = lang === "en" && !!en;
   const e = isEn ? en.JOBS_EN[ko.id] : undefined;
@@ -41,7 +44,7 @@ export function JobDetail({ id, deep: deepKo, deepEn }: { id: string; deep?: Job
       hsSubjects: ko.hsSubjects.map(subjectLabel),
       majors: ko.majors.map(majorLabel),
     }),
-    [ko, e],
+    [ko, e, subjectLabel, majorLabel],
   );
   const deep = isEn && deepEn ? deepEn : deepKo;
   const jobName = (j: { id: string; name: string }) => (isEn ? en.JOBS_EN[j.id]?.name : undefined) ?? j.name;

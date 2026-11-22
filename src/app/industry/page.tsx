@@ -6,11 +6,16 @@ import { GN_INDUSTRIES, GN_SCHOOLS, gnText } from "@/data/gn";
 import { JOB_MAP, JOBS } from "@/data/jobs";
 import { MAJORS } from "@/data/majors";
 import { PageHead } from "@/components/ui";
+import { useJobsEn } from "@/components/JobCard";
+import { KeepKo } from "@/components/KeepKo";
+import { useNames } from "@/i18n/names";
 import { useEnData, useT } from "@/lib/i18n";
 
 export default function IndustryPage() {
   const t = useT();
   const g = gnText(useEnData(() => import("@/i18n/data/gn.en"), "gn"));
+  const jen = useJobsEn();
+  const n = useNames();
   const [sel, setSel] = useState(GN_INDUSTRIES[0].id);
   const ind = GN_INDUSTRIES.find((i) => i.id === sel)!;
   const jobs = ind.jobs.map((j) => JOB_MAP[j]).filter(Boolean);
@@ -42,7 +47,7 @@ export default function IndustryPage() {
               {jobs.map((j) => (
                 <li key={j.id}>
                   <Link href={`/jobs/${j.id}`} className="flex items-center gap-2 rounded-xl border border-slate-200 p-2 text-sm font-semibold hover:border-brand-300">
-                    <span className="text-xl">{j.emoji}</span> {j.name}
+                    <span className="text-xl">{j.emoji}</span> {n.jobById(j.id, j.name)}
                   </Link>
                 </li>
               ))}
@@ -51,7 +56,7 @@ export default function IndustryPage() {
           <div>
             <div className="text-xs font-bold text-slate-500">{t("관련 대학 학과")}</div>
             <div className="mt-2 flex flex-wrap gap-1.5">
-              {majors.map((m) => <Link key={m.id} href={`/majors/${m.id}`} className="chip px-3 py-1.5 text-sm hover:border-brand-300">{m.name}</Link>)}
+              {majors.map((m) => <Link key={m.id} href={`/majors/${m.id}`} className="chip px-3 py-1.5 text-sm hover:border-brand-300">{n.majorById(m.id, m.name)}</Link>)}
             </div>
           </div>
           <div>
@@ -77,8 +82,8 @@ export default function IndustryPage() {
           <Link key={j.id} href={`/jobs/${j.id}`} className="card flex gap-3 transition hover:border-brand-200">
             <span className="text-3xl">{j.emoji}</span>
             <div>
-              <div className="font-bold">{j.name}</div>
-              <p className="text-sm text-slate-600">{j.gn}</p>
+              <div className="font-bold">{n.jobById(j.id, j.name)}</div>
+              <p className="text-sm text-slate-600"><KeepKo text={jen?.JOBS_EN[j.id]?.gn ?? j.gn ?? ""} /></p>
             </div>
           </Link>
         ))}

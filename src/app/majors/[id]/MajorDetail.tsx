@@ -19,11 +19,13 @@ import { majorVideos, relatedJobVideos } from "@/data/videos";
 import { Videos } from "@/components/Videos";
 import { toggleIn, useStore } from "@/lib/store";
 import { useEnData, useLang, useT } from "@/lib/i18n";
-import { jobLabel, subjectLabel } from "@/lib/subjectLabelMajors";
+import { useNames } from "@/i18n/names";
 
 export function MajorDetail({ id, deep: deepKo, deepEn }: { id: string; deep?: MajorDeep; deepEn?: MajorDeep }) {
   const m = MAJOR_MAP[id];
   const t = useT();
+  const { subject: subjectLabel, job: jobLabel, majorById } = useNames();
+  const majorName = majorById(m.id, m.name);
   const { lang } = useLang();
   const enM = useEnData(() => import("@/i18n/data/majors.en"), "majors");
   const enD = useEnData(() => import("@/i18n/data/majorDetails.en"), "majorDetails");
@@ -157,13 +159,13 @@ export function MajorDetail({ id, deep: deepKo, deepEn }: { id: string; deep?: M
         {majorVideos(m.id).length > 0 ? (
           <>
             <h2 className="mb-3 font-bold">{t("학과 소개 영상")}</h2>
-            <Videos videos={majorVideos(m.id)} query={m.name} />
+            <Videos videos={majorVideos(m.id)} query={m.name} label={majorName} />
           </>
         ) : (
           <>
             <h2 className="font-bold">{t("관련 직업 영상")}</h2>
             <p className="mb-3 mt-0.5 text-xs text-slate-500">{t("공식 채널에 이 학과 소개 영상이 아직 없어, 졸업 후 진출하는 직업의 영상을 보여 줘요.")}</p>
-            <Videos videos={relatedJobVideos(m.jobs)} query={m.name} />
+            <Videos videos={relatedJobVideos(m.jobs)} query={m.name} label={majorName} />
           </>
         )}
       </div>

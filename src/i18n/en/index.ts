@@ -7,5 +7,7 @@ import { SCHOOLS } from "./schools";
 import { JOBS } from "./jobs";
 import { MAJORS } from "./majors";
 import { MISC } from "./misc";
+import { SUBJECTS_UI } from "./subjects";
+import { OVERRIDES } from "./overrides";
 
-export const EN: Record<string, string> = { ...COMMON, ...HOME, ...EXPLORE, ...CREDITS, ...SCHOOLS, ...JOBS, ...MAJORS, ...MISC };
+export const EN: Record<string, string> = { ...COMMON, ...HOME, ...EXPLORE, ...CREDITS, ...SCHOOLS, ...JOBS, ...MAJORS, ...SUBJECTS_UI, ...MISC, ...OVERRIDES };
