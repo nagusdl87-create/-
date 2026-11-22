@@ -41,7 +41,9 @@ BASE=http://localhost:5000 node scripts/e2e.cjs   # 전체 흐름 브라우저 �
 - 학교 편제표: `src/data/curriculum.ts`(형식·예시·공유 코드), 편집기 `/credits/school`. 편제표 모드에서는 `credits.curriculum + picks + extra`로 `credits.plan`을 다시 계산한다.
 - 데이터 파일: `src/data/` — `subjects.ts`(2022 개정 290과목), `jobs.ts`(51), `majors.ts`(56), `gn.ts`(경남 고입·산업·링크), `gn-schools.json`(203교), `gn-middle.json`(270교).
 - 디자인: 색은 `tailwind.config.ts` 토큰(brand=청록, sun=강조, canvas=배경), 공통 클래스는 `globals.css`(`card`, `btn-*`, `chip`, `eyebrow`, `icon-box`). 아이콘은 `lucide-react`만 쓰고 제목·메뉴에 이모지를 넣지 않는다(직업·산업 등 콘텐츠 이모지는 허용). 원본(대구) 플랫폼과 비슷한 어두운 그라데이션 배너·카드 격자를 피한다.
-- 지도: Leaflet + OpenStreetMap 타일(`src/components/SchoolMap.tsx`, 클라이언트 전용 dynamic import).
+- 다크 모드: tailwind 색(slate·brand 등)은 CSS 변수(`src/app/theme.css`, `node scripts/gen-theme.cjs`로 생성)라 `html.dark`에서 자동으로 바뀐다. 새 색 계열을 쓰면 `tailwind.config.ts`의 `FAMILIES`와 생성 스크립트에 추가. 흰 글씨 버튼은 `bg-accent`, 카드 면은 `bg-surface`. 바꾼 뒤 밝게·어둡게 모두 접근성 검사.
+- 지도: 카카오맵(`src/components/KakaoSchoolMap.tsx`, 키 `src/lib/site.ts`) 우선, 실패 시 Leaflet + OpenStreetMap(`SchoolMap.tsx`) 자동 대체.
+- 홈·메뉴 숫자: `src/data/stats.ts` 한곳에서 관리, `npm run check:stats`로 매일 점검.
 
 ## 지켜야 할 결정 사항
 

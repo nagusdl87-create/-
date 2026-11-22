@@ -10,6 +10,7 @@ import { progress } from "@/lib/match";
 import { EXPLORE, JOURNEY, TOOLS, type NavItem } from "@/lib/journey";
 import { Logo } from "./Logo";
 import { AccountButton } from "./Account";
+import { ThemeToggle } from "./ThemeToggle";
 
 function Dropdown({ label, items, active, done }: { label: string; items: NavItem[]; active: boolean; done?: (href: string) => boolean }) {
   return (
@@ -86,6 +87,7 @@ export function Nav() {
               <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" aria-hidden />
               <input className="input w-56 rounded-full bg-slate-50 py-2 pl-9" placeholder="직업·학과·과목·학교 검색" value={q} onChange={(e) => setQ(e.target.value)} aria-label="통합 검색" />
             </form>
+            <ThemeToggle />
             <AccountButton />
             <Link href="/report" className="btn-primary hidden rounded-full py-2 sm:inline-flex">
               <FileText className="h-4 w-4" aria-hidden /> 내 리포트

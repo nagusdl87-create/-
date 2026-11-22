@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import "./globals.css";
+import "./theme.css";
 import { SITE_DESC, SITE_NAME, SITE_URL } from "@/lib/site";
 import { StoreProvider } from "@/lib/store";
 import { CloudProvider } from "@/lib/cloud";
@@ -7,6 +8,7 @@ import { CloudConflict } from "@/components/Account";
 import { Nav } from "@/components/Nav";
 import { ScrollTop } from "@/components/ScrollTop";
 import { OfflineSupport } from "@/components/Offline";
+import { THEME_INIT } from "@/components/ThemeToggle";
 import { Footer } from "@/components/Footer";
 
 export const metadata: Metadata = {
@@ -22,12 +24,13 @@ export const metadata: Metadata = {
   twitter: { card: "summary_large_image", images: ["/og.png"] },
 };
 
-export const viewport: Viewport = { width: "device-width", initialScale: 1, themeColor: "#127a67" };
+export const viewport: Viewport = { width: "device-width", initialScale: 1, themeColor: [{ media: "(prefers-color-scheme: light)", color: "#127a67" }, { media: "(prefers-color-scheme: dark)", color: "#0e1614" }] };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="ko">
+    <html lang="ko" suppressHydrationWarning>
       <head>
+        <script dangerouslySetInnerHTML={{ __html: THEME_INIT }} />
         <link
           rel="stylesheet"
           href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css"
