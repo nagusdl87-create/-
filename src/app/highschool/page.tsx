@@ -252,7 +252,7 @@ export default function HighschoolPage() {
 
 function GnAdmission() {
   const count = (z: string) => GN_SCHOOLS.filter((s) => s.zone === z).length;
-  const kinds = (["science", "foreign", "arts", "sports", "meister", "vocational"] as const).map((k) => ({ k, n: GN_SCHOOLS.filter((s) => s.kind === k).length }));
+  const kinds = (["science", "foreign", "arts", "sports", "meister", "vocational", "alternative"] as const).map((k) => ({ k, n: GN_SCHOOLS.filter((s) => s.kind === k).length }));
   return (
     <section id="gn" className="mt-10 scroll-mt-20 space-y-4">
       <div className="flex flex-wrap items-end justify-between gap-2">

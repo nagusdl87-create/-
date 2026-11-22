@@ -20,6 +20,11 @@ SUP = json.load(open(sup_path))["schools"] if os.path.exists(sup_path) else {}
 #   기존 운영: 김해여자고, 마산고 / 2025 신규(2026.3 운영): 김해고, 삼천포중앙고. 해마다 지정 변동 확인.
 AUTONOMOUS_2 = {"김해여자고등학교", "마산고등학교", "김해고등학교", "삼천포중앙고등학교"}
 
+# 대안교육(체험위주) 특성화고: 법적으로 특성화고지만 직업계가 아님(NEIS 일반계·해당없음, 학과 없음)
+ALTERNATIVE = {"간디고등학교", "지리산고등학교", "태봉고등학교", "합천평화고등학교"}
+# 고입포털 특성화고 목록에 있으나 NEIS상 일반고(보통과 + 특성화 학과 1개): 일반고로 분류, 특성화과는 gn.ts GENERAL_WITH_VOC에 안내
+GENERAL_WITH_VOC_DEPT = {"삼가고등학교"}
+
 def short(name):
     return name.replace("고등학교", "고")
 
@@ -35,7 +40,7 @@ for s in g:
         if "마이스터" in s["name"] or "산업수요" in sub or "항공과학" in s["name"]:
             kind = "meister"
     elif s["code"] == "09":
-        kind = "vocational"
+        kind = "alternative" if s["name"] in ALTERNATIVE else ("general" if s["name"] in GENERAL_WITH_VOC_DEPT else "vocational")
     elif s["code"] in ("10", "11"):
         kind = "special"
     else:
@@ -44,7 +49,7 @@ for s in g:
         zone = f"평준화 {m.group(1)}학군"
     elif s["code"] == "06":
         zone = "평준화지역 학교장전형"
-    elif s["code"] == "07":
+    elif s["code"] == "07" or kind == "general":
         zone = "비평준화"
     else:
         zone = None

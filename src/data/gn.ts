@@ -4,7 +4,7 @@
 import schoolsRaw from "./gn-schools.json";
 import middleRaw from "./gn-middle.json";
 
-export type HsKind = "general" | "autonomous" | "science" | "foreign" | "arts" | "sports" | "meister" | "vocational" | "special";
+export type HsKind = "general" | "autonomous" | "science" | "foreign" | "arts" | "sports" | "meister" | "vocational" | "alternative" | "special";
 
 export type GnSchool = {
   id: string;
@@ -41,6 +41,7 @@ export const KIND_INFO: Record<HsKind, { name: string; emoji: string; color: str
   sports: { name: "체육고", emoji: "🏅", color: "#c2410c" },
   meister: { name: "마이스터고", emoji: "🛠️", color: "#15803d" },
   vocational: { name: "특성화고", emoji: "🔧", color: "#047857" },
+  alternative: { name: "대안(체험위주) 특성화고", emoji: "🌱", color: "#a16207" },
   special: { name: "각종학교·고등기술학교", emoji: "🎬", color: "#64748b" },
 };
 

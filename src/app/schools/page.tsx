@@ -6,7 +6,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import dynamic from "next/dynamic";
 import Link from "next/link";
 import { toggleIn, useStore } from "@/lib/store";
-import { DATA_AS_OF, GN_INDUSTRIES, GN_MIDDLE, GN_SCHOOLS, KIND_INFO, OFFICIAL, REGIONS, EXPERIENCE_SCHOOLS, GENERAL_WITH_VOC, type GnSchool, type HsKind } from "@/data/gn";
+import { DATA_AS_OF, GN_INDUSTRIES, GN_MIDDLE, GN_SCHOOLS, KIND_INFO, OFFICIAL, REGIONS, GENERAL_WITH_VOC, type GnSchool, type HsKind } from "@/data/gn";
 import { JOB_MAP } from "@/data/jobs";
 import { PageHead } from "@/components/ui";
 import { SchoolMeal, SchoolSubjects } from "@/components/Neis";
@@ -293,7 +293,6 @@ function Detail({ s, d, origin, onClose }: { s: GnSchool; d: number | null; orig
   const { state, update } = useStore();
   const on = state.favSchools.includes(s.id);
   const inds = GN_INDUSTRIES.filter((i) => i.schools.includes(s.name));
-  const exp = EXPERIENCE_SCHOOLS.includes(s.name);
   const voc = GENERAL_WITH_VOC.find((g) => g.school === s.name);
   const kakao = s.lat != null && s.lng != null
     ? origin
@@ -307,7 +306,6 @@ function Detail({ s, d, origin, onClose }: { s: GnSchool; d: number | null; orig
         <div>
           <div className="text-xs font-semibold" style={{ color: KIND_INFO[s.kind].color }}>
             {KIND_INFO[s.kind].emoji} {KIND_INFO[s.kind].name}
-            {exp && " · 체험위주 특성화고"}
           </div>
           <h2 className="text-xl font-extrabold">{s.name}</h2>
           <div className="text-xs text-slate-500">{s.addr}</div>
