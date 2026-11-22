@@ -1,0 +1,13 @@
+rules_version = '2';
+// 마이로드 경남: 로그인한 학생 본인의 기록 문서(users/{uid})만 읽고 쓸 수 있다. 그 밖의 모든 접근은 거부.
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /users/{uid} {
+      allow read, delete: if request.auth != null && request.auth.uid == uid;
+      allow create, update: if request.auth != null && request.auth.uid == uid
+        && request.resource.data.keys().hasOnly(['v', 'data', 'clientAt', 'device', 'updatedAt'])
+        && request.resource.data.data is string
+        && request.resource.data.data.size() < 800000;
+    }
+  }
+}

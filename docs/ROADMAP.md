@@ -23,7 +23,7 @@
 
 ## 에이전트 작업 목록 (위에서부터, 결정 불필요)
 1. [D1-B] ~~개인정보 처리 방침 초안~~ — `docs/privacy-draft.md` 작성 완료, 결정 D3 대기(확인되면 `/privacy` 게시)
-2. [D1-B] 로그인·동기화 구현 — Firebase Auth(구글) + Firestore(본인 문서만 읽기/쓰기 보안 규칙), 기능 스위치로 숨긴 채 개발. Firebase 콘솔 설정(사용자 몫) 완료 전에는 코드·규칙·테스트만 준비
+2. [D1-B] ~~로그인·동기화 구현~~ — 완료(`src/lib/cloud.tsx`, `/account`, `firestore.rules`). 숨김 상태, `/account?preview=1`로 미리보기. 공개 조건: ① 사용자가 Firestore 콘솔에 `firestore.rules` 게시 ② D3 확인 후 `/privacy` 게시 ③ 배포 워크플로 빌드 단계에 `NEXT_PUBLIC_LOGIN=on` 추가
 3. 모바일 화면 전수 점검 — 전 페이지 375px 스크린샷, 넘침·겹침·작은 글씨 수정
 4. 접근성 점검 — axe-core로 전 페이지 검사, 대비·라벨·키보드 이동 수정
 5. 오프라인 사용 — 서비스 워커로 한 번 본 페이지·데이터를 인터넷 없이 열기

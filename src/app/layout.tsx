@@ -2,6 +2,8 @@ import type { Metadata, Viewport } from "next";
 import "./globals.css";
 import { SITE_DESC, SITE_NAME, SITE_URL } from "@/lib/site";
 import { StoreProvider } from "@/lib/store";
+import { CloudProvider } from "@/lib/cloud";
+import { CloudConflict } from "@/components/Account";
 import { Nav } from "@/components/Nav";
 import { ScrollTop } from "@/components/ScrollTop";
 import { Footer } from "@/components/Footer";
@@ -33,10 +35,13 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       </head>
       <body>
         <StoreProvider>
+          <CloudProvider>
           <Nav />
           <main id="main" className="mx-auto w-full max-w-6xl px-4 pb-28 pt-8 sm:pb-20 sm:pt-12">{children}</main>
           <Footer />
           <ScrollTop />
+          <CloudConflict />
+          </CloudProvider>
         </StoreProvider>
       </body>
     </html>
