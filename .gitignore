@@ -10,3 +10,6 @@ next-env.d.ts
 firebase-debug.log
 *-debug.log
 service-account*.json
+
+# 나이스 급식(매일 빌드 때 생성)
+public/data/neis/meal/

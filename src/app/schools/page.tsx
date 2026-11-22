@@ -9,6 +9,7 @@ import { toggleIn, useStore } from "@/lib/store";
 import { DATA_AS_OF, GN_INDUSTRIES, GN_MIDDLE, GN_SCHOOLS, KIND_INFO, OFFICIAL, REGIONS, EXPERIENCE_SCHOOLS, GENERAL_WITH_VOC, type GnSchool, type HsKind } from "@/data/gn";
 import { JOB_MAP } from "@/data/jobs";
 import { PageHead } from "@/components/ui";
+import { SchoolMeal, SchoolSubjects } from "@/components/Neis";
 
 const SchoolMap = dynamic(() => import("@/components/SchoolMap"), { ssr: false, loading: () => <div className="grid h-full min-h-[320px] place-items-center rounded-2xl bg-slate-100 text-sm text-slate-400">지도를 불러오는 중…</div> });
 
@@ -345,6 +346,8 @@ function Detail({ s, d, origin, onClose }: { s: GnSchool; d: number | null; orig
           </ul>
         </div>
       )}
+      <SchoolSubjects code={s.id} />
+      <SchoolMeal code={s.id} />
       {voc && <p className="mt-2 text-xs text-emerald-700">이 일반고에는 특성화과({voc.dept})가 있어 해당 학과는 전기에 선발해요.</p>}
       {d !== null && <Commute d={d} label={origin?.label ?? ""} />}
       {inds.length > 0 && (

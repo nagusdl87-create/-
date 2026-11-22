@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { MySchoolMeal } from "@/components/Neis";
 import { ArrowRight, Backpack, BookOpenCheck, CalendarClock, Check, GraduationCap, MapPinned, Calculator, Sparkles, Route, Compass } from "lucide-react";
 import { useStore } from "@/lib/store";
 import { isTestComplete, progress, rankedJobs, riasecScores, topTypes } from "@/lib/match";
@@ -268,6 +269,8 @@ export default function Home() {
           );
         })}
       </ol>
+
+      <MySchoolMeal school={state.profile.school} />
 
       <section className="grid grid-cols-1 gap-4 md:grid-cols-3 [&>*]:min-w-0">
         <div className="card">
