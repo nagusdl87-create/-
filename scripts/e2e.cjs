@@ -215,11 +215,26 @@ async function answerDiscover(p) {
     await ec.close();
   }
 
+
+  // ── 중학교 정보
+  {
+    const ck = (name, ok) => { console.log(name + ':', ok ? 'ok' : 'FAIL'); if (!ok) errs.push('check failed: ' + name); };
+    const mc2 = await b.newContext({ viewport: { width: 390, height: 844 } }); const mm = await mc2.newPage(); watch(mm, 'middle');
+    await mm.goto(B + '/middle'); await mm.fill('#ms-q', '해성');
+    ck('middle same-name schools', await mm.locator('button[aria-pressed]:has-text("해성중학교")').count() === 2);
+    await mm.locator('button[aria-pressed]:has-text("해성중학교")').nth(1).click(); await mm.waitForTimeout(200);
+    ck('middle detail', await mm.locator('h3', { hasText: '가까운 고등학교' }).count() === 1);
+    await mm.click('text=내 중학교로 정하기');
+    ck('middle set mine', await mm.evaluate(() => JSON.parse(localStorage.getItem('myroad:v1')).profile.middle === '해성중학교'));
+    await mm.goto(B + '/schools'); ck('school tabs', await mm.locator('nav[aria-label="학교 종류"] a').count() === 2);
+    await mc2.close();
+  }
+
   // ── 모든 페이지 모바일 점검
   const mc = await b.newContext({ viewport: { width: 390, height: 844 }, deviceScaleFactor: 2 });
   const mp = await mc.newPage(); watch(mp, 'mobile');
   await mp.goto(B); await mp.click('text=고등학생이에요');
-  const routes = ['/', '/discover', '/jobs', '/jobs/shipbuilding', '/majors', '/majors/medicine', '/path', '/credits', '/credits/school', '/subjects', '/schools', '/highschool', '/admission', '/industry', '/tests', '/resources', '/guide', '/future', '/transition', '/portfolio', '/plan', '/report', '/explore', '/tools', '/account', '/privacy', '/offline', '/teacher', '/report/summary', '/search?q=로봇', '/nope'];
+  const routes = ['/', '/discover', '/jobs', '/jobs/shipbuilding', '/majors', '/majors/medicine', '/path', '/credits', '/credits/school', '/subjects', '/schools', '/highschool', '/admission', '/industry', '/tests', '/resources', '/guide', '/future', '/transition', '/portfolio', '/plan', '/report', '/explore', '/tools', '/account', '/privacy', '/offline', '/teacher', '/report/summary', '/middle', '/search?q=로봇', '/nope'];
   for (const r of routes) {
     const res = await mp.goto(B + r); await mp.waitForTimeout(r === '/schools' ? 1200 : 250);
     const ov = await mp.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);

@@ -8,6 +8,7 @@ import { toggleIn, useStore } from "@/lib/store";
 import { DATA_AS_OF, GN_INDUSTRIES, GN_MIDDLE, GN_SCHOOLS, KIND_INFO, OFFICIAL, REGIONS, GENERAL_WITH_VOC, type GnSchool, type HsKind } from "@/data/gn";
 import { JOB_MAP } from "@/data/jobs";
 import { PageHead } from "@/components/ui";
+import { SchoolTabs } from "@/components/SchoolTabs";
 import { SchoolMapSwitch } from "@/components/SchoolMapSwitch";
 import { SchoolMeal, SchoolSchedule, SchoolSubjects } from "@/components/Neis";
 
@@ -92,6 +93,7 @@ export default function SchoolsPage() {
         title="경남 고교 찾기"
         desc={`경상남도 고등학교 ${GN_SCHOOLS.length}곳을 지도에서 찾아보세요. 내 중학교나 현재 위치를 출발점으로 정하면 가까운 순서로 정렬돼요.`}
       />
+      <SchoolTabs active="hs" />
 
       <div className="card mb-4 space-y-3 p-4">
         <div className="grid gap-2 sm:grid-cols-[1fr_auto_auto]">

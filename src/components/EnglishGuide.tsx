@@ -56,7 +56,7 @@ export function EnglishGuideButton() {
         onClick={() => setOpen(true)}
         aria-haspopup="dialog"
         aria-expanded={open}
-        aria-label="English guide (영어 안내)"
+        aria-label="EN: English guide (영어 안내)"
         title="English guide (영어 안내)"
         className="flex h-10 items-center gap-0.5 rounded-full px-1.5 text-sm font-semibold text-slate-600 hover:bg-slate-100 sm:gap-1 sm:px-2"
       >

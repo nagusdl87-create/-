@@ -154,6 +154,16 @@ export const ENGLISH_GUIDE: Record<string, EnglishGuide> = {
     ],
     terms: [T.general, T.voc, T.meister, ["남녀공학 / 남고 / 여고", "co-ed / boys' school / girls' school"], ["출발점", "starting point"], T.jeongi],
   },
+  "/middle": {
+    title: "Middle Schools in Gyeongnam",
+    what: "Information about middle schools in Gyeongsangnam-do: address and phone number, school lunch menu, school calendar (exams, vacations, events), nearby high schools, and nearby career experience support centers.",
+    how: [
+      "Search for your middle school by name or city.",
+      "Open the school to see lunch, the school calendar, and nearby high schools.",
+      "Press 「내 중학교로 정하기」 (set as my school) to use it on the home page and the high school map.",
+    ],
+    terms: [["급식", "school lunch"], ["학사일정", "school calendar"], ["진로체험지원센터", "career experience support center"], ["남녀공학", "co-ed school"]],
+  },
   "/highschool": {
     title: "Choose a High School (types and admission)",
     what: "Compare high school types, take a quiz to find a type that may suit you, and learn about the high school admission system and schedule in Gyeongnam.",

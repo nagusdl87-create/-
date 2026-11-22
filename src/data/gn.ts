@@ -29,7 +29,9 @@ export type GnSchool = {
 };
 
 export const GN_SCHOOLS = schoolsRaw as GnSchool[];
-export const GN_MIDDLE = middleRaw as { name: string; region: string; lat: number; lng: number }[];
+export type GnMiddle = { name: string; region: string; lat: number; lng: number; code?: string; addr?: string; tel?: string; home?: string; coedu?: string; found?: string };
+// 경남 중학교(좌표: 위치표준데이터, 주소·연락처: 나이스 학교기본정보, scripts/build-middle.py)
+export const GN_MIDDLE = middleRaw as GnMiddle[];
 export const DATA_AS_OF = "2027학년도 고입전형(2026년 공개 자료) · 학교 위치 2026.10.";
 
 export const KIND_INFO: Record<HsKind, { name: string; emoji: string; color: string }> = {
