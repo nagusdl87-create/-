@@ -1,26 +1,39 @@
 "use client";
 
 import { useState } from "react";
-import { PlayCircle, ExternalLink } from "lucide-react";
+import { PlayCircle, ExternalLink, Play } from "lucide-react";
 import { videoSearchLinks, type Video } from "@/data/videos";
 
 export function Videos({ videos, query }: { videos: Video[]; query: string }) {
   const [i, setI] = useState(0);
+  const [play, setPlay] = useState<string | null>(null);
   const v = videos[i];
   return (
     <div>
       {v ? (
         <>
           <div className="aspect-video overflow-hidden rounded-2xl bg-slate-900">
-            <iframe
-              key={v.id}
-              className="h-full w-full"
-              src={`https://www.youtube-nocookie.com/embed/${v.id}?rel=0`}
-              title={`${v.title} - ${v.channel}`}
-              loading="lazy"
-              allow="accelerometer; encrypted-media; gyroscope; picture-in-picture"
-              allowFullScreen
-            />
+            {play === v.id ? (
+              <iframe
+                key={v.id}
+                className="h-full w-full"
+                src={`https://www.youtube-nocookie.com/embed/${v.id}?rel=0&autoplay=1`}
+                title={`${v.title} - ${v.channel}`}
+                allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture"
+                allowFullScreen
+              />
+            ) : (
+              // 누르기 전에는 썸네일만(유튜브 플레이어 약 1MB를 미리 받지 않음)
+              <button type="button" onClick={() => setPlay(v.id)} className="group relative block h-full w-full" aria-label={`영상 재생: ${v.title} - ${v.channel}`}>
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={`https://i.ytimg.com/vi/${v.id}/hqdefault.jpg`} alt="" loading="lazy" className="h-full w-full object-cover opacity-90 transition group-hover:opacity-100" />
+                <span className="absolute inset-0 grid place-items-center">
+                  <span className="grid h-16 w-16 place-items-center rounded-full bg-black/60 text-white shadow-lg transition group-hover:scale-105 group-hover:bg-red-600">
+                    <Play className="ml-1 h-8 w-8 fill-white" aria-hidden />
+                  </span>
+                </span>
+              </button>
+            )}
           </div>
           <div className="mt-2 flex flex-wrap items-center justify-between gap-2 text-sm">
             <span>
