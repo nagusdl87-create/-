@@ -46,4 +46,5 @@
 - [ ] `1년 미접속 계정 정리` 워크플로가 매월 성공하는지 확인(GitHub Actions). 2026-11-22 권한(Firebase Authentication Admin, Cloud Datastore User) 추가 후 점검 성공
 - [ ] 경남 고입 기본계획 발표 후 `src/data/gn.ts` 일정·규칙 갱신
 - [ ] 고입포털 고교현황 수집 → `scripts/raw/gne_schools.json` 갱신 → `npm run build:schools`
-- [ ] 개교·폐교·이전 학교 반영
+- [ ] 개교·폐교·이전 학교 반영 (위치표준데이터에 없는 학교는 `scripts/raw/gn_hs_supplement.json`에 보충)
+- [ ] 자율형 공립고 2.0 지정 변동 확인 → `scripts/build-schools.py`의 `AUTONOMOUS_2`

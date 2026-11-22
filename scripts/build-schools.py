@@ -12,6 +12,13 @@ src = sys.argv[1]
 g = json.load(open(os.path.join(src, "gne_schools.json")))
 n = json.load(open(os.path.join(src, "gn_hs.json")))
 byname = {o["csv"]["학교명"]: o for o in n}
+# 위치표준데이터에 없는 학교(신설·교명 변경 등) 보충: 주소·좌표·연락처
+sup_path = os.path.join(src, "gn_hs_supplement.json")
+SUP = json.load(open(sup_path))["schools"] if os.path.exists(sup_path) else {}
+
+# 자율형 공립고 2.0 (NEIS에는 '일반고'로 나와 별도 지정). 출처: 경상남도교육청 보도자료 2025-08-28
+#   기존 운영: 김해여자고, 마산고 / 2025 신규(2026.3 운영): 김해고, 삼천포중앙고. 해마다 지정 변동 확인.
+AUTONOMOUS_2 = {"김해여자고등학교", "마산고등학교", "김해고등학교", "삼천포중앙고등학교"}
 
 def short(name):
     return name.replace("고등학교", "고")
@@ -32,7 +39,7 @@ for s in g:
     elif s["code"] in ("10", "11"):
         kind = "special"
     else:
-        kind = "autonomous" if neis.get("HS_SC_NM") == "자율고" else "general"
+        kind = "autonomous" if (neis.get("HS_SC_NM") == "자율고" or s["name"] in AUTONOMOUS_2) else "general"
     if m:
         zone = f"평준화 {m.group(1)}학군"
     elif s["code"] == "06":
@@ -55,8 +62,13 @@ for s in g:
     if home and not home.startswith("http"):
         home = "http://" + home
     lat, lng = csv.get("위도"), csv.get("경도")
+    sp = SUP.get(s["name"], {})
+    if not lat and sp:
+        lat, lng = sp["lat"], sp["lng"]
+    if not home and sp.get("home"):
+        home = sp["home"]
     out.append({
-        "id": neis.get("SD_SCHUL_CODE") or short(s["name"]),
+        "id": neis.get("SD_SCHUL_CODE") or (sp.get("id") or "").strip() or short(s["name"]),
         "name": s["name"],
         "region": s["region"],
         "kind": kind,
@@ -69,8 +81,8 @@ for s in g:
         "depts": depts,
         "coedu": coedu,
         "found": csv.get("설립형태") or neis.get("FOND_SC_NM") or "",
-        "addr": csv.get("소재지도로명주소") or neis.get("ORG_RDNMA") or "",
-        "tel": neis.get("ORG_TELNO") or "",
+        "addr": csv.get("소재지도로명주소") or neis.get("ORG_RDNMA") or sp.get("addr", ""),
+        "tel": neis.get("ORG_TELNO") or sp.get("tel", ""),
         "home": home,
         "hischool": s["hischool"],
         "lat": round(float(lat), 6) if lat else None,
