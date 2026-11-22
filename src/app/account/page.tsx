@@ -1,14 +1,18 @@
 import type { Metadata } from "next";
 import { PageHead } from "@/components/ui";
 import { AccountPanel } from "@/components/Account";
+import { BackupPanel } from "@/components/Backup";
 
-export const metadata: Metadata = { title: "내 계정", description: "선택 기능: 구글 로그인으로 여러 기기에서 진로 기록을 이어 써요.", robots: { index: false } };
+export const metadata: Metadata = { title: "내 기록 백업", description: "로그인 없이 백업 파일을 내려받고 올려서 진로 기록을 이어 써요." };
 
 export default function AccountPage() {
   return (
-    <div className="mx-auto max-w-2xl">
-      <PageHead tone="sky" eyebrow="내 계정" title="로그인과 동기화" desc="로그인은 선택이에요. 학교와 집처럼 여러 기기에서 같은 기록을 이어 쓰고 싶을 때만 써 주세요." />
-      <AccountPanel />
+    <div className="mx-auto max-w-3xl">
+      <PageHead tone="sky" eyebrow="내 기록" title="기록 저장하고 이어 쓰기" desc="로그인하지 않아도 모든 기능을 쓸 수 있어요. 오늘 쓴 기록은 백업 파일로 내려받고, 다음에 그 파일을 올리면 이어서 할 수 있어요." />
+      <div className="space-y-4">
+        <BackupPanel />
+        <AccountPanel />
+      </div>
     </div>
   );
 }

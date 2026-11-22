@@ -46,14 +46,7 @@ export function AccountPanel() {
   const [busy, setBusy] = useState(false);
   const run = (f: () => Promise<void>) => async () => { setBusy(true); try { await f(); } finally { setBusy(false); } };
 
-  if (!c.visible) {
-    return (
-      <div className="card">
-        <h2 className="font-bold">로그인 기능은 준비 중이에요</h2>
-        <p className="mt-2 text-sm text-slate-600">지금은 로그인 없이 모든 기능을 쓸 수 있고, 기록은 이 기기에만 저장돼요. 다른 기기로 옮기려면 &lsquo;내 리포트&rsquo;의 공유 링크·파일 저장을 이용해 주세요.</p>
-      </div>
-    );
-  }
+  if (!c.visible) return null;
 
   return (
     <div className="space-y-4">

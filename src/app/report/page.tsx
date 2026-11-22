@@ -1,7 +1,8 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
+import { BackupPanel } from "@/components/Backup";
 import { decodeShare, encodeShare, useStore, type AppState } from "@/lib/store";
 import { isTestComplete, progress, riasecScores, topTypes, hsQuizResult } from "@/lib/match";
 import { RIASEC, VALUES } from "@/data/riasec";
@@ -258,9 +259,8 @@ function ReportBody({ s }: { s: AppState }) {
 }
 
 function Tools() {
-  const { state, replace, reset } = useStore();
+  const { state, reset } = useStore();
   const [msg, setMsg] = useState("");
-  const fileRef = useRef<HTMLInputElement>(null);
   const flash = (m: string) => {
     setMsg(m);
     setTimeout(() => setMsg(""), 2500);
@@ -293,47 +293,13 @@ function Tools() {
         {msg && <p className="mt-2 text-sm font-semibold text-emerald-600">{msg}</p>}
       </div>
 
+      <BackupPanel />
       <div className="card">
-        <h2 className="font-bold">데이터 백업 · 다른 기기로 옮기기</h2>
-        <p className="mt-1 text-xs text-slate-500">모든 기록은 이 브라우저에만 저장돼요. 기기를 바꾸거나 학교 PC를 쓸 때는 파일로 백업해 두세요.</p>
-        <div className="mt-3 flex flex-wrap gap-2">
-          <button
-            className="btn-ghost"
-            onClick={() => {
-              const blob = new Blob([JSON.stringify(state, null, 2)], { type: "application/json" });
-              const a = document.createElement("a");
-              a.href = URL.createObjectURL(blob);
-              a.download = `myroad-backup-${new Date().toISOString().slice(0, 10)}.json`;
-              a.click();
-              URL.revokeObjectURL(a.href);
-            }}
-          >
-            ⬇️ 백업 파일 저장
-          </button>
-          <button className="btn-ghost" onClick={() => fileRef.current?.click()}>
-            ⬆️ 백업 불러오기
-          </button>
-          <input
-            ref={fileRef}
-            type="file"
-            accept="application/json,.json"
-            className="hidden"
-            onChange={async (e) => {
-              const f = e.target.files?.[0];
-              if (!f) return;
-              try {
-                replace(JSON.parse(await f.text()));
-                flash("백업을 불러왔어요.");
-              } catch {
-                flash("올바른 백업 파일이 아니에요.");
-              }
-              e.target.value = "";
-            }}
-          />
-          <button className="btn-ghost text-rose-600" onClick={() => confirm("모든 기록을 지우고 처음부터 시작할까요? 되돌릴 수 없어요.") && reset()}>
-            🗑️ 처음부터 다시
-          </button>
-        </div>
+        <h2 className="font-bold">처음부터 다시 하기</h2>
+        <p className="mt-1 text-xs text-slate-500">이 기기에 저장된 모든 기록을 지워요. 공용 컴퓨터를 다 쓴 뒤에도 눌러 주세요.</p>
+        <button className="btn-ghost mt-3 text-rose-600" onClick={() => confirm("모든 기록을 지우고 처음부터 시작할까요? 되돌릴 수 없어요. 필요하면 먼저 백업 파일을 내려받아 두세요.") && reset()}>
+          기록 모두 지우기
+        </button>
       </div>
       <Link href="/" className="inline-block text-sm font-semibold text-slate-500">
         ← 홈으로
