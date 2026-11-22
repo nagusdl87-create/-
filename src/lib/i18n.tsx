@@ -9,8 +9,8 @@ import { createContext, useCallback, useContext, useEffect, useMemo, useState } 
 import { useMounted } from "@/lib/useMounted";
 
 export type Lang = "ko" | "en";
-// 번역이 끝나기 전에는 전환 버튼을 숨김. ?lang=en 으로 들어오면 그 브라우저에서 미리보기.
-export const LANG_PUBLIC = false;
+// 전환 버튼 공개(2026-11-22). false로 바꾸면 숨기고 ?lang=en 으로만 미리보기.
+export const LANG_PUBLIC = true;
 const KEY = "myroad:lang";
 type Dict = Record<string, string>;
 
@@ -94,10 +94,11 @@ export function LangToggle({ className = "" }: { className?: string }) {
       type="button"
       onClick={() => setLang(lang === "en" ? "ko" : "en")}
       className={`flex h-10 items-center rounded-full px-2.5 text-sm font-semibold text-slate-600 hover:bg-slate-100 ${className}`}
-      aria-label={lang === "en" ? "한국어: 한국어로 보기 (Korean)" : "English: view in English (영어로 보기)"}
+      aria-label={lang === "en" ? "한국어: 한국어로 보기 (Korean)" : "EN: view in English (영어로 보기)"}
+      title={lang === "en" ? "한국어로 보기" : "View in English"}
       lang={lang === "en" ? "ko" : "en"}
     >
-      {lang === "en" ? "한국어" : "English"}
+      {lang === "en" ? "한국어" : "EN"}
     </button>
   );
 }

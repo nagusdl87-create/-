@@ -152,7 +152,7 @@ export default function Home() {
               </h1>
               <p className="mt-5 max-w-xl text-[1.05rem] leading-relaxed text-slate-600">{t("흥미 탐색에서 시작해 직업과 학과, 고교 과목, 경남 고등학교, 192학점 설계, 2028 대입까지. 앞 단계의 결과가 다음 단계로 자동으로 이어져요.")}</p>
               <div className="mt-7 flex flex-wrap gap-2">
-                <a href="#stage" className="btn rounded-full bg-coral-500 px-6 py-3 text-white shadow-lg shadow-coral-500/25 hover:bg-coral-600">{t("지금 시작하기")} <ArrowRight className="h-4 w-4" aria-hidden /></a>
+                <a href="#stage" className="btn rounded-full bg-coral-700 px-6 py-3 text-white shadow-lg shadow-coral-500/25 hover:bg-coral-800">{t("지금 시작하기")} <ArrowRight className="h-4 w-4" aria-hidden /></a>
                 <Link href="/explore" className="btn-ghost rounded-full px-6 py-3">{t("둘러보기")}</Link>
               </div>
             </div>

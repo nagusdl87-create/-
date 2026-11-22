@@ -200,17 +200,21 @@ async function answerDiscover(p) {
   }
 
 
-  // ── 모든 페이지 영어 안내(EN 버튼)
+  // ── 언어 전환(EN ↔ 한국어 버튼 하나)
   {
     const ck = (name, ok) => { console.log(name + ':', ok ? 'ok' : 'FAIL'); if (!ok) errs.push('check failed: ' + name); };
     const ec = await b.newContext({ viewport: { width: 390, height: 844 } }); const e = await ec.newPage(); watch(e, 'english');
-    for (const [r, t] of [['/', 'Home'], ['/credits', '192-Credit Course Planner'], ['/jobs/nurse', 'Job Details'], ['/majors/naval', 'Major Details']]) {
-      await e.goto(B + r);
-      await e.getByRole('button', { name: 'English guide (영어 안내)' }).click();
-      ck('EN dialog ' + r, await e.getByRole('dialog', { name: t, exact: true }).isVisible());
-      await e.keyboard.press('Escape');
-      ck('EN closes ' + r, !(await e.getByRole('dialog', { name: t, exact: true }).isVisible().catch(() => false)));
+    await e.goto(B + '/');
+    await e.getByRole('button', { name: /^EN: view in English/ }).click();
+    await e.waitForFunction(() => document.documentElement.lang === 'en' && /map of your own/.test(document.querySelector('h1')?.textContent || ''), null, { timeout: 8000 }).catch(() => {});
+    ck('EN switch home', /map of your own/.test(await e.textContent('h1')));
+    for (const [r, h] of [['/credits', /credit/i], ['/jobs/nurse', /^Nurse$/], ['/majors/naval', /Naval|Ship/i]]) {
+      await e.goto(B + r); await e.waitForTimeout(1200);
+      ck('EN page ' + r, h.test(((await e.textContent('h1')) || '').trim()));
     }
+    await e.getByRole('button', { name: /^한국어: 한국어로 보기/ }).click();
+    await e.waitForFunction(() => document.documentElement.lang === 'ko', null, { timeout: 5000 }).catch(() => {});
+    ck('KO switch back', /[가-힣]/.test(await e.textContent('h1')));
     ck('EN no overflow', await e.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth));
     await ec.close();
   }

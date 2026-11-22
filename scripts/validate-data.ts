@@ -7,7 +7,6 @@ import { MAJOR_DETAILS } from "../src/data/majorDetails";
 import { JOB_DEEP, MAJOR_DEEP } from "../src/data/deep";
 import { SAMPLE_CURRICULUM, SEM_KEYS } from "../src/data/curriculum";
 import { GN_INDUSTRIES, GN_SCHOOLS, EXPERIENCE_SCHOOLS, GENERAL_WITH_VOC } from "../src/data/gn";
-import { ENGLISH_GUIDE } from "../src/data/englishGuide";
 import { readdirSync } from "node:fs";
 import { join } from "node:path";
 const errs: string[] = [];
@@ -42,21 +41,6 @@ MAJORS.forEach((m) => {
   need(w, !!d.after, "졸업 후"); need(w, d.hs.length === 3, "탐구 주제 3개"); need(w, d.faq.length >= 2, "FAQ 2개 이상");
   if (NUM.test(JSON.stringify(d))) errs.push(`${w}: 수치 표현 확인 필요(임금·비율)`);
 });
-// 영어 안내(src/data/englishGuide.ts): src/app 아래 모든 page.tsx 경로에 항목이 있어야 함
-const appDir = join(__dirname, "../src/app");
-const routes: string[] = [];
-const walk = (dir: string, segs: string[]) => {
-  for (const e of readdirSync(dir, { withFileTypes: true })) {
-    if (e.isDirectory()) {
-      if (e.name.startsWith("_") || e.name.startsWith("@")) continue; // 비공개 폴더·병렬 경로
-      walk(join(dir, e.name), /^\(.*\)$/.test(e.name) ? segs : [...segs, e.name]); // (그룹)은 경로에서 빠짐
-    } else if (/^page\.(tsx|ts|jsx|js|mdx)$/.test(e.name)) routes.push("/" + segs.join("/"));
-  }
-};
-walk(appDir, []);
-// 동적 폴더 이름([slug] 등)은 사전에서 [id]로 통일
-routes.forEach((r) => { const k = r.replace(/\[[^\]]+\]/g, "[id]"); if (!ENGLISH_GUIDE[k]) errs.push(`영어 안내 없음: ${k} (src/data/englishGuide.ts에 추가)`); });
-Object.entries(ENGLISH_GUIDE).forEach(([k, g]) => need(`영어 안내 ${k}`, !!g.title && !!g.what && g.how.length >= 1 && g.how.length <= 4, "title·what·how(1~4단계)"));
-console.log(`과목 ${SUBJECTS.length} · 직업 ${JOBS.length} · 학과 ${MAJORS.length} · 경남 고교 ${GN_SCHOOLS.length} · 영어 안내 ${routes.length}쪽`);
+console.log(`과목 ${SUBJECTS.length} · 직업 ${JOBS.length} · 학과 ${MAJORS.length} · 경남 고교 ${GN_SCHOOLS.length}`);
 console.log(errs.length ? errs.join("\n") : "OK");
 process.exit(errs.length ? 1 : 0);

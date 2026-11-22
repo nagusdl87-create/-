@@ -11,7 +11,6 @@ import { EXPLORE, JOURNEY, TOOLS, type NavItem } from "@/lib/journey";
 import { Logo } from "./Logo";
 import { AccountButton } from "./Account";
 import { ThemeToggle } from "./ThemeToggle";
-import { EnglishGuideButton } from "./EnglishGuide";
 import { LangToggle, useT } from "@/lib/i18n";
 
 function Dropdown({ label, items, active, done }: { label: string; items: NavItem[]; active: boolean; done?: (href: string) => boolean }) {
@@ -92,7 +91,6 @@ export function Nav() {
               <input className="input w-56 rounded-full bg-slate-50 py-2 pl-9 lg:w-48 xl:w-56" placeholder={t("직업·학과·과목·학교 검색")} value={q} onChange={(e) => setQ(e.target.value)} aria-label={t("통합 검색")} />
             </form>
             <LangToggle />
-            <EnglishGuideButton />
             <ThemeToggle />
             <AccountButton />
             <Link href="/report" className="btn-primary hidden whitespace-nowrap rounded-full py-2 sm:inline-flex">
