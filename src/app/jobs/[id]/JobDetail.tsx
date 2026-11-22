@@ -14,6 +14,8 @@ import { jobVideos } from "@/data/videos";
 import { Videos } from "@/components/Videos";
 import { GN_INDUSTRIES } from "@/data/gn";
 import { JOB_DETAILS } from "@/data/jobDetails";
+import { JOB_DEEP } from "@/data/deep";
+import { Faq, JobDeepMain, JobDeepWork, JobFuture } from "@/components/Deep";
 import { Award, Building2, Sparkles, TrendingUp } from "lucide-react";
 
 export function JobDetail({ id }: { id: string }) {
@@ -30,6 +32,7 @@ export function JobDetail({ id }: { id: string }) {
   const tested = ready && isTestComplete(state.answers);
   const score = tested ? jobMatch(job, riasecScores(state.answers), state.values) : null;
   const more = JOB_DETAILS[job.id];
+  const deep = JOB_DEEP[job.id];
   const majors = MAJORS.filter((m) => m.jobs.includes(job.id));
   const inds = GN_INDUSTRIES.filter((i) => i.jobs.includes(job.id));
   const similar = JOBS.filter((j) => j.id !== job.id && (j.field === job.field || j.riasec[0] === job.riasec[0])).slice(0, 4);
@@ -59,7 +62,8 @@ export function JobDetail({ id }: { id: string }) {
           </div>
           <FavButton id={job.id} className="h-11 w-11 text-xl" />
         </div>
-        <p className="mt-4 leading-relaxed text-slate-700">{job.summary}</p>
+        <p className="mt-4 text-lg font-medium leading-relaxed text-slate-800">{job.summary}</p>
+        {deep && <p className="mt-2 leading-relaxed text-slate-600">{deep.intro}</p>}
         {score !== null ? (
           <div className="mt-4 rounded-xl bg-brand-50 p-3 text-sm">
             <span className="font-bold text-brand-700">나와 {score}% 잘 맞아요.</span>{" "}
@@ -80,27 +84,7 @@ export function JobDetail({ id }: { id: string }) {
         <Videos videos={jobVideos(job.id)} query={job.name} />
       </div>
 
-      <div className="grid gap-4 md:grid-cols-2">
-        <div className="card">
-          <h2 className="font-bold">이런 일을 해요</h2>
-          <ul className="mt-2 space-y-1.5 text-sm text-slate-700">
-            {job.tasks.map((t) => (
-              <li key={t}>• {t}</li>
-            ))}
-          </ul>
-        </div>
-        <div className="card">
-          <h2 className="font-bold">중학생인 지금 해 볼 수 있는 일</h2>
-          <ul className="mt-2 space-y-1.5 text-sm text-slate-700">
-            {job.msActions.map((t) => (
-              <li key={t}>✓ {t}</li>
-            ))}
-          </ul>
-          <Link href="/plan" className="mt-3 inline-block text-sm font-semibold text-brand-600">
-            내 계획에 넣기 →
-          </Link>
-        </div>
-      </div>
+      <JobDeepMain d={deep} tasks={job.tasks} ms={job.msActions} />
 
       {more && (
         <div className="grid gap-4 md:grid-cols-2">
@@ -143,6 +127,9 @@ export function JobDetail({ id }: { id: string }) {
           </div>
         </div>
       )}
+
+      <JobDeepWork d={deep} />
+      <JobFuture d={deep} />
 
       {(job.gn || inds.length > 0) && (
         <div className="card border-emerald-200 bg-emerald-50">
@@ -189,6 +176,8 @@ export function JobDetail({ id }: { id: string }) {
         </div>
         <p className="mt-2 text-xs text-slate-500">어느 고등학교에서든 이 직업을 준비할 수 있어요. 학교 유형별 특징을 비교해 보세요.</p>
       </div>
+
+      <Faq items={deep?.faq ?? []} />
 
       <div className="card">
         <h2 className="font-bold">비슷한 직업</h2>

@@ -2,6 +2,8 @@
 
 import { Award, Heart, Lightbulb, Sparkles } from "lucide-react";
 import { MAJOR_DETAILS } from "@/data/majorDetails";
+import { MAJOR_DEEP } from "@/data/deep";
+import { Faq, MajorDeepMain } from "@/components/Deep";
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -22,6 +24,7 @@ export function MajorDetail({ id }: { id: string }) {
   const { state, update } = useStore();
   const on = state.favMajors.includes(m.id);
   const more = MAJOR_DETAILS[m.id];
+  const deep = MAJOR_DEEP[m.id];
   const similar = MAJORS.filter((x) => x.track === m.track && x.id !== m.id).slice(0, 6);
   const placed = new Set(Object.values(state.credits.plan).flat().map((e) => e.split("|")[0]));
 
@@ -54,8 +57,11 @@ export function MajorDetail({ id }: { id: string }) {
             <Heart className={`h-[18px] w-[18px] ${on ? "fill-rose-500 text-rose-500" : "text-slate-400"}`} aria-hidden />
           </button>
         </div>
-        <p className="mt-3 leading-relaxed text-slate-700">{m.desc}</p>
+        <p className="mt-3 text-lg font-medium leading-relaxed text-slate-800">{m.desc}</p>
+        {deep && <p className="mt-2 leading-relaxed text-slate-600">{deep.intro}</p>}
       </div>
+
+      <MajorDeepMain d={deep} />
 
       <div className="card">
         <h2 className="font-bold">고등학교에서 들으면 좋은 과목</h2>
@@ -158,6 +164,8 @@ export function MajorDetail({ id }: { id: string }) {
           </div>
         </div>
       )}
+
+      <Faq items={deep?.faq ?? []} />
 
       <div className="card">
         <h2 className="font-bold">같은 계열의 다른 학과</h2>
