@@ -43,7 +43,7 @@
 
 ## 매년 할 일
 - [ ] 개인정보 처리 방침 점검(수탁자·항목 변화), 바꾸면 시행 7일 전 공지
-- [ ] `1년 미접속 계정 정리` 워크플로가 매월 성공하는지 확인(GitHub Actions)
+- [ ] `1년 미접속 계정 정리` 워크플로가 매월 성공하는지 확인(GitHub Actions). 2026-11-22 권한(Firebase Authentication Admin, Cloud Datastore User) 추가 후 점검 성공
 - [ ] 경남 고입 기본계획 발표 후 `src/data/gn.ts` 일정·규칙 갱신
 - [ ] 고입포털 고교현황 수집 → `scripts/raw/gne_schools.json` 갱신 → `npm run build:schools`
 - [ ] 개교·폐교·이전 학교 반영
