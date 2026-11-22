@@ -23,7 +23,7 @@
 
 ## 에이전트 작업 목록 (위에서부터, 결정 불필요)
 1. [D1-B] ~~개인정보 처리 방침 초안~~ — `docs/privacy-draft.md` 작성 완료, 결정 D3 대기(확인되면 `/privacy` 게시)
-2. [D1-B] ~~로그인·동기화 구현~~ — 완료(`src/lib/cloud.tsx`, `/account`, `firestore.rules`). 숨김 상태, `/account?preview=1`로 미리보기. 공개 조건: ① 사용자가 Firestore 콘솔에 `firestore.rules` 게시 ② D3 확인 후 `/privacy` 게시 ③ 배포 워크플로 빌드 단계에 `NEXT_PUBLIC_LOGIN=on` 추가
+2. [D1-B] ~~로그인·동기화 구현~~ — 완료(`src/lib/cloud.tsx`, `/account`, `firestore.rules`). 숨김 상태, `/account?preview=1`로 미리보기. 공개 조건: ① ~~Firestore 규칙 게시~~(2026-11-22 완료, 실제 로그인·저장 확인) ② D3 확인 후 `/privacy` 게시 ③ 배포 워크플로 빌드 단계에 `NEXT_PUBLIC_LOGIN=on` 추가
 3. ~~백업 파일 이어 쓰기~~ — 완료: `/account`(내 기록 백업, 도구 메뉴), 홈 백업 알림(7일), 끌어다 놓기·불러오기 확인
 4. 모바일 화면 전수 점검 — 전 페이지 375px 스크린샷, 넘침·겹침·작은 글씨 수정
 5. 접근성 점검 — axe-core로 전 페이지 검사, 대비·라벨·키보드 이동 수정
