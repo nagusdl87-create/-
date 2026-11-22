@@ -126,11 +126,56 @@ async function answerDiscover(p) {
     await np.waitForTimeout(200); console.log('live search:', await np.locator('[aria-label="통합 검색 결과"] button').first().innerText());
   }
 
+
+  // ── 추가 기능 점검 (실패하면 errors에 기록)
+  {
+    const ck = (name, ok) => { console.log(name + ':', ok ? 'ok' : 'FAIL'); if (!ok) errs.push('check failed: ' + name); };
+    const xc = await b.newContext({ viewport: { width: 1280, height: 900 }, acceptDownloads: true });
+    const x = await xc.newPage(); watch(x, 'extra');
+    // 직업 상세 콘텐츠(콘텐츠 기준)
+    await x.goto(B + '/jobs/nurse'); await x.waitForTimeout(500);
+    for (const h of ['이런 일을 해요', '하루는 이렇게 흘러가요', '필요한 지식과 능력', '고등학생이 되면 해 볼 활동', '일하는 환경', '학력·진로 경로', '기술이 바뀌면 이 일은?', '자주 묻는 질문']) ck('job section ' + h, await x.locator('main h2', { hasText: h }).count() > 0);
+    // 영상: 썸네일 → 누르면 재생
+    ck('video thumb before click', await x.locator('iframe').count() === 0 && await x.locator('button[aria-label^="영상 재생"]').count() === 1);
+    await x.locator('button[aria-label^="영상 재생"]').click(); await x.waitForTimeout(400);
+    ck('video plays after click', await x.locator('iframe[src*="autoplay=1"]').count() === 1);
+    // FAQ 펼치기
+    await x.locator('details summary').first().click(); ck('faq opens', await x.locator('details[open]').count() === 1);
+    // 학과 상세 + 대학 권장과목 원문
+    await x.goto(B + '/majors/architecture'); await x.waitForTimeout(500);
+    for (const h of ['이런 질문을 탐구해요', '세부 전공 분야', '학년별로 이렇게 배워요', '이 학과에서 길러지는 능력', '고등학교에서 해 볼 탐구 주제']) ck('major section ' + h, await x.locator('main h2', { hasText: h }).count() > 0);
+    ck('univ subject docs', await x.locator('text=대학이 발표한 2028학년도 권장과목 원문').count() === 1 && await x.locator('a[href*="yonsei.ac.kr"]').count() === 1);
+    // 고교 분류(자율형 공립고 4, 대안 특성화고 4)
+    await x.goto(B + '/schools'); await x.waitForTimeout(1200);
+    ck('autonomous 4', (await x.locator('button:has-text("자율형 공립고")').first().innerText()).includes('4'));
+    ck('alternative 4', (await x.locator('button:has-text("대안(체험위주)")').first().innerText()).includes('4'));
+    // 화면 밝기 메뉴
+    await x.goto(B + '/'); await x.locator('header button[aria-haspopup="menu"]').click();
+    await x.locator('[role=menuitemradio]', { hasText: '어둡게' }).click();
+    ck('dark mode on', await x.evaluate(() => document.documentElement.classList.contains('dark')));
+    await x.locator('header button[aria-haspopup="menu"]').click(); await x.locator('[role=menuitemradio]', { hasText: '밝게' }).click();
+    ck('light mode back', !(await x.evaluate(() => document.documentElement.classList.contains('dark'))));
+    // 백업 파일 내려받기 → 지우기 → 올리기
+    await x.evaluate(() => { const k = 'myroad:v1'; const s = JSON.parse(localStorage.getItem(k)); s.profile.name = '백업테스트'; localStorage.setItem(k, JSON.stringify(s)); });
+    await x.goto(B + '/account'); await x.waitForTimeout(400);
+    const [dl] = await Promise.all([x.waitForEvent('download'), x.click('text=백업 파일 내려받기')]);
+    const bp = D + 'backup.json'; await dl.saveAs(bp); ck('backup filename', /^myroad-backup-\d{4}-\d{2}-\d{2}\.json$/.test(dl.suggestedFilename()));
+    await x.evaluate(() => localStorage.removeItem('myroad:v1')); await x.reload(); await x.waitForTimeout(400);
+    await x.setInputFiles('input[type=file]', bp); await x.click('button:has-text("불러오기")'); await x.waitForTimeout(300);
+    ck('backup restored', await x.evaluate(() => JSON.parse(localStorage.getItem('myroad:v1')).profile.name === '백업테스트'));
+    // 개인정보 처리 방침·로그인(선택) 화면
+    await x.goto(B + '/privacy'); ck('privacy page', (await x.locator('article h2').count()) >= 10);
+    await x.goto(B + '/account'); await x.waitForTimeout(400);
+    const loginBtn = x.locator('button:has-text("구글 계정으로 로그인")');
+    ck('login needs age check', await loginBtn.isDisabled());
+    await xc.close();
+  }
+
   // ── 모든 페이지 모바일 점검
   const mc = await b.newContext({ viewport: { width: 390, height: 844 }, deviceScaleFactor: 2 });
   const mp = await mc.newPage(); watch(mp, 'mobile');
   await mp.goto(B); await mp.click('text=고등학생이에요');
-  const routes = ['/', '/discover', '/jobs', '/jobs/shipbuilding', '/majors', '/majors/medicine', '/path', '/credits', '/credits/school', '/subjects', '/schools', '/highschool', '/admission', '/industry', '/tests', '/resources', '/guide', '/future', '/transition', '/portfolio', '/plan', '/report', '/explore', '/tools', '/search?q=로봇', '/nope'];
+  const routes = ['/', '/discover', '/jobs', '/jobs/shipbuilding', '/majors', '/majors/medicine', '/path', '/credits', '/credits/school', '/subjects', '/schools', '/highschool', '/admission', '/industry', '/tests', '/resources', '/guide', '/future', '/transition', '/portfolio', '/plan', '/report', '/explore', '/tools', '/account', '/privacy', '/offline', '/search?q=로봇', '/nope'];
   for (const r of routes) {
     const res = await mp.goto(B + r); await mp.waitForTimeout(r === '/schools' ? 1200 : 250);
     const ov = await mp.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);

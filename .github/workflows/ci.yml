@@ -17,3 +17,11 @@ jobs:
       - run: npm ci
       - run: npm run validate
       - run: npm run build
+      - name: 브라우저 전체 흐름 테스트(e2e)
+        run: |
+          npm install --no-save --no-package-lock playwright@1.64.1
+          npx playwright install --with-deps chromium
+          npx -y serve@14.2.4 out -l 5000 > /tmp/serve.log 2>&1 &
+          for i in $(seq 30); do curl -s localhost:5000 >/dev/null && break; sleep 1; done
+          BASE=http://localhost:5000 node scripts/e2e.cjs | tee /tmp/e2e.log
+          if grep -q "check failed\|^errors: \[" /tmp/e2e.log; then echo "::error::e2e 실패"; exit 1; fi
