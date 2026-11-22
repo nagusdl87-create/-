@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { STATS } from "@/data/stats";
-import { MySchoolMeal } from "@/components/Neis";
+import { MySchoolMeal, MySchoolSchedule } from "@/components/Neis";
 import { BackupReminder } from "@/components/Backup";
 import { EnglishHome } from "@/components/English";
 import { ArrowRight, Backpack, BookOpenCheck, CalendarClock, Check, GraduationCap, MapPinned, Calculator, Sparkles, Route, Compass } from "lucide-react";
@@ -276,6 +276,7 @@ export default function Home() {
 
       <BackupReminder />
       <MySchoolMeal school={state.profile.school} />
+      <MySchoolSchedule school={state.profile.school} grade={state.profile.grade} />
 
       <section className="grid grid-cols-1 gap-4 md:grid-cols-3 [&>*]:min-w-0">
         <div className="card">

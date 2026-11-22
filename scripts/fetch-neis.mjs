@@ -2,6 +2,7 @@
 // 출력: public/data/neis/subjects.json (고교별 이번 학기 시간표에 나온 과목, 방학 중에는 배포된 자료를 이어받음)
 //       public/data/neis/codes.json   (경남 중·고 학교명 → 학교코드)
 //       public/data/neis/meal/{학교코드}.json (오늘부터 7일 중식, 커밋하지 않음)
+//       public/data/neis/schedule/{학교코드}.json (오늘부터 90일 학사일정, 커밋하지 않음)
 import { mkdirSync, readFileSync, writeFileSync, existsSync } from "node:fs";
 
 const KEY = process.env.NEIS_API_KEY;
@@ -11,6 +12,7 @@ if (!KEY) {
 }
 const ROOT = new URL("../public/data/neis/", import.meta.url);
 mkdirSync(new URL("meal/", ROOT), { recursive: true });
+mkdirSync(new URL("schedule/", ROOT), { recursive: true });
 const OFC = "S10"; // 경상남도교육청
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
@@ -118,3 +120,29 @@ await pool(Object.entries(codes), 8, async ([, code]) => {
   meals++;
 });
 console.log("급식 파일", meals);
+
+// 4) 학사일정 (오늘부터 90일) → { asOf, events: [{ d: "YYYYMMDD", t: "행사명", g: [학년…] }] }
+//    g가 없으면 전 학년 공통. 토요휴업일처럼 매주 반복되는 칸은 뺀다.
+const SCHED_NOISE = /^(토요휴업일|토요일|일요일|휴업일|-)?$/;
+const GRADE_KEYS = ["ONE", "TW", "THREE", "FR", "FIV", "SIX"].map((k) => `${k}_GRADE_EVENT_YN`);
+let scheds = 0;
+await pool(Object.entries(codes), 8, async ([, code]) => {
+  const rows = await hub("SchoolSchedule", { SD_SCHUL_CODE: code, AA_FROM_YMD: today, AA_TO_YMD: addDays(90) });
+  const seen = new Set();
+  const events = [];
+  for (const r of rows) {
+    const t = (r.EVENT_NM || "").replace(/\s+/g, " ").trim();
+    const d = r.AA_YMD;
+    if (!/^\d{8}$/.test(d || "") || SCHED_NOISE.test(t)) continue;
+    const g = GRADE_KEYS.map((k, i) => (r[k] === "Y" ? i + 1 : 0)).filter(Boolean);
+    const key = `${d}|${t}`;
+    if (seen.has(key)) continue; // 주간·야간 과정 중복
+    seen.add(key);
+    events.push(g.length ? { d, t, g } : { d, t });
+  }
+  if (!events.length) return;
+  events.sort((a, b) => a.d.localeCompare(b.d));
+  writeFileSync(new URL(`schedule/${code}.json`, ROOT), JSON.stringify({ asOf: today, events }));
+  scheds++;
+});
+console.log("학사일정 파일", scheds);
