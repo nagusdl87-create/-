@@ -12,7 +12,7 @@ import { useStore } from "@/lib/store";
 import { isTestComplete, progress, rankedJobs, riasecScores, topTypes } from "@/lib/match";
 import { analyze } from "@/lib/credits";
 import { EXPLORE, JOURNEY, TOOLS, type NavItem } from "@/lib/journey";
-import { RIASEC } from "@/data/riasec";
+import { RIASEC, RIASEC_ORDER } from "@/data/riasec";
 import { TERMS_BY_STAGE, type Stage } from "@/data/plan";
 import { dday, GN_SCHOOLS, upcomingSchedule } from "@/data/gn";
 import { FIELDS, JOBS, type FieldId } from "@/data/jobs";
@@ -48,7 +48,7 @@ const POPULAR_MAJORS = ["cs", "medicine", "ai", "semiconductor", "business", "bi
 /** 둥근 흰 판(정보판·콘텐츠 묶음) */
 function Panel({ title, more, children, className = "" }: { title: string; more?: { href: string; label: string }; children: React.ReactNode; className?: string }) {
   return (
-    <section className={`rounded-2xl border border-slate-200 bg-surface p-4 sm:p-5 ${className}`}>
+    <section className={`flex h-full flex-col rounded-2xl border border-slate-200 bg-surface p-4 sm:p-5 ${className}`}>
       <div className="mb-2 flex items-center justify-between gap-3">
         <h2 className="text-[1.05rem] font-bold text-slate-900">{title}</h2>
         {more && (
@@ -179,13 +179,13 @@ function FieldCards() {
   );
 }
 
-function PopularMajors() {
+function PopularMajors({ narrow = false }: { narrow?: boolean }) {
   const t = useT();
   return (
     <Panel title={t("인기 학과별 핵심 권장과목")} more={{ href: "/majors", label: t("더보기") }}>
-      <ul className="grid grid-cols-1 gap-x-6 sm:grid-cols-2 [&>*]:min-w-0">
+      <ul className={`grid grid-cols-1 gap-x-6 [&>*]:min-w-0 ${narrow ? "" : "sm:grid-cols-2"}`}>
         {POPULAR_MAJORS.map((id) => MAJOR_MAP[id]).filter(Boolean).map((m) => (
-          <li key={m.id} className="border-b border-slate-100 last:border-0 sm:[&:nth-last-child(2)]:border-0">
+          <li key={m.id} className={`border-b border-slate-100 last:border-0 ${narrow ? "" : "sm:[&:nth-last-child(2)]:border-0"}`}>
             <Link href={`/majors/${m.id}`} className="group block py-2.5">
               <span className="block truncate font-semibold text-slate-900 group-hover:text-brand-700">{t(m.name)}</span>
               <span className="block truncate text-sm text-slate-500">{m.core.map((s) => t(s)).join(" · ")}</span>
@@ -194,6 +194,22 @@ function PopularMajors() {
         ))}
       </ul>
     </Panel>
+  );
+}
+
+/** 흥미 탐색 전: 여섯 가지 흥미 유형 미리 보기 */
+function RiasecPreview({ cols = 3 }: { cols?: 2 | 3 | 6 }) {
+  const t = useT();
+  const g = cols === 6 ? "grid-cols-3 sm:grid-cols-6" : cols === 2 ? "grid-cols-2" : "grid-cols-3";
+  return (
+    <ul className={`grid gap-1.5 ${g}`} aria-label={t("여섯 가지 흥미 유형")}>
+      {RIASEC_ORDER.map((k) => (
+        <li key={k} className="rounded-xl bg-slate-50 px-2 py-2 text-center">
+          <span className="block text-xl" aria-hidden>{RIASEC[k].emoji}</span>
+          <span className="block text-xs font-semibold text-slate-800">{t(RIASEC[k].name)}</span>
+        </li>
+      ))}
+    </ul>
   );
 }
 
@@ -271,22 +287,32 @@ export default function Home() {
 
         <Shortcuts />
 
-        <div className="grid grid-cols-1 gap-4 lg:grid-cols-[1fr_340px] [&>*]:min-w-0">
-          <div className="space-y-4">
-            <GnJobs />
-            <FieldCards />
-            <PopularMajors />
+        {/* 줄마다 왼쪽(2칸)과 오른쪽(1칸)의 높이를 맞춰 빈 여백이 생기지 않게 한다 */}
+        <div className="grid grid-cols-1 gap-4 lg:grid-cols-3 [&>*]:min-w-0">
+          <div className="lg:col-span-2">
+            <GnJobs limit={6} />
           </div>
-          <aside className="space-y-4">
+          <div className="flex flex-col gap-4 [&>section]:h-auto">
             <Panel title={t("경남 고입 일정")} more={{ href: "/highschool#gn", label: t("전체") }}>
               <AdmissionList />
             </Panel>
-            <Panel title={t("나의 흥미 유형")}>
+            <Panel title={t("나의 흥미 유형")} className="flex-1">
               <p className="text-sm text-slate-600">{t("30문항, 약 5분이면 흥미 유형과 맞춤 직업을 볼 수 있어요.")}</p>
-              <Link href="/discover" className="btn-primary mt-3 w-full justify-center rounded-xl">{t("흥미 탐색 시작")}</Link>
+              <div className="mt-3">
+                <RiasecPreview />
+              </div>
+              <div className="mt-auto pt-3">
+                <Link href="/discover" className="btn-primary w-full justify-center rounded-xl">{t("흥미 탐색 시작")}</Link>
+              </div>
             </Panel>
-            <KeyNumbers />
-          </aside>
+          </div>
+          <div className="lg:col-span-3">
+            <FieldCards />
+          </div>
+          <div className="lg:col-span-2">
+            <PopularMajors />
+          </div>
+          <KeyNumbers />
         </div>
 
         <AllMenus />
@@ -370,96 +396,109 @@ export default function Home() {
       <BackupReminder />
       <Shortcuts />
 
-      <div className="grid grid-cols-1 gap-4 lg:grid-cols-[1fr_340px] [&>*]:min-w-0">
-        <div className="space-y-4">
-          <Panel title={t("나의 흥미 유형")} more={tested ? { href: "/discover", label: t("결과 보기") } : undefined}>
-            {tested ? (
-              <>
-                <div className="text-lg font-bold text-slate-900">
-                  {t(RIASEC[top[0]].name)} · {t(RIASEC[top[1]].name)}
+      {/* 줄마다 왼쪽(2칸)과 오른쪽(1칸)의 높이를 맞춰 빈 여백이 생기지 않게 한다 */}
+      <div className="grid grid-cols-1 gap-4 lg:grid-cols-3 [&>*]:min-w-0">
+        <div className="lg:col-span-2">
+            <Panel title={t("나의 흥미 유형")} more={tested ? { href: "/discover", label: t("결과 보기") } : undefined}>
+              {tested ? (
+                <>
+                  <div className="text-lg font-bold text-slate-900">
+                    {t(RIASEC[top[0]].name)} · {t(RIASEC[top[1]].name)}
+                  </div>
+                  <ul className="mt-1 divide-y divide-slate-100">
+                    {recs.map(({ job, score }) => (
+                      <li key={job.id}>
+                        <Link href={`/jobs/${job.id}`} className="group flex items-center gap-3 py-2">
+                          <span className={`grid h-10 w-10 shrink-0 place-items-center rounded-xl text-xl ${FIELD_TONE[job.field]}`} aria-hidden>{job.emoji}</span>
+                          <span className="min-w-0 flex-1 truncate font-medium text-slate-800 group-hover:text-brand-700">{t(job.name)}</span>
+                          <span className="text-sm font-bold text-brand-700">{score}%</span>
+                        </Link>
+                      </li>
+                    ))}
+                  </ul>
+                </>
+              ) : (
+                <>
+                <div className="flex flex-wrap items-center justify-between gap-3">
+                  <p className="text-sm text-slate-600">{t("30문항, 약 5분이면 흥미 유형과 맞춤 직업을 볼 수 있어요.")}</p>
+                  <Link href="/discover" className="btn-primary rounded-xl">{t("흥미 탐색 시작")}</Link>
                 </div>
-                <ul className="mt-1 divide-y divide-slate-100">
-                  {recs.map(({ job, score }) => (
-                    <li key={job.id}>
-                      <Link href={`/jobs/${job.id}`} className="group flex items-center gap-3 py-2">
-                        <span className={`grid h-10 w-10 shrink-0 place-items-center rounded-xl text-xl ${FIELD_TONE[job.field]}`} aria-hidden>{job.emoji}</span>
-                        <span className="min-w-0 flex-1 truncate font-medium text-slate-800 group-hover:text-brand-700">{t(job.name)}</span>
-                        <span className="text-sm font-bold text-brand-700">{score}%</span>
-                      </Link>
-                    </li>
+                <div className="mt-3">
+                  <RiasecPreview cols={6} />
+                </div>
+                </>
+              )}
+            </Panel>
+        </div>
+        <div>
+            {stage === "hs" ? (
+              <Panel title={t("192학점 설계")} more={{ href: "/credits", label: t("설계하기") }}>
+                <div className="text-3xl font-bold text-slate-900">
+                  {credit.total + 18}
+                  <span className="text-base font-medium text-slate-500"> {t("/ 192학점")}</span>
+                </div>
+                <div className="mt-2 h-2 overflow-hidden rounded-full bg-slate-100">
+                  <div className="h-full rounded-full bg-brand-500" style={{ width: `${Math.min(100, ((credit.total + 18) / 192) * 100)}%` }} />
+                </div>
+                <ul className="mt-2 space-y-1 text-xs">
+                  {credit.checks.filter((c) => c.level === "warn").slice(0, 2).map((c) => (
+                    <li key={c.text} className="text-amber-700">{checkText(c.text, t)}</li>
                   ))}
                 </ul>
-              </>
+                <div className="mt-3 flex flex-wrap gap-1.5">
+                  {state.favMajors.length ? (
+                    state.favMajors.map((id) => MAJOR_MAP[id] && <Link key={id} href={`/majors/${id}`} className="chip">{t(MAJOR_MAP[id].name)}</Link>)
+                  ) : (
+                    <Link href="/majors" className="text-sm font-medium text-brand-700">{t("관심 학과 찾아보기 →")}</Link>
+                  )}
+                </div>
+              </Panel>
             ) : (
-              <div className="flex flex-wrap items-center justify-between gap-3">
-                <p className="text-sm text-slate-600">{t("30문항, 약 5분이면 흥미 유형과 맞춤 직업을 볼 수 있어요.")}</p>
-                <Link href="/discover" className="btn-primary rounded-xl">{t("흥미 탐색 시작")}</Link>
-              </div>
+              <Panel title={t("경남 고입 D-day")} more={{ href: "/highschool#gn", label: t("전체") }}>
+                <AdmissionList />
+                <div className="mt-3 flex flex-wrap gap-1.5">
+                  {favSchools.length ? (
+                    favSchools.map((s) => <span key={s!.id} className="chip" data-keep-ko>{s!.name.replace("고등학교", "고")}</span>)
+                  ) : (
+                    <Link href="/schools" className="text-sm font-medium text-brand-700">{t("경남 고교 찾아보기 →")}</Link>
+                  )}
+                </div>
+              </Panel>
             )}
-          </Panel>
-
-          <Panel title={`${t("이번 학기")} · ${t(term.label)}`} more={{ href: "/plan", label: t("관리") }}>
-            <div className="flex items-baseline gap-1">
-              <span className="text-2xl font-bold text-slate-900">{termTasks.filter((x) => x.done).length}</span>
-              <span className="text-sm text-slate-500">{t("/ {n} 완료", { n: termTasks.length })}</span>
-            </div>
-            <ul className="mt-1 divide-y divide-slate-100 text-[0.95rem] text-slate-700">
-              {termTasks.filter((x) => !x.done).slice(0, 3).map((task) => (
-                <li key={task.id} className="flex items-center gap-2.5 py-2">
-                  <span className="h-4 w-4 shrink-0 rounded-md border-2 border-slate-300" aria-hidden />
-                  <span className="truncate">{t(task.text)}</span>
-                </li>
-              ))}
-            </ul>
-            {term.note && <p className="mt-2 rounded-xl bg-sun-100/70 px-3 py-2 text-xs leading-relaxed text-amber-900">{t(term.note)}</p>}
-          </Panel>
-
-          <GnJobs limit={4} />
-          <FieldCards />
         </div>
-
-        <aside className="space-y-4">
-          {stage === "hs" ? (
-            <Panel title={t("192학점 설계")} more={{ href: "/credits", label: t("설계하기") }}>
-              <div className="text-3xl font-bold text-slate-900">
-                {credit.total + 18}
-                <span className="text-base font-medium text-slate-500"> {t("/ 192학점")}</span>
+        <div className="lg:col-span-2">
+            <Panel title={`${t("이번 학기")} · ${t(term.label)}`} more={{ href: "/plan", label: t("관리") }}>
+              <div className="flex items-baseline gap-1">
+                <span className="text-2xl font-bold text-slate-900">{termTasks.filter((x) => x.done).length}</span>
+                <span className="text-sm text-slate-500">{t("/ {n} 완료", { n: termTasks.length })}</span>
               </div>
-              <div className="mt-2 h-2 overflow-hidden rounded-full bg-slate-100">
-                <div className="h-full rounded-full bg-brand-500" style={{ width: `${Math.min(100, ((credit.total + 18) / 192) * 100)}%` }} />
-              </div>
-              <ul className="mt-2 space-y-1 text-xs">
-                {credit.checks.filter((c) => c.level === "warn").slice(0, 2).map((c) => (
-                  <li key={c.text} className="text-amber-700">{checkText(c.text, t)}</li>
+              <ul className="mt-1 divide-y divide-slate-100 text-[0.95rem] text-slate-700">
+                {termTasks.filter((x) => !x.done).slice(0, 3).map((task) => (
+                  <li key={task.id} className="flex items-center gap-2.5 py-2">
+                    <span className="h-4 w-4 shrink-0 rounded-md border-2 border-slate-300" aria-hidden />
+                    <span className="truncate">{t(task.text)}</span>
+                  </li>
                 ))}
               </ul>
-              <div className="mt-3 flex flex-wrap gap-1.5">
-                {state.favMajors.length ? (
-                  state.favMajors.map((id) => MAJOR_MAP[id] && <Link key={id} href={`/majors/${id}`} className="chip">{t(MAJOR_MAP[id].name)}</Link>)
-                ) : (
-                  <Link href="/majors" className="text-sm font-medium text-brand-700">{t("관심 학과 찾아보기 →")}</Link>
-                )}
-              </div>
+              {term.note && <p className="mt-2 rounded-xl bg-sun-100/70 px-3 py-2 text-xs leading-relaxed text-amber-900">{t(term.note)}</p>}
             </Panel>
-          ) : (
-            <Panel title={t("경남 고입 D-day")} more={{ href: "/highschool#gn", label: t("전체") }}>
-              <AdmissionList />
-              <div className="mt-3 flex flex-wrap gap-1.5">
-                {favSchools.length ? (
-                  favSchools.map((s) => <span key={s!.id} className="chip" data-keep-ko>{s!.name.replace("고등학교", "고")}</span>)
-                ) : (
-                  <Link href="/schools" className="text-sm font-medium text-brand-700">{t("경남 고교 찾아보기 →")}</Link>
-                )}
-              </div>
-            </Panel>
-          )}
-          <MySchoolMeal school={state.profile.school} />
-          <MySchoolSchedule school={state.profile.school} grade={state.profile.grade} />
-          <KeyNumbers />
-        </aside>
+        </div>
+        <KeyNumbers />
+        <div className="lg:col-span-2">
+          <GnJobs limit={4} />
+        </div>
+        <PopularMajors narrow />
+        <div className="lg:col-span-3">
+          <FieldCards />
+        </div>
       </div>
 
-      <PopularMajors />
+      {/* 우리 학교 급식·학사일정(학교를 정했을 때만 나옴) */}
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-2 [&>*]:min-w-0 empty:hidden">
+        <MySchoolMeal school={state.profile.school} />
+        <MySchoolSchedule school={state.profile.school} grade={state.profile.grade} />
+      </div>
+
       <AllMenus />
       <EnglishHome />
       <CreditCard />

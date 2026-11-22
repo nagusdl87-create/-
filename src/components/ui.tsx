@@ -6,33 +6,23 @@ import { EXPLORE, TOOLS, type NavItem } from "@/lib/journey";
 import { useT } from "@/lib/i18n";
 
 export type Tone = "brand" | "amber" | "violet" | "sky" | "rose" | "coral" | "emerald" | "indigo";
-const TONES: Record<Tone, { bg: string; blob1: string; blob2: string; eyebrow: string }> = {
-  brand: { bg: "from-brand-50 via-white to-sun-100/60", blob1: "#79cdb9", blob2: "#ffbe55", eyebrow: "text-brand-700" },
-  amber: { bg: "from-amber-50 via-white to-coral-50", blob1: "#fcd34d", blob2: "#ff8a65", eyebrow: "text-amber-700" },
-  violet: { bg: "from-violet-50 via-white to-sky-50", blob1: "#c4b5fd", blob2: "#7dd3fc", eyebrow: "text-violet-700" },
-  sky: { bg: "from-sky-50 via-white to-brand-50", blob1: "#7dd3fc", blob2: "#79cdb9", eyebrow: "text-sky-700" },
-  rose: { bg: "from-rose-50 via-white to-amber-50", blob1: "#fda4af", blob2: "#fcd34d", eyebrow: "text-rose-700" },
-  coral: { bg: "from-coral-50 via-white to-sun-100/60", blob1: "#ff8a65", blob2: "#ffbe55", eyebrow: "text-coral-700" },
-  emerald: { bg: "from-emerald-50 via-white to-sky-50", blob1: "#6ee7b7", blob2: "#7dd3fc", eyebrow: "text-emerald-700" },
-  indigo: { bg: "from-indigo-50 via-white to-violet-50", blob1: "#a5b4fc", blob2: "#f0abfc", eyebrow: "text-indigo-700" },
+// 페이지 제목 영역(당근처럼 담백하게): 배경 상자·그라데이션·물방울 장식 없이 작은 분류 + 큰 제목 + 설명
+const TONES: Record<Tone, string> = {
+  brand: "bg-brand-100 text-brand-800", amber: "bg-amber-100 text-amber-800", violet: "bg-violet-100 text-violet-800", sky: "bg-sky-100 text-sky-800",
+  rose: "bg-rose-100 text-rose-800", coral: "bg-coral-100 text-coral-800", emerald: "bg-emerald-100 text-emerald-800", indigo: "bg-indigo-100 text-indigo-800",
 };
 
 export function PageHead({ step, title, desc, tone = "brand", eyebrow }: { step?: number; title: string; desc?: string; tone?: Tone; eyebrow?: string }) {
-  const c = TONES[tone];
   const t = useT();
   return (
-    <div className={`relative mb-8 overflow-hidden rounded-3xl border border-white bg-gradient-to-br ${c.bg} px-6 py-8 shadow-[0_1px_0_rgba(15,23,42,0.04)] sm:px-10 sm:py-10`}>
-      <svg className="pointer-events-none absolute -right-10 -top-16 h-64 w-64 opacity-50 sm:right-6" viewBox="0 0 200 200" aria-hidden>
-        <path fill={c.blob1} d="M47.5,-58.6C60.7,-47.1,69.6,-30.9,72.3,-13.8C75,3.3,71.4,21.2,61.9,35.3C52.4,49.4,37,59.6,20.1,65.4C3.2,71.2,-15.2,72.6,-31.6,66.3C-48,60,-62.3,46,-69.7,29.1C-77.1,12.2,-77.6,-7.6,-70.5,-23.9C-63.4,-40.2,-48.7,-53.1,-33.1,-63.9C-17.5,-74.7,-1,-83.4,14.5,-81.1C30,-78.8,34.3,-70.1,47.5,-58.6Z" transform="translate(100 100)" />
-      </svg>
-      <svg className="pointer-events-none absolute -bottom-20 right-24 h-48 w-48 opacity-40" viewBox="0 0 200 200" aria-hidden>
-        <path fill={c.blob2} d="M39.9,-51.6C52.4,-43.8,63.5,-32.4,68.3,-18.4C73.1,-4.4,71.6,12.2,64.6,25.6C57.6,39,45.1,49.2,31.1,56.4C17.1,63.6,1.6,67.8,-14.5,66.4C-30.6,65,-47.3,58,-57.6,45.5C-67.9,33,-71.8,15,-70.2,-2.2C-68.6,-19.4,-61.5,-35.8,-49.6,-43.9C-37.7,-52,-21,-51.8,-5.8,-44.9C9.4,-38,27.4,-59.4,39.9,-51.6Z" transform="translate(100 100)" />
-      </svg>
-      <div className="relative">
-        {(step || eyebrow) && <div className={`mb-2 text-xs font-bold uppercase tracking-[0.12em] ${c.eyebrow}`}>{step ? `Step ${step} / 5` : t(eyebrow ?? "")}</div>}
-        <h1 className="h-page">{t(title)}</h1>
-        {desc && <p className="mt-3 max-w-2xl text-[0.98rem] leading-relaxed text-slate-600 sm:text-[1.05rem]">{t(desc)}</p>}
-      </div>
+    <div className="mb-6 pt-1">
+      {(step || eyebrow) && (
+        <span className={`mb-2 inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-bold ${TONES[tone]}`}>
+          {step ? t("5단계 중 {n}단계", { n: step }) : t(eyebrow ?? "")}
+        </span>
+      )}
+      <h1 className="h-page">{t(title)}</h1>
+      {desc && <p className="mt-2 max-w-3xl text-[0.98rem] leading-relaxed text-slate-600">{t(desc)}</p>}
     </div>
   );
 }

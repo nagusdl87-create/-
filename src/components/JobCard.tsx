@@ -39,8 +39,7 @@ export function JobCard({ job, score }: { job: Job; score?: number }) {
   const en = useJobsEn();
   const e = en?.JOBS_EN[job.id];
   return (
-    <Link href={`/jobs/${job.id}`} className="card group relative flex flex-col gap-3 overflow-hidden transition hover:-translate-y-0.5 hover:border-slate-300 hover:shadow-lg hover:shadow-slate-900/5">
-      <span className={`absolute inset-x-0 top-0 h-1 ${FIELD_HUE[job.field].bar}`} aria-hidden />
+    <Link href={`/jobs/${job.id}`} className="card group relative flex flex-col gap-3 overflow-hidden transition hover:border-brand-300 hover:bg-slate-50/50">
       <div className="flex items-start justify-between gap-2">
         <div className="flex items-center gap-3">
           <span className={`grid h-12 w-12 shrink-0 place-items-center rounded-2xl text-2xl ${FIELD_HUE[job.field].tile}`}>{job.emoji}</span>

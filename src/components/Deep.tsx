@@ -2,7 +2,7 @@
 
 // 직업·학과 상세 섹션 (콘텐츠 기준: docs/content-standard.md). 제목은 t(), 내용은 부모가 언어에 맞는 자료(d)를 넘긴다.
 import Link from "next/link";
-import { ArrowRight, BookOpenCheck, Briefcase, Clock, Compass, GraduationCap, HelpCircle, Layers, Lightbulb, MapPin, Search, Sparkles, TrendingUp, Wrench } from "lucide-react";
+import { ArrowRight, BookOpenCheck, Briefcase, Clock, Compass, GraduationCap, HelpCircle, Layers, Lightbulb, MapPin, Search, Star, TrendingUp, Wrench } from "lucide-react";
 import type { JobDeep, MajorDeep } from "@/data/deep/types";
 import { useT } from "@/lib/i18n";
 import { KeepKo } from "@/components/KeepKo";
@@ -179,7 +179,7 @@ export function MajorDeepMain({ d }: { d?: MajorDeep }) {
 
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2 [&>*]:min-w-0">
         <div className="card">
-          <H icon={Sparkles}>{t("이 학과에서 길러지는 능력")}</H>
+          <H icon={Star}>{t("이 학과에서 길러지는 능력")}</H>
           <div className="mt-2 flex flex-wrap gap-1.5">
             {d.skills.map((s) => <span key={s} className="chip"><KeepKo text={s} /></span>)}
           </div>

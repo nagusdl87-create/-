@@ -1,6 +1,6 @@
 "use client";
 
-import { Award, ExternalLink, Heart, Lightbulb, Sparkles } from "lucide-react";
+import { Award, ExternalLink, Heart, Lightbulb, Star } from "lucide-react";
 import { MAJOR_DETAILS } from "@/data/majorDetails";
 import { SUBJECT_DOCS, SUBJECT_DOCS_NOTE } from "@/data/univSubjects";
 import type { MajorDeep } from "@/data/deep/types";
@@ -119,7 +119,7 @@ export function MajorDetail({ id, deep: deepKo, deepEn }: { id: string; deep?: M
       {more && (
         <div className="grid gap-4 md:grid-cols-2">
           <div className="card">
-            <h2 className="flex items-center gap-1.5 font-bold"><Sparkles className="h-4 w-4 text-brand-600" aria-hidden /> {t("이런 학생에게 잘 맞아요")}</h2>
+            <h2 className="flex items-center gap-1.5 font-bold"><Star className="h-4 w-4 text-brand-600" aria-hidden /> {t("이런 학생에게 잘 맞아요")}</h2>
             <div className="mt-2 flex flex-wrap gap-1.5">
               {(moreEn ?? more).aptitude.map((x) => (
                 <span key={x} className="chip">{x}</span>

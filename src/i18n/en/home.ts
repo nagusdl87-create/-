@@ -207,6 +207,7 @@ export const HOME: Record<string, string> = {
   "경남 고입 일정": "Gyeongnam high school admission schedule",
   // 홈 개편 2(당근형, 2026-11-22)
   "바로가기 메뉴": "Shortcuts",
+  "여섯 가지 흥미 유형": "Six interest types",
   "흥미 탐색": "Interests",
   "고입 일정": "Admissions",
   "더보기": "More",

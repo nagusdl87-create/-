@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { ChevronLeft, ChevronRight, Download, FileText, Link2, Plus, Printer, RotateCcw, Save, Sparkles, Star, Trash2, Upload, X } from "lucide-react";
+import { ChevronLeft, ChevronRight, Download, FileText, Link2, Plus, Printer, RotateCcw, Save, Wand2, Star, Trash2, Upload, X } from "lucide-react";
 import { useStore } from "@/lib/store";
 import { EXAMPLES, FORMS, type Field, type FormDef, type Step } from "@/data/portfolio";
 import { CreditPlanner } from "./CreditPlanner";
@@ -478,7 +478,7 @@ export function PortfolioForm({ formId }: { formId: string }) {
           replaceAll({ ...(EXAMPLES[formId] ?? {}), ...(lang === "en" ? exEn?.EXAMPLES_EN[formId] ?? {} : {}) });
         }}
       >
-        <Sparkles className="h-4 w-4" /> {tr("예시 불러오기")}
+        <Wand2 className="h-4 w-4" /> {tr("예시 불러오기")}
       </button>
       <button className="btn-ghost py-2" onClick={() => confirm(tr("이 포트폴리오의 내용을 모두 지울까요?")) && replaceAll({})}>
         <RotateCcw className="h-4 w-4" /> {tr("초기화")}

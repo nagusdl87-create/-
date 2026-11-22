@@ -19,7 +19,7 @@ import { Faq, JobDeepMain, JobDeepWork, JobFuture } from "@/components/Deep";
 import { KeepKo } from "@/components/KeepKo";
 import { useEnData, useLang, useT } from "@/lib/i18n";
 import { useNames } from "@/i18n/names";
-import { Award, Building2, Sparkles, TrendingUp } from "lucide-react";
+import { Award, Building2, Star, TrendingUp } from "lucide-react";
 
 export function JobDetail({ id, deep: deepKo, deepEn }: { id: string; deep?: JobDeep; deepEn?: JobDeep }) {
   const ko = JOB_MAP[id];
@@ -122,7 +122,7 @@ export function JobDetail({ id, deep: deepKo, deepEn }: { id: string; deep?: Job
       {more && (
         <div className="grid gap-4 md:grid-cols-2">
           <div className="card">
-            <h2 className="flex items-center gap-1.5 font-bold"><Sparkles className="h-4 w-4 text-brand-600" aria-hidden /> {t("이런 사람에게 잘 맞아요")}</h2>
+            <h2 className="flex items-center gap-1.5 font-bold"><Star className="h-4 w-4 text-brand-600" aria-hidden /> {t("이런 사람에게 잘 맞아요")}</h2>
             <div className="mt-2 flex flex-wrap gap-1.5">
               {more.aptitude.map((a) => (
                 <span key={a} className="chip">{a}</span>

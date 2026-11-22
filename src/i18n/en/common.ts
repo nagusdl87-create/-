@@ -223,4 +223,5 @@ export const COMMON: Record<string, string> = {
   "전체 {n}": "All {n}",
   "전체보기 ({n}) →": "See all ({n}) →",
   "검색 결과가 없어요.": "No results.",
+  "5단계 중 {n}단계": "Step {n} of 5",
 };
