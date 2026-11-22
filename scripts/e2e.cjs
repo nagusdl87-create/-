@@ -199,6 +199,22 @@ async function answerDiscover(p) {
     await tc.close();
   }
 
+
+  // ── 모든 페이지 영어 안내(EN 버튼)
+  {
+    const ck = (name, ok) => { console.log(name + ':', ok ? 'ok' : 'FAIL'); if (!ok) errs.push('check failed: ' + name); };
+    const ec = await b.newContext({ viewport: { width: 390, height: 844 } }); const e = await ec.newPage(); watch(e, 'english');
+    for (const [r, t] of [['/', 'Home'], ['/credits', '192-Credit Course Planner'], ['/jobs/nurse', 'Job Details'], ['/majors/naval', 'Major Details']]) {
+      await e.goto(B + r);
+      await e.getByRole('button', { name: 'English guide (영어 안내)' }).click();
+      ck('EN dialog ' + r, await e.getByRole('dialog', { name: t, exact: true }).isVisible());
+      await e.keyboard.press('Escape');
+      ck('EN closes ' + r, !(await e.getByRole('dialog', { name: t, exact: true }).isVisible().catch(() => false)));
+    }
+    ck('EN no overflow', await e.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth));
+    await ec.close();
+  }
+
   // ── 모든 페이지 모바일 점검
   const mc = await b.newContext({ viewport: { width: 390, height: 844 }, deviceScaleFactor: 2 });
   const mp = await mc.newPage(); watch(mp, 'mobile');

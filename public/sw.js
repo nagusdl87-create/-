@@ -1,9 +1,10 @@
 // 마이로드 경남 서비스 워커: 한 번 연 페이지·데이터를 인터넷 없이도 열 수 있게 저장한다.
-// - 페이지(HTML·화면 데이터): 네트워크 먼저 → 실패하면 저장본 → 없으면 /offline
-// - /_next/static (파일명에 해시가 있어 바뀌지 않음): 저장본 먼저
+// - 페이지(HTML): 온라인이면 브라우저가 직접 받고(저장 안 된 페이지만 뒤에서 저장), 오프라인일 때 저장본 → 없으면 /offline
+// - 화면 데이터(RSC): 네트워크 먼저 → 실패하면 저장본
+// - /_next/static (파일명에 해시): 온라인이면 브라우저 캐시, 오프라인이면 저장본
 // - /data/*.json (대학·학과 자료): 저장본을 바로 보여 주고 뒤에서 새로 받기 / /data/neis/(급식·개설 과목): 네트워크 먼저
 // - 다른 사이트(로그인·Firestore·지도 타일·유튜브 등)는 건드리지 않는다(글꼴 CSS·파일만 저장).
-const V = "v2";
+const V = "v4";
 const PAGES = `myroad-pages-${V}`;
 const STATIC = `myroad-static-${V}`;
 const DATA = `myroad-data-${V}`;
@@ -78,6 +79,27 @@ async function networkFirst(req, isNav) {
   }
 }
 
+async function saveIfMissing(req) {
+  const c = await caches.open(PAGES);
+  const key = keyOf(req);
+  if (await c.match(key)) return;
+  try {
+    const res = await fetch(req.url, { credentials: "same-origin" });
+    if (res.ok && (res.headers.get("Content-Type") || "").includes("text/html")) await c.put(key, res);
+    await trim(PAGES);
+  } catch { /* 오프라인이면 다음 기회에 */ }
+}
+
+async function saveStaticIfMissing(req) {
+  const c = await caches.open(STATIC);
+  if (await c.match(req)) return;
+  try {
+    const res = await fetch(req);
+    if (res.ok) await c.put(req, res);
+    await trim(STATIC);
+  } catch { /* 다음 기회에 */ }
+}
+
 async function cacheFirst(req, name) {
   const c = await caches.open(name);
   const hit = await c.match(req);
@@ -119,11 +141,24 @@ self.addEventListener("fetch", (e) => {
     return;
   }
   if (u.pathname === "/sw.js") return;
-  if (u.pathname.startsWith("/_next/static/")) return e.respondWith(cacheFirst(req, STATIC));
+  if (u.pathname.startsWith("/_next/static/")) {
+    // 온라인이면 브라우저 캐시(1년 보관)에 맡기고 저장본만 만들어 둔다(가로채면 가끔 화면 불일치 오류).
+    if (self.navigator.onLine !== false) { e.waitUntil(saveStaticIfMissing(req)); return; }
+    return e.respondWith(cacheFirst(req, STATIC));
+  }
   if (u.pathname.startsWith("/data/neis/")) return e.respondWith(dataNetworkFirst(req)); // 급식은 매일 바뀜
   if (u.pathname.startsWith("/data/")) return e.respondWith(staleWhileRevalidate(req));
   if (/\.(png|jpg|jpeg|svg|webp|ico|webmanifest)$/.test(u.pathname)) return e.respondWith(cacheFirst(req, STATIC));
-  if (req.mode === "navigate" || req.headers.get("RSC") === "1" || u.searchParams.has("_rsc") || u.pathname.endsWith(".txt")) {
-    return e.respondWith(networkFirst(req, req.mode === "navigate"));
+  if (req.mode === "navigate") {
+    // 온라인이면 페이지는 브라우저가 직접 받게 둔다(서비스 워커가 응답을 가로채면 가끔 화면 불일치 오류가 났음).
+    // 대신 아직 저장하지 않은 페이지만 뒤에서 한 번 받아 저장해 두고, 오프라인일 때만 저장본을 보여 준다.
+    if (self.navigator.onLine !== false) {
+      e.waitUntil(saveIfMissing(req));
+      return;
+    }
+    return e.respondWith(networkFirst(req, true));
+  }
+  if (req.headers.get("RSC") === "1" || u.searchParams.has("_rsc") || u.pathname.endsWith(".txt")) {
+    return e.respondWith(networkFirst(req, false));
   }
 });
