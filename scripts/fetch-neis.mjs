@@ -1,5 +1,5 @@
 // 나이스 교육정보 개방 포털 연동 (GitHub Actions에서 NEIS_API_KEY로 실행, 매일 새벽 빌드)
-// 출력: public/data/neis/subjects.json (고교별 이번 학기 시간표에 나온 과목, 저장소에 커밋해 방학 중에도 유지)
+// 출력: public/data/neis/subjects.json (고교별 이번 학기 시간표에 나온 과목, 방학 중에는 배포된 자료를 이어받음)
 //       public/data/neis/codes.json   (경남 중·고 학교명 → 학교코드)
 //       public/data/neis/meal/{학교코드}.json (오늘부터 7일 중식, 커밋하지 않음)
 import { mkdirSync, readFileSync, writeFileSync, existsSync } from "node:fs";
@@ -73,8 +73,18 @@ const m = now.getUTCMonth() + 1;
 const AY = String(m >= 3 ? now.getUTCFullYear() : now.getUTCFullYear() - 1);
 const SEM = m >= 3 && m <= 8 ? "1" : "2";
 const NOISE = /^(자율|동아리|봉사|진로활동|창의적|창체|자율·자치|자치|토요|방과후|보충|자습|점심|조회|종례|-|\s*)$/;
+// 학사 일정·행사로 들어간 칸 제외
+const EVENT = /휴업|휴일|휴무|시험|고사|대청소|체험학습|현장학습|행사|축제|졸업|입학|방학|기념일|수련|수학여행|체육대회|평가|학예|발표회|자습|대비|특강|연수|안전교육|교육활동|^수능|원격|등교|선거|검사|결석|예비소집/;
+// "[보강]기하A" → "기하" (보강 표시, 분반 기호 제거)
+const subjName = (t) => t.replace(/^\*+/, "").replace(/\[[^\]]*\]|\([^)]*반\)/g, "").trim().replace(/(?<=[가-힣ⅠⅡⅢ\d)])\s*[A-Z]\d?$/, "").trim();
 const subjPath = new URL("subjects.json", ROOT);
-const prev = existsSync(subjPath) ? JSON.parse(readFileSync(subjPath, "utf8")) : { schools: {} };
+// 방학 중에는 시간표가 비므로 지금 배포된 자료를 이어받는다 (저장소 커밋 불필요)
+let prev = { schools: {} };
+try {
+  const r = await fetch("https://my-job-c1e50.web.app/data/neis/subjects.json");
+  if (r.ok) prev = await r.json();
+} catch {}
+if (!Object.keys(prev.schools ?? {}).length && existsSync(subjPath)) prev = JSON.parse(readFileSync(subjPath, "utf8"));
 const subjects = { ...prev.schools };
 let fresh = 0;
 await pool(hs, 6, async (s) => {
@@ -82,8 +92,8 @@ await pool(hs, 6, async (s) => {
   if (!rows.length) return;
   const by = {};
   for (const r of rows) {
-    const name = (r.ITRT_CNTNT || "").replace(/^\*+|\s+$/g, "").trim();
-    if (!name || NOISE.test(name) || /활동$/.test(name)) continue;
+    const name = subjName(r.ITRT_CNTNT || "");
+    if (!name || NOISE.test(name) || EVENT.test(name) || /활동$/.test(name)) continue;
     (by[r.GRADE] ??= new Set()).add(name);
   }
   if (!Object.keys(by).length) return;

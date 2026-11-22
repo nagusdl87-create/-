@@ -12,10 +12,6 @@ jobs:
     runs-on: ubuntu-latest
     # Firebase 설정(시크릿·변수)이 등록되기 전에는 건너뜁니다.
     if: ${{ vars.FIREBASE_PROJECT_ID != '' }}
-    permissions:
-      contents: write
-      checks: write
-      pull-requests: write
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -31,12 +27,6 @@ jobs:
         run: node scripts/fetch-neis.mjs || echo "나이스 갱신 실패 → 저장된 자료 사용"
         env:
           NEIS_API_KEY: ${{ secrets.NEIS_API_KEY }}
-      - name: 개설 과목 자료를 저장소에 보관 (방학 중에도 유지)
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add public/data/neis/subjects.json public/data/neis/codes.json
-          git diff --cached --quiet || (git commit -m "나이스 개설 과목 자료 갱신" && git pull --rebase -q && git push -q) || echo "보관 건너뜀"
       - run: npm run validate
       - run: npm run build
       - uses: FirebaseExtended/action-hosting-deploy@v0
