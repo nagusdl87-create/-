@@ -3,7 +3,8 @@
 import { useEffect, useRef } from "react";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
-import { KIND_INFO, type GnSchool } from "@/data/gn";
+import { gnText, KIND_INFO, type GnSchool } from "@/data/gn";
+import { useEnData, useT } from "@/lib/i18n";
 
 type Props = {
   schools: GnSchool[];
@@ -17,6 +18,10 @@ export default function SchoolMap({ schools, selected, origin, onSelect }: Props
   const map = useRef<L.Map | null>(null);
   const layer = useRef<L.LayerGroup | null>(null);
   const markers = useRef<Map<string, L.CircleMarker>>(new Map());
+  const t = useT();
+  const g = gnText(useEnData(() => import("@/i18n/data/gn.en"), "gn"));
+  const gRef = useRef({ t, g });
+  gRef.current = { t, g };
 
   useEffect(() => {
     if (!el.current || map.current) return;
@@ -52,7 +57,7 @@ export default function SchoolMap({ schools, selected, origin, onSelect }: Props
         fillColor: KIND_INFO[s.kind].color,
         fillOpacity: 0.9,
       })
-        .bindTooltip(`${s.name} · ${KIND_INFO[s.kind].name}`)
+        .bindTooltip(`<span data-keep-ko>${s.name}</span> · ${gRef.current.g.kind(s.kind)}`)
         .on("click", () => onSelect(s.id));
       c.addTo(g);
       markers.current.set(s.id, c);
@@ -60,12 +65,12 @@ export default function SchoolMap({ schools, selected, origin, onSelect }: Props
     }
     if (origin) {
       L.circleMarker([origin.lat, origin.lng], { radius: 9, color: "#111827", weight: 3, fillColor: "#facc15", fillOpacity: 1 })
-        .bindTooltip(`출발: ${origin.label}`, { permanent: false })
+        .bindTooltip(gRef.current.t("출발: {label}", { label: `<span data-keep-ko>${origin.label.replace(/[<>&]/g, "")}</span>` }), { permanent: false })
         .addTo(g);
       pts.push([origin.lat, origin.lng]);
     }
     if (pts.length) m.fitBounds(L.latLngBounds(pts), { padding: [30, 30], maxZoom: 13 });
-  }, [schools, origin, onSelect]);
+  }, [schools, origin, onSelect, g.en]);
 
   useEffect(() => {
     if (!selected) return;
@@ -80,5 +85,5 @@ export default function SchoolMap({ schools, selected, origin, onSelect }: Props
     }
   }, [selected]);
 
-  return <div ref={el} className="h-full min-h-[320px] w-full rounded-2xl" role="application" aria-label="경남 고등학교 지도" />;
+  return <div ref={el} className="h-full min-h-[320px] w-full rounded-2xl" role="application" aria-label={t("경남 고등학교 지도")} />;
 }
