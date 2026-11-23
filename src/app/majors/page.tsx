@@ -93,7 +93,7 @@ export default function MajorsPage() {
               <div className="flex items-start justify-between gap-2">
                 <div>
                   <span className={`inline-block rounded-md px-1.5 py-0.5 text-[11px] font-semibold ${TRACK_HUE[m.track].tile} ${TRACK_HUE[m.track].text}`}>{en?.TRACK_EN[m.track].name ?? TRACKS[m.track].name}</span>
-                  <div className="font-bold group-hover:text-brand-700">{e?.name ?? m.name}</div>
+                  <div className="font-bold group-hover:text-brand-700" data-keep-ko={e ? undefined : ""}>{e?.name ?? m.name}</div>
                 </div>
                 <button
                   aria-label={on ? t("찜 해제") : t("찜하기")}
@@ -107,7 +107,7 @@ export default function MajorsPage() {
                   <Heart className={`h-[18px] w-[18px] ${on ? "fill-rose-500 text-rose-500" : "text-slate-400"}`} aria-hidden />
                 </button>
               </div>
-              <p className="line-clamp-2 text-sm text-slate-600">{e?.desc ?? m.desc}</p>
+              <p className="line-clamp-2 text-sm text-slate-600" data-keep-ko={e ? undefined : ""}>{e?.desc ?? m.desc}</p>
               <div className="mt-auto flex flex-wrap gap-1">
                 {m.core.slice(0, 4).map((s) => (
                   <span key={s} className="rounded-md bg-amber-50 px-1.5 py-0.5 text-[11px] font-semibold text-amber-800">★ {subjectLabel(s)}</span>
