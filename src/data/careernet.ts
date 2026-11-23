@@ -38,9 +38,10 @@ export const ourMajorIdOf = (seq: number): string | undefined => majorOurId[seq]
 type WithDate<T> = T & { fetchedAt: string };
 const withDate = <T,>(x: T | undefined, at: string): WithDate<T> | undefined => (x ? { ...x, fetchedAt: at } : undefined);
 
-/** 우리 직업 백과 직업의 커리어넷 정보 */
-export const cnJob = (id: string) => withDate<CnJob>(J.map[id] != null ? J.detail[J.map[id]] : undefined, J.fetchedAt);
-export const cnMajor = (id: string) => withDate<CnMajor>(M.map[id] != null ? M.detail[M.map[id]] : undefined, M.fetchedAt);
+/** 직업 백과 직업의 커리어넷 정보(처음부터 쓴 직업은 이어진 번호, `cn-번호` 직업은 그 번호) */
+const seqOf = (id: string, map: Record<string, number>) => (id.startsWith("cn-") ? +id.slice(3) : map[id]);
+export const cnJob = (id: string) => withDate<CnJob>(seqOf(id, J.map) != null ? J.detail[seqOf(id, J.map)] : undefined, J.fetchedAt);
+export const cnMajor = (id: string) => withDate<CnMajor>(seqOf(id, M.map) != null ? M.detail[seqOf(id, M.map)] : undefined, M.fetchedAt);
 /** 커리어넷 번호로 */
 export const cnJobBySeq = (seq: number) => withDate<CnJob>(J.detail[seq], J.fetchedAt);
 export const cnMajorBySeq = (seq: number) => withDate<CnMajor>(M.detail[seq], M.fetchedAt);

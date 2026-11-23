@@ -28,6 +28,11 @@ const TRACK_TO_FIELD = { hum: "인문계열", soc: "사회계열", biz: "사회�
 
 const jobOur = Object.fromEntries(Object.entries(jd.map).map(([id, seq]) => [seq, id]));
 const majorOur = Object.fromEntries(Object.entries(md.map).map(([id, seq]) => [seq, id]));
+// 커리어넷 자료로 심화 글을 쓴 직업·학과(src/data/gen) — 직업 백과의 정식 항목(id: cn-번호)
+const readGen = (f) => { try { return JSON.parse(readFileSync(`src/data/gen/${f}`, "utf8")); } catch { return []; } };
+const GEN_JOBS = readGen("jobs.json"), GEN_MAJORS = readGen("majors.json");
+for (const g of GEN_JOBS) jobOur[+g.id.slice(3)] ??= g.id;
+for (const g of GEN_MAJORS) majorOur[+g.id.slice(3)] ??= g.id;
 const short = (s, n = 70) => (s.length > n ? s.slice(0, n - 1) + "…" : s);
 
 // ── 직업
@@ -36,24 +41,24 @@ const jobDir = jobs.filter((j) => jd.detail[j.seq]).map((j) => ({ s: j.seq, n: j
 const jobGroups = {};
 const groupOf = (o) => (jd.map[o.id] ? jobs.find((j) => j.seq === jd.map[o.id])?.group : JOB_GROUP_FALLBACK[o.id]);
 for (const o of OUR_JOBS) { const g = groupOf(o); if (g) jobGroups[g] = (jobGroups[g] ?? 0) + 1; }
-for (const j of jobDir) if (!j.o) jobGroups[j.g] = (jobGroups[j.g] ?? 0) + 1;
-const jobTotal = OUR_JOBS.length + jobDir.filter((j) => !j.o).length;
+for (const j of jobDir) if (!j.o || j.o.startsWith("cn-")) jobGroups[j.g] = (jobGroups[j.g] ?? 0) + 1;
+const jobTotal = OUR_JOBS.length + jobDir.filter((j) => !j.o || j.o.startsWith("cn-")).length;
 
 // ── 학과
 const majorDir = majors.filter((m) => md.detail[m.seq]).map((m) => ({ s: m.seq, n: m.name, g: m.field, a: short(m.alias, 60), o: majorOur[m.seq] ?? null }));
 const majorGroups = {};
 const mGroupOf = (o) => (md.map[o.id] ? majors.find((m) => m.seq === md.map[o.id])?.field : TRACK_TO_FIELD[o.track]);
 for (const o of OUR_MAJORS) { const g = mGroupOf(o); if (g) majorGroups[g] = (majorGroups[g] ?? 0) + 1; }
-for (const m of majorDir) if (!m.o) majorGroups[m.g] = (majorGroups[m.g] ?? 0) + 1;
-const majorTotal = OUR_MAJORS.length + majorDir.filter((m) => !m.o).length;
+for (const m of majorDir) if (!m.o || m.o.startsWith("cn-")) majorGroups[m.g] = (majorGroups[m.g] ?? 0) + 1;
+const majorTotal = OUR_MAJORS.length + majorDir.filter((m) => !m.o || m.o.startsWith("cn-")).length;
 
 const order = (o) => Object.fromEntries(Object.entries(o).sort((a, b) => b[1] - a[1]));
 const summary = {
   fetchedAt: jd.fetchedAt,
-  jobs: { total: jobTotal, deep: OUR_JOBS.length, careernet: jobDir.length, linked: Object.keys(jd.map).length, groups: order(jobGroups) },
-  majors: { total: majorTotal, deep: OUR_MAJORS.length, careernet: majorDir.length, linked: Object.keys(md.map).length, groups: order(majorGroups) },
-  ourJobGroups: Object.fromEntries(OUR_JOBS.map((o) => [o.id, groupOf(o)])),
-  ourMajorGroups: Object.fromEntries(OUR_MAJORS.map((o) => [o.id, mGroupOf(o)])),
+  jobs: { total: jobTotal, deep: OUR_JOBS.length + GEN_JOBS.length, careernet: jobDir.length, linked: Object.keys(jd.map).length, groups: order(jobGroups) },
+  majors: { total: majorTotal, deep: OUR_MAJORS.length + GEN_MAJORS.length, careernet: majorDir.length, linked: Object.keys(md.map).length, groups: order(majorGroups) },
+  ourJobGroups: Object.fromEntries([...OUR_JOBS.map((o) => [o.id, groupOf(o)]), ...GEN_JOBS.map((g) => [g.id, jobs.find((j) => j.seq === +g.id.slice(3))?.group])]),
+  ourMajorGroups: Object.fromEntries([...OUR_MAJORS.map((o) => [o.id, mGroupOf(o)]), ...GEN_MAJORS.map((g) => [g.id, majors.find((m) => m.seq === +g.id.slice(3))?.field])]),
 };
 writeFileSync(`${D}/summary.json`, JSON.stringify(summary, null, 1) + "\n");
 writeFileSync(`${D}/directory.json`, JSON.stringify({ fetchedAt: jd.fetchedAt, jobs: jobDir, majors: majorDir }) + "\n");

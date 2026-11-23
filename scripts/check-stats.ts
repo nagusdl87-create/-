@@ -5,8 +5,8 @@ import { readFileSync } from "node:fs";
 import { STATS } from "../src/data/stats";
 import { GN_SCHOOLS } from "../src/data/gn";
 import { SUBJECTS, CREDIT_RULES } from "../src/data/subjects";
-import { JOBS } from "../src/data/jobs";
-import { MAJORS } from "../src/data/majors";
+import { CORE_JOBS as JOBS } from "../src/data/jobs";
+import { CORE_MAJORS as MAJORS } from "../src/data/majors";
 import { CAREERNET_TESTS, WORK24_TESTS } from "../src/data/tests";
 import { SUBJECT_DOCS } from "../src/data/univSubjects";
 
@@ -18,8 +18,8 @@ const univ = JSON.parse(readFileSync("public/data/univ-index.json", "utf8"));
 eq("경남 고교", STATS.schools, GN_SCHOOLS.length);
 eq("고교 과목", STATS.subjects, SUBJECTS.length);
 eq("전국 대학·캠퍼스", STATS.univ, univ.schools.length);
-eq("직업", STATS.jobs, JOBS.length);
-eq("학과", STATS.majors, MAJORS.length);
+eq("직업(처음부터 쓴 것)", STATS.jobs, JOBS.length);
+eq("학과(처음부터 쓴 것)", STATS.majors, MAJORS.length);
 eq("공식 진로검사", STATS.tests, CAREERNET_TESTS.length + WORK24_TESTS.length);
 
 // 졸업 학점(2022 개정 교육과정 총론): 192 = 교과 174 + 창의적 체험활동 18

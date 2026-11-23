@@ -1,7 +1,7 @@
 // 공식 채널 영상 자동 연결 (GitHub Actions에서 YOUTUBE_API_KEY로 실행)
 // 검색(search.list, 100 units) 대신 채널 업로드 목록(1 unit/50개)을 받아 제목으로 매칭 → 하루 할당량(10,000)의 1% 미만 사용.
 // 신뢰 채널만 사용: 한국고용정보원 직업진로동영상, 한국고용정보원(고용24), 교육부
-import { writeFileSync } from "node:fs";
+import { readFileSync, writeFileSync } from "node:fs";
 
 const KEY = process.env.YOUTUBE_API_KEY;
 if (!KEY) {
@@ -90,6 +90,19 @@ const MAJOR_KW = {
   "vet-major": ["수의예과", "수의학과"], education: ["교육학과"], "elem-edu": ["초등교육과"], youth: ["청소년학과"], "visual-design": ["시각디자인학과", "시각디자인과"],
   animation: ["만화애니메이션학과", "애니메이션학과"], "music-prod": ["실용음악과"], film: ["연극영화과"], "sports-sci": ["체육학과", "스포츠과학과"], culinary: ["조리과학과", "조리학과", "외식조리"],
 };
+
+// 커리어넷 자료로 심화 글을 쓴 직업·학과(src/data/gen, id: cn-번호): 이름 + 커리어넷의 비슷한 이름으로 찾는다
+const readJ = (p) => { try { return JSON.parse(readFileSync(new URL(p, import.meta.url), "utf8")); } catch { return null; } };
+const cnJobList = readJ("../src/data/careernet/jobs.json")?.jobs ?? [];
+const cnMajorList = readJ("../src/data/careernet/majors.json")?.majors ?? [];
+for (const g of readJ("../src/data/gen/jobs.json") ?? []) {
+  const c = cnJobList.find((x) => x.seq === +g.id.slice(3));
+  JOB_KW[g.id] = [g.name, ...(c?.rel ? c.rel.split(/,\s*/) : [])].filter((k) => k && k.length >= 2).slice(0, 5);
+}
+for (const g of readJ("../src/data/gen/majors.json") ?? []) {
+  const c = cnMajorList.find((x) => x.seq === +g.id.slice(3));
+  MAJOR_KW[g.id] = [g.name, ...(c?.alias ? c.alias.split(/,\s*/).slice(0, 3) : [])].filter((k) => k && k.length >= 2);
+}
 
 const EXCLUDE = /shorts|쇼츠|채용공고|모집공고|설명회|브리핑|보도|장관|정책|공청회|라이브|LIVE|생중계/i;
 const norm = (t) => t.replace(/\[[^\]]*\]|【[^】]*】|<[^>]*>/g, "").replace(/[^\p{L}\p{N}]/gu, "").toLowerCase();

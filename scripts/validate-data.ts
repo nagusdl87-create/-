@@ -20,7 +20,8 @@ GN_INDUSTRIES.forEach((i) => { i.schools.forEach((s) => names.has(s) || errs.pus
 [...EXPERIENCE_SCHOOLS, ...GENERAL_WITH_VOC.map((g) => g.school)].forEach((s) => names.has(s) || errs.push(`학교 없음: ${s}`));
 SEM_KEYS.forEach((s) => { const c = SAMPLE_CURRICULUM.sems[s]; [...c.fixed, ...c.groups.flatMap((g) => g.options)].forEach((i) => subj(i.name, "예시편제표:" + s)); });
 const ids = JOBS.map((j) => j.id); ids.forEach((id, i) => ids.indexOf(id) !== i && errs.push("중복 직업 " + id));
-JOBS.forEach((j) => JOB_DETAILS[j.id] || errs.push(`직업 상세 없음: ${j.id}`));
+// 자격·전망 보강(JOB_DETAILS)은 처음부터 쓴 직업만. cn- 직업은 같은 페이지의 커리어넷 공식 정보가 그 역할을 한다
+JOBS.filter((j) => !j.id.startsWith("cn-")).forEach((j) => JOB_DETAILS[j.id] || errs.push(`직업 상세 없음: ${j.id}`));
 MAJORS.forEach((m) => MAJOR_DETAILS[m.id] || errs.push(`학과 상세 없음: ${m.id}`));
 // 콘텐츠 기준(docs/content-standard.md) 검사
 const need = (who: string, ok: boolean, what: string) => { if (!ok) errs.push(`${who}: ${what}`); };

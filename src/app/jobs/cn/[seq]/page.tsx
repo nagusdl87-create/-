@@ -3,6 +3,8 @@ import { notFound } from "next/navigation";
 import { CN_EXTRA_JOBS, CN_JOBS, cnJobBySeq, ourJobIdOf } from "@/data/careernet";
 import { MAJORS } from "@/data/majors";
 import { CnJobPage } from "@/components/CareerNetPage";
+import { JOB_MAP } from "@/data/jobs";
+import { MovedTo } from "@/components/MovedTo";
 
 export function generateStaticParams() {
   return CN_EXTRA_JOBS.map((j) => ({ seq: String(j.seq) }));
@@ -16,6 +18,7 @@ export async function generateMetadata({ params }: { params: Promise<{ seq: stri
 
 export default async function Page({ params }: { params: Promise<{ seq: string }> }) {
   const { seq } = await params;
+  if (JOB_MAP[`cn-${seq}`]) return <MovedTo href={`/jobs/cn-${seq}`} name={JOB_MAP[`cn-${seq}`].name} />;
   const item = CN_EXTRA_JOBS.find((x) => x.seq === +seq);
   const d = cnJobBySeq(+seq);
   if (!item || !d) notFound();

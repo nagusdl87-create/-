@@ -2,6 +2,8 @@
 import { notFound } from "next/navigation";
 import { CN_EXTRA_MAJORS, CN_MAJORS, cnMajorBySeq, ourMajorIdOf } from "@/data/careernet";
 import { CnMajorPage } from "@/components/CareerNetPage";
+import { MAJOR_MAP } from "@/data/majors";
+import { MovedTo } from "@/components/MovedTo";
 
 export function generateStaticParams() {
   return CN_EXTRA_MAJORS.map((m) => ({ seq: String(m.seq) }));
@@ -15,6 +17,7 @@ export async function generateMetadata({ params }: { params: Promise<{ seq: stri
 
 export default async function Page({ params }: { params: Promise<{ seq: string }> }) {
   const { seq } = await params;
+  if (MAJOR_MAP[`cn-${seq}`]) return <MovedTo href={`/majors/cn-${seq}`} name={MAJOR_MAP[`cn-${seq}`].name} />;
   const item = CN_EXTRA_MAJORS.find((x) => x.seq === +seq);
   const d = cnMajorBySeq(+seq);
   if (!item || !d) notFound();

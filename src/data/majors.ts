@@ -17,7 +17,7 @@ const M = (
   univ: string[], core: string[], rec: string[], jobs: string[], careers: string[]
 ): Major => ({ id, name, track, desc, univ, core, rec, jobs, careers });
 
-export const MAJORS: Major[] = [
+const BASE_MAJORS: Major[] = [
   // 인문
   M("korean", "국어국문학과", "hum", "한국어의 구조와 한국 문학을 깊이 연구해요.", ["국어학개론", "고전문학사", "현대소설론", "국어문법론"], ["문학", "독서와 작문", "화법과 언어"], ["주제 탐구 독서", "문학과 영상", "한문"], ["reporter", "teacher", "webtoon"], ["출판·언론", "교육", "콘텐츠 기획", "공공기관"]),
   M("english", "영어영문학과", "hum", "영어의 구조와 영미 문학·문화를 배워요.", ["영어학개론", "영미소설", "영어음성학", "통번역 기초"], ["영어Ⅱ", "영어 독해와 작문", "문학"], ["영미 문학 읽기", "영어 발표와 토론", "심화 영어"], ["diplomat", "flight-attendant", "teacher"], ["통번역", "무역·외국계 기업", "교육", "관광"]),
@@ -85,4 +85,8 @@ export const MAJORS: Major[] = [
   M("culinary", "조리과학과", "art", "조리 기술과 식품 과학, 외식 경영을 배워요.", ["조리원리", "식품학", "메뉴개발", "외식경영"], ["화학", "생명과학"], ["기술·가정", "생활과학 탐구"], ["chef"], ["셰프", "식품 R&D", "외식 창업"]),
 ];
 
+// 커리어넷 학과의 심화 글(scripts/build-gen-content.mjs, id: cn-커리어넷번호)
+import GEN_MAJORS from "./gen/majors.json";
+export const MAJORS: Major[] = [...BASE_MAJORS, ...(GEN_MAJORS as unknown as Major[])];
+export const CORE_MAJORS = BASE_MAJORS;
 export const MAJOR_MAP: Record<string, Major> = Object.fromEntries(MAJORS.map((m) => [m.id, m]));

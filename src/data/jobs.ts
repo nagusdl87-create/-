@@ -37,7 +37,7 @@ export const FIELDS: Record<FieldId, { name: string; emoji: string }> = {
   env: { name: "환경·농생명", emoji: "🌱" },
 };
 
-export const JOBS: Job[] = [
+const BASE_JOBS: Job[] = [
   // IT·인공지능
   {
     id: "ai-engineer", name: "인공지능 개발자", emoji: "🤖", field: "it", riasec: ["I", "R", "C"],
@@ -573,4 +573,10 @@ export const JOBS: Job[] = [
   },
 ];
 
+// 커리어넷 직업의 심화 글(scripts/build-gen-content.mjs, id: cn-커리어넷번호)
+import GEN_JOBS from "./gen/jobs.json";
+/** 직업 백과 전체: 처음부터 쓴 51개 + 커리어넷 자료로 쓴 직업 */
+export const JOBS: Job[] = [...BASE_JOBS, ...(GEN_JOBS as unknown as Job[])];
+/** 처음부터 쓴 직업(경남 산업 연결·영어판이 있는 51개) */
+export const CORE_JOBS = BASE_JOBS;
 export const JOB_MAP: Record<string, Job> = Object.fromEntries(JOBS.map((j) => [j.id, j]));

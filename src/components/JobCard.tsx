@@ -44,13 +44,13 @@ export function JobCard({ job, score }: { job: Job; score?: number }) {
         <div className="flex items-center gap-3">
           <span className={`grid h-12 w-12 shrink-0 place-items-center rounded-2xl text-2xl ${FIELD_HUE[job.field].tile}`}>{job.emoji}</span>
           <div>
-            <div className="font-bold text-slate-900 group-hover:text-brand-700">{e?.name ?? job.name}</div>
+            <div className="font-bold text-slate-900 group-hover:text-brand-700" data-keep-ko={e ? undefined : ""}>{e?.name ?? job.name}</div>
             <div className={`text-xs font-medium ${FIELD_HUE[job.field].text}`}>{en?.FIELDS_EN[job.field] ?? FIELDS[job.field].name}</div>
           </div>
         </div>
         <FavButton id={job.id} />
       </div>
-      <p className="line-clamp-2 text-sm text-slate-600">{e?.summary ?? job.summary}</p>
+      <p className="line-clamp-2 text-sm text-slate-600" data-keep-ko={e ? undefined : ""}>{e?.summary ?? job.summary}</p>
       <div className="mt-auto flex items-center justify-between">
         <div className="flex gap-1">
           {job.riasec.slice(0, 2).map((k) => (
