@@ -57,6 +57,11 @@ export const MAJORS: Record<string, string> = {
   "특정 자격보다 전공 지식과 경험이 중요한 학과예요.": "In this major, subject knowledge and experience matter more than any specific qualification.",
   "학과 소개 영상": "Major introduction videos",
   "관련 직업 영상": "Related job videos",
+  "같은 계열 영상": "Videos from the same field of study",
+  "이 학과나 관련 직업을 직접 소개한 영상은 아직 없어요. 관련 직업과 같은 분야 직업의 영상을 대신 보여 드려요.":
+    "There is no video that directly introduces this major or its related jobs yet. We show videos about jobs in the same field as the related jobs instead.",
+  "이 학과나 관련 직업을 직접 소개한 영상은 아직 없어요. 같은 계열 다른 학과의 영상을 대신 보여 드려요.":
+    "There is no video that directly introduces this major or its related jobs yet. We show videos from other majors in the same field of study instead.",
   "공식 채널에 이 학과 소개 영상이 아직 없어, 졸업 후 진출하는 직업의 영상을 보여 줘요.":
     "Official channels don't have a video introducing this major yet, so we show videos about jobs graduates go into.",
   "대학에서 배우는 과목": "Courses at university",

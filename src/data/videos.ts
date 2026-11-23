@@ -57,7 +57,47 @@ export const jobRelatedVideos = (id: string): { field: string; videos: Video[] }
   const r = auto.jobsRelated?.[id];
   return r && r.videos.length ? r : null;
 };
-// 학과 영상이 없을 때: 관련 직업 영상 (직업마다 1개씩)
-// (관련 직업에 직접 영상이 없으면 그 직업의 같은 분야 영상으로 한 번 더 찾는다)
-export const relatedJobVideos = (jobIds: string[]) =>
-  merge([], jobIds.map((j) => jobVideos(j)[0] ?? jobRelatedVideos(j)?.videos[0]).filter((v): v is Video => !!v));
+// 학과 영상이 없을 때의 대체 순서
+//  ① 학과 직접 영상 → ② 관련 직업의 직접 영상 → ③ 관련 직업의 같은 분야 영상 → ④ 같은 계열 다른 학과의 영상
+// kind로 어느 단계인지 알려 주어, 화면에서 "직접 영상이 아니다"라고 밝히게 한다.
+export type MajorVideoKind = "direct" | "jobs" | "jobField" | "track";
+type MajorLite = { id: string; name: string; track: string; jobs: string[] };
+const jobsPick = (jobIds: string[], f: (j: string) => Video | undefined) => merge([], jobIds.map(f).filter((v): v is Video => !!v));
+const bigrams = (t: string) => {
+  const n = t.replace(/[^p{L}p{N}]/gu, "");
+  const r = new Set<string>();
+  for (let i = 0; i < n.length - 1; i++) r.add(n.slice(i, i + 2));
+  return r;
+};
+const sim = (a: string, b: string) => {
+  const x = bigrams(a), y = bigrams(b);
+  let c = 0;
+  x.forEach((g) => y.has(g) && c++);
+  return c / Math.max(1, Math.min(x.size, y.size));
+};
+const ownVideos = (m: MajorLite): { kind: Exclude<MajorVideoKind, "track">; videos: Video[] } | null => {
+  const d = majorVideos(m.id);
+  if (d.length) return { kind: "direct", videos: d };
+  const j = jobsPick(m.jobs, (x) => jobVideos(x)[0]);
+  if (j.length) return { kind: "jobs", videos: j };
+  const f = jobsPick(m.jobs, (x) => jobRelatedVideos(x)?.videos[0]);
+  if (f.length) return { kind: "jobField", videos: f };
+  return null;
+};
+// all: 전체 학과 목록(같은 계열을 찾는 데 쓴다). 이름이 비슷한 학과의 영상을 먼저 고른다
+export const majorVideoSet = (m: MajorLite, all: MajorLite[]): { kind: MajorVideoKind; videos: Video[] } => {
+  const own = ownVideos(m);
+  if (own) return own;
+  const ranked = all
+    .filter((o) => o.id !== m.id && o.track === m.track)
+    .map((o) => ({ o, s: sim(m.name, o.name) }))
+    .sort((a, b) => b.s - a.s);
+  const seen = new Set<string>();
+  const vids: Video[] = [];
+  for (const { o } of ranked) {
+    const v = ownVideos(o)?.videos[0];
+    if (v && !seen.has(v.id)) { seen.add(v.id); vids.push(v); }
+    if (vids.length >= 3) break;
+  }
+  return { kind: "track", videos: vids };
+};

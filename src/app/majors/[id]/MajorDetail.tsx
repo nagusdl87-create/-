@@ -15,7 +15,7 @@ import { OFFICIAL } from "@/data/gn";
 import { MAJOR_MATCH } from "@/data/majorMatch";
 import { UniversityList } from "@/components/UniversityList";
 import { useUniv } from "@/lib/univ";
-import { majorVideos, relatedJobVideos } from "@/data/videos";
+import { majorVideoSet } from "@/data/videos";
 import { Videos } from "@/components/Videos";
 import { toggleIn, useStore } from "@/lib/store";
 import { useEnData, useLang, useT } from "@/lib/i18n";
@@ -42,6 +42,7 @@ export function MajorDetail({ id, deep: deepKo, deepEn, cn }: { id: string; deep
   const more = MAJOR_DETAILS[m.id];
   const moreEn = enD?.MAJOR_DETAILS_EN[m.id];
   const similar = MAJORS.filter((x) => x.track === m.track && x.id !== m.id).slice(0, 6);
+  const vset = majorVideoSet(m, MAJORS);
   const placed = new Set(Object.values(state.credits.plan).flat().map((e) => e.split("|")[0]));
 
   const Subj = ({ name, core }: { name: string; core?: boolean }) => (
@@ -159,16 +160,26 @@ export function MajorDetail({ id, deep: deepKo, deepEn, cn }: { id: string; deep
       )}
 
       <div className="card">
-        {majorVideos(m.id).length > 0 ? (
+        {vset.kind === "direct" ? (
           <>
             <h2 className="mb-3 font-bold">{t("학과 소개 영상")}</h2>
-            <Videos videos={majorVideos(m.id)} query={m.name} label={majorName} />
+            <Videos videos={vset.videos} query={m.name} label={majorName} />
           </>
-        ) : (
+        ) : vset.kind === "jobs" ? (
           <>
             <h2 className="font-bold">{t("관련 직업 영상")}</h2>
             <p className="mb-3 mt-0.5 text-xs text-slate-500">{t("공식 채널에 이 학과 소개 영상이 아직 없어, 졸업 후 진출하는 직업의 영상을 보여 줘요.")}</p>
-            <Videos videos={relatedJobVideos(m.jobs)} query={m.name} label={majorName} />
+            <Videos videos={vset.videos} query={m.name} label={majorName} />
+          </>
+        ) : vset.kind === "jobField" ? (
+          <>
+            <h2 className="mb-3 font-bold">{t("관련 직업 영상")}</h2>
+            <Videos videos={vset.videos} query={m.name} label={majorName} note={t("이 학과나 관련 직업을 직접 소개한 영상은 아직 없어요. 관련 직업과 같은 분야 직업의 영상을 대신 보여 드려요.")} />
+          </>
+        ) : (
+          <>
+            <h2 className="mb-3 font-bold">{t("같은 계열 영상")}</h2>
+            <Videos videos={vset.videos} query={m.name} label={majorName} note={t("이 학과나 관련 직업을 직접 소개한 영상은 아직 없어요. 같은 계열 다른 학과의 영상을 대신 보여 드려요.")} />
           </>
         )}
       </div>
