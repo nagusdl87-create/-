@@ -32,13 +32,13 @@ const OUR_MAJORS = [...majorsTs.matchAll(/M\(\s*"([^"]+)",\s*"([^"]+)"/g)].map((
 const JOB_ALIAS = JSON.parse(readFileSync("scripts/careernet-alias.json", "utf8")).jobs ?? {};
 const MAJOR_ALIAS = JSON.parse(readFileSync("scripts/careernet-alias.json", "utf8")).majors ?? {};
 
-// ── 1. 직업 목록
+// ── 1. 직업 목록 (상세 요청 job.json?seq= 에는 목록의 seq가 아니라 job_cd를 넣어야 한다)
 const jobs = [];
 for (let page = 1; page < 200; page++) {
   const d = await getJSON(`${B}/front/openapi/jobs.json?apiKey=${KEY}&pageIndex=${page}`);
   const list = d.jobs ?? [];
   for (const j of list) {
-    jobs.push({ seq: +j.seq, name: strip(j.job_nm), field: strip(j.aptit_name), group: strip(j.top_nm), work: strip(j.work), rel: strip(j.rel_job_nm), wage: strip(j.wage), wlb: strip(j.wlb), social: strip(j.social) });
+    jobs.push({ seq: +j.job_cd, name: strip(j.job_nm), field: strip(j.aptit_name), group: strip(j.top_nm), work: strip(j.work), rel: strip(j.rel_job_nm), wage: strip(j.wage), wlb: strip(j.wlb), social: strip(j.social) });
   }
   if (!list.length || jobs.length >= +(d.count ?? 0)) break;
   await sleep(150);
@@ -62,6 +62,8 @@ const jobDetail = {};
 for (const [id, seq] of Object.entries(jobMap)) {
   const d = await getJSON(`${B}/front/openapi/job.json?apiKey=${KEY}&seq=${seq}`);
   const b = d.baseInfo ?? {};
+  const expect = jobs.find((j) => j.seq === seq)?.name;
+  if (!b.job_nm || norm(b.job_nm) !== norm(expect)) { console.log("상세 이름 불일치, 건너뜀:", id, expect, "≠", b.job_nm); delete jobMap[id]; continue; }
   const list = (arr, k) => (arr ?? []).map((x) => strip(x[k])).filter(Boolean);
   const edu = d.eduChart?.[0];
   jobDetail[id] = {
@@ -102,7 +104,7 @@ const majorMap = {};
 for (const o of OUR_MAJORS) {
   const want = MAJOR_ALIAS[o.id];
   if (want === null) continue;
-  const hit = want ? mByNorm.get(norm(want)) : mByNorm.get(norm(o.name)) ?? majors.find((m) => m.alias.split(",").some((a) => norm(a) === norm(o.name)));
+  const hit = want ? mByNorm.get(norm(want)) : mByNorm.get(norm(o.name));
   if (hit) majorMap[o.id] = hit.seq;
 }
 console.log("이어진 학과", Object.keys(majorMap).length, "/", OUR_MAJORS.length, "· 못 찾음:", OUR_MAJORS.filter((o) => !majorMap[o.id]).map((o) => o.name).join(", "));
@@ -110,6 +112,8 @@ const majorDetail = {};
 for (const [id, seq] of Object.entries(majorMap)) {
   const d = await getJSON(`${B}/openapi/getOpenApi?apiKey=${KEY}&svcType=api&svcCode=MAJOR_VIEW&contentType=json&gubun=univ_list&majorSeq=${seq}`);
   const c = d.dataSearch?.content?.[0] ?? {};
+  const mexp = majors.find((m) => m.seq === seq)?.name;
+  if (!c.major || norm(c.major) !== norm(mexp)) { console.log("학과 상세 이름 불일치, 건너뜀:", id, mexp, "≠", c.major); delete majorMap[id]; continue; }
   const subj = (c.relate_subject_2022 ?? []).map((x) => ({ kind: strip(x.subject_name), names: strip(x.subject_description) })).filter((x) => x.names);
   majorDetail[id] = {
     seq, name: strip(c.major), summary: strip(c.summary), interest: strip(c.interest), property: strip(c.property),
