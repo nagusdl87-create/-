@@ -2,15 +2,14 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import { useCatalog } from "@/lib/catalog";
 import { BackupPanel } from "@/components/Backup";
 import { decodeShare, encodeShare, useStore, type AppState } from "@/lib/store";
 import { isTestComplete, progress, riasecScores, topTypes, hsQuizResult } from "@/lib/match";
 import { RIASEC, VALUES } from "@/data/riasec";
-import { JOB_MAP } from "@/data/jobs";
 import { HS_MAP } from "@/data/highschools";
 import { TERMS_BY_STAGE } from "@/data/plan";
 import { Radar } from "@/components/Radar";
-import { MAJOR_MAP } from "@/data/majors";
 import { GN_SCHOOLS, KIND_INFO } from "@/data/gn";
 import { TRACKS } from "@/data/subjects";
 import { analyze, parseEntry, SEM_LABEL } from "@/lib/credits";
@@ -63,6 +62,7 @@ export default function ReportPage() {
 }
 
 function ReportBody({ s }: { s: AppState }) {
+  const { JOB_MAP, MAJOR_MAP } = useCatalog();
   const t = useT();
   const { lang } = useLang();
   const tested = isTestComplete(s.answers);

@@ -2,9 +2,8 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { useCatalog } from "@/lib/catalog";
 import { GN_INDUSTRIES, GN_SCHOOLS, gnText } from "@/data/gn";
-import { JOB_MAP, JOBS } from "@/data/jobs";
-import { MAJORS } from "@/data/majors";
 import { PageHead } from "@/components/ui";
 import { useJobsEn } from "@/components/JobCard";
 import { KeepKo } from "@/components/KeepKo";
@@ -12,6 +11,7 @@ import { useNames } from "@/i18n/names";
 import { useEnData, useT } from "@/lib/i18n";
 
 export default function IndustryPage() {
+  const { JOB_MAP, JOBS, MAJORS } = useCatalog();
   const t = useT();
   const g = gnText(useEnData(() => import("@/i18n/data/gn.en"), "gn"));
   const jen = useJobsEn();

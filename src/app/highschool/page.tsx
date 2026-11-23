@@ -3,7 +3,8 @@
 import { useState } from "react";
 import { useStore } from "@/lib/store";
 import { HS_QUIZ, HS_TYPES } from "@/data/highschools";
-import { JOB_MAP, type HsTypeId } from "@/data/jobs";
+import type { HsTypeId } from "@/data/jobs-core";
+import { useCatalog } from "@/lib/catalog";
 import { ADMISSION_RULES, ADMISSION_SCHEDULE, dday, GN_SCHOOLS, gnText, KIND_INFO, OFFICIAL, parsePeriod, scheduleToIcs, ZONES } from "@/data/gn";
 import { ArrowLeftRight, CalendarPlus, Star } from "lucide-react";
 import Link from "next/link";
@@ -16,6 +17,7 @@ const useGnEn = () => useEnData(() => import("@/i18n/data/gn.en"), "gn");
 const useHsEn = () => useEnData(() => import("@/i18n/data/highschools.en"), "highschools");
 
 export default function HighschoolPage() {
+  const { JOB_MAP } = useCatalog();
   const { state, update, ready } = useStore();
   const t = useT();
   const hsEn = useHsEn();

@@ -5,8 +5,8 @@ import Link from "next/link";
 import { CheckCircle2, Lightbulb, RotateCcw, XCircle } from "lucide-react";
 import { useStore } from "@/lib/store";
 import { INDUSTRIES, QUIZ, TREND_ITEMS, type IndustryId } from "@/data/future";
-import { JOB_MAP } from "@/data/jobs";
-import { MAJOR_MAP } from "@/data/majors";
+import { CORE_JOB_MAP as JOB_MAP } from "@/data/jobs-core";
+import { CORE_MAJOR_MAP as MAJOR_MAP } from "@/data/majors-core";
 import { PageHead } from "@/components/ui";
 import { useEnData, useT } from "@/lib/i18n";
 

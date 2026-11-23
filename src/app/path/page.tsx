@@ -2,17 +2,17 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { useCatalog } from "@/lib/catalog";
 import { useStore } from "@/lib/store";
-import { JOB_MAP } from "@/data/jobs";
 import { RIASEC, VALUES } from "@/data/riasec";
 import { isTestComplete, riasecScores, topTypes } from "@/lib/match";
 import { PathFlow } from "@/components/PathFlow";
-import { MAJOR_MAP } from "@/data/majors";
 import { TRACKS } from "@/data/subjects";
 import { Empty, NextStep, PageHead } from "@/components/ui";
 import { useEnData, useLang, useT } from "@/lib/i18n";
 
 export default function PathPage() {
+  const { JOB_MAP } = useCatalog();
   const { state, update, ready } = useStore();
   const t = useT();
   const { lang } = useLang();
@@ -143,6 +143,7 @@ export default function PathPage() {
 }
 
 function HypothesisBox({ suggest }: { suggest: () => string }) {
+  const { MAJOR_MAP } = useCatalog();
   const { state, update } = useStore();
   const t = useT();
   const { lang } = useLang();
@@ -173,6 +174,7 @@ function HypothesisBox({ suggest }: { suggest: () => string }) {
 }
 
 function MajorPaths() {
+  const { MAJOR_MAP } = useCatalog();
   const { state } = useStore();
   const t = useT();
   const pl = useEnData(() => import("@/i18n/data/plan.en"), "plan");
