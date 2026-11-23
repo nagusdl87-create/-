@@ -238,7 +238,7 @@ async function answerDiscover(p) {
   const mc = await b.newContext({ viewport: { width: 390, height: 844 }, deviceScaleFactor: 2 });
   const mp = await mc.newPage(); watch(mp, 'mobile');
   await mp.goto(B); await mp.click('text=고등학생이에요');
-  const routes = ['/', '/discover', '/jobs', '/jobs/shipbuilding', '/majors', '/majors/medicine', '/path', '/credits', '/credits/school', '/subjects', '/schools', '/highschool', '/admission', '/industry', '/tests', '/resources', '/guide', '/future', '/transition', '/portfolio', '/plan', '/report', '/explore', '/tools', '/account', '/privacy', '/offline', '/teacher', '/report/summary', '/middle', '/search?q=로봇', '/nope'];
+  const routes = ['/', '/discover', '/jobs', '/jobs/shipbuilding', '/jobs/cn/1', '/majors/cn/10001', '/majors', '/majors/medicine', '/path', '/credits', '/credits/school', '/subjects', '/schools', '/highschool', '/admission', '/industry', '/tests', '/resources', '/guide', '/future', '/transition', '/portfolio', '/plan', '/report', '/explore', '/tools', '/account', '/privacy', '/offline', '/teacher', '/report/summary', '/middle', '/search?q=로봇', '/nope'];
   for (const r of routes) {
     const res = await mp.goto(B + r); await mp.waitForTimeout(r === '/schools' ? 1200 : 250);
     const ov = await mp.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);

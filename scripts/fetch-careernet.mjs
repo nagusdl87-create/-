@@ -145,3 +145,4 @@ save("majors.json", { ...meta, majors });
 save("job-detail.json", { ...meta, map: jobMap, detail: jobDetail });
 save("major-detail.json", { ...meta, map: majorMap, detail: majorDetail });
 console.log("저장 완료", OUT);
+await import("./build-careernet-index.mjs");

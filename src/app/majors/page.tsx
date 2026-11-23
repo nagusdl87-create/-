@@ -3,6 +3,8 @@
 import { Heart } from "lucide-react";
 
 import { useMemo, useState } from "react";
+import { CnDirectory, CnStats } from "@/components/CnDirectory";
+import { CN_SUMMARY } from "@/data/careernet-summary";
 import Link from "next/link";
 import { toggleIn, useStore } from "@/lib/store";
 import { MAJORS } from "@/data/majors";
@@ -22,9 +24,11 @@ export default function MajorsPage() {
   const [view, setView] = useState<"guide" | "national">("guide");
   const [q, setQ] = useState("");
   const [track, setTrack] = useState<TrackId | "all" | "fav">("all");
+  const [grp, setGrp] = useState<string | null>(null); // 커리어넷 계열
   const list = useMemo(
     () =>
       MAJORS.filter((m) => {
+        if (grp && (CN_SUMMARY.ourMajorGroups as Record<string, string | undefined>)[m.id] !== grp) return false;
         if (track === "fav" && !state.favMajors.includes(m.id)) return false;
         if (track !== "all" && track !== "fav" && m.track !== track) return false;
         const e = en?.MAJORS_EN[m.id];
@@ -32,7 +36,7 @@ export default function MajorsPage() {
         if (q.trim() && !hay.includes(q.trim().toLowerCase())) return false;
         return true;
       }),
-    [q, track, state.favMajors, en]
+    [q, track, state.favMajors, en, grp]
   );
   const hs = state.profile.stage === "hs";
 
@@ -52,6 +56,7 @@ export default function MajorsPage() {
         </button>
       </div>
       {view === "national" ? <NationalMajors /> : <>
+      <CnStats kind="majors" group={grp} onPick={setGrp} />
       <div className="card mb-4 space-y-2 p-4">
         <input className="input" placeholder={t("학과·과목·진로 검색 (예: 반도체, 간호, 미적분Ⅱ)")} value={q} onChange={(e) => setQ(e.target.value)} aria-label={t("학과 검색")} />
         <div className="flex flex-wrap gap-1.5">
@@ -75,13 +80,14 @@ export default function MajorsPage() {
           ))}
         </div>
       </div>
+      <h2 className="mb-1 text-lg font-bold text-slate-900">{t("마이로드 심화 학과 {n}개", { n: MAJORS.length })}</h2>
+      <p className="mb-3 text-sm text-slate-500">{t("핵심·권장 과목, 대학 생활, 진로까지 마이로드가 자세히 정리한 학과예요.")}</p>
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
         {list.map((m) => {
           const on = state.favMajors.includes(m.id);
           const e = en?.MAJORS_EN[m.id];
           return (
-            <Link key={m.id} href={`/majors/${m.id}`} className="card group relative flex flex-col gap-2 overflow-hidden transition hover:-translate-y-0.5 hover:border-slate-300 hover:shadow-lg hover:shadow-slate-900/5">
-              <span className={`absolute inset-x-0 top-0 h-1 ${TRACK_HUE[m.track].bar}`} aria-hidden />
+            <Link key={m.id} href={`/majors/${m.id}`} className="card group relative flex flex-col gap-2 overflow-hidden transition hover:border-brand-300 hover:bg-slate-50/50">
               <div className="flex items-start justify-between gap-2">
                 <div>
                   <span className={`inline-block rounded-md px-1.5 py-0.5 text-[11px] font-semibold ${TRACK_HUE[m.track].tile} ${TRACK_HUE[m.track].text}`}>{en?.TRACK_EN[m.track].name ?? TRACKS[m.track].name}</span>
@@ -111,6 +117,7 @@ export default function MajorsPage() {
         })}
       </div>
       {list.length === 0 && <p className="py-10 text-center text-sm text-slate-500">{t("조건에 맞는 학과가 없어요.")}</p>}
+      <CnDirectory kind="majors" q={q} group={grp} onGroup={setGrp} />
       <p className="mt-6 text-xs text-slate-400">
         {t("핵심·권장 과목은 일반적인 안내예요. 대학·학과별 권장과목은 대학마다 다르므로 각 대학 발표 자료와")}{" "}
         <a className="underline" href="https://www.adiga.kr/" target="_blank" rel="noreferrer">{t("대입정보포털 어디가")}</a>{t("에서 꼭 확인하세요.")}

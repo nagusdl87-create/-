@@ -48,7 +48,7 @@ BASE=http://localhost:5000 node scripts/e2e.cjs   # 전체 흐름 브라우저 �
 - 한국어/English: 머리글의 버튼 하나(한국어 화면 'EN', 영어 화면 '한국어')로 전환. 화면 문구는 `useT()`(`src/lib/i18n.tsx`) + 사전 `src/i18n/en/*.ts`, 자료는 `src/i18n/data/*.en.ts`(영어 모드에서만 불러옴), 과목·직업·학과 이름은 `useNames()`(`src/i18n/names.ts`). 새 문구를 넣으면 사전에도 추가하고 `node scripts/i18n-check.cjs`(빈 기록)와 `node scripts/i18n-check-filled.cjs`(기록 있는 학생)로 남은 한글 0자를 확인. 저장된 한국어 문구(직업·학과·과목 이름, 흥미 유형, 활동 등)는 `t()`만 거치면 영어로 바뀐다(`src/i18n/data/names.en.ts`가 사전에 합쳐짐). 규칙은 `docs/i18n.md`.
 - 커리어넷: 매주 `.github/workflows/careernet-sync.yml`이 `scripts/fetch-careernet.mjs`로 `src/data/careernet/*.json`을 갱신·커밋(키는 Secrets `CAREERNET_API_KEY`). 직업 상세는 `job.json?seq=`에 목록의 `job_cd`를 넣어야 하고, 상세 이름이 목록 이름과 다르면 저장하지 않는다. 우리 직업·학과와 이름이 다르면 `scripts/careernet-alias.json`에 잇는다. 화면은 `src/components/CareerNet.tsx`(원문 한국어, 영어 모드에서도 원문 + 안내).
 - 홈·메뉴 숫자: `src/data/stats.ts` 한곳에서 관리, `npm run check:stats`로 매일 점검.
-- 직업·학과 상세: `src/data/deep/`(형식 `types.ts`), 기준 `docs/content-standard.md`. 페이지(`page.tsx`, 서버)에서 해당 항목만 골라 넘긴다(전체를 화면 코드에 싣지 않기). 새 직업·학과(커리어넷 포함)는 기준의 모든 항목을 채워야 `npm run validate` 통과.
+- 직업·학과 상세: `src/data/deep/`(형식 `types.ts`), 기준 `docs/content-standard.md`. 페이지(`page.tsx`, 서버)에서 해당 항목만 골라 넘긴다(전체를 화면 코드에 싣지 않기). `src/data/jobs.ts`·`majors.ts`에 넣는 "마이로드 심화" 직업·학과는 기준의 모든 항목을 채워야 `npm run validate` 통과. 그 밖의 커리어넷 직업·학과는 "커리어넷 공식 정보" 페이지(`/jobs/cn/[번호]`, `/majors/cn/[번호]`, `src/components/CareerNetPage.tsx`)로 자동 생성되고, 직업·학과 백과 목록(`src/components/CnDirectory.tsx`)과 통합 검색에 함께 나온다. 전체·분야별 개수는 `src/data/careernet/summary.json`(`scripts/build-careernet-index.mjs`, 2026-11-23 사용자 결정).
 
 ## 지켜야 할 결정 사항
 

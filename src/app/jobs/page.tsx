@@ -8,6 +8,8 @@ import { isTestComplete, rankedJobs } from "@/lib/match";
 import { JobCard, useJobsEn } from "@/components/JobCard";
 import { useT } from "@/lib/i18n";
 import { NextStep, PageHead } from "@/components/ui";
+import { CnDirectory, CnStats } from "@/components/CnDirectory";
+import { CN_SUMMARY } from "@/data/careernet-summary";
 
 type Sort = "match" | "name";
 
@@ -18,6 +20,7 @@ export default function JobsPage() {
   const [field, setField] = useState<FieldId | "all" | "fav">("all");
   const [type, setType] = useState<RiasecKey | "all">("all");
   const [sort, setSort] = useState<Sort>("match");
+  const [grp, setGrp] = useState<string | null>(null); // 커리어넷 직업분류(대분류)
   const t = useT();
   // 홈의 분야 카드에서 /jobs#field=it 처럼 들어오면 그 분야로 거르기
   useEffect(() => {
@@ -30,6 +33,7 @@ export default function JobsPage() {
     const ranked = tested ? rankedJobs(state) : JOBS.map((job) => ({ job, score: undefined as number | undefined }));
     const kw = q.trim();
     let r = ranked.filter(({ job }) => {
+      if (grp && (CN_SUMMARY.ourJobGroups as Record<string, string | undefined>)[job.id] !== grp) return false;
       if (field === "fav" && !state.favorites.includes(job.id)) return false;
       if (field !== "all" && field !== "fav" && job.field !== field) return false;
       if (type !== "all" && !job.riasec.slice(0, 2).includes(type)) return false;
@@ -43,7 +47,7 @@ export default function JobsPage() {
     const nm = (id: string, ko: string) => en?.JOBS_EN[id]?.name ?? ko;
     if (sort === "name" || !tested) r = [...r].sort((a, b) => nm(a.job.id, a.job.name).localeCompare(nm(b.job.id, b.job.name), en ? "en" : "ko"));
     return r;
-  }, [state, tested, q, field, type, sort, en]);
+  }, [state, tested, q, field, type, sort, en, grp]);
 
   return (
     <div>
@@ -56,6 +60,8 @@ export default function JobsPage() {
             : t("관심 있는 직업을 둘러보고 ❤️ 찜해 보세요. 1단계 흥미 탐색을 하면 나와 맞는 정도도 알려 드려요.")
         }
       />
+
+      <CnStats kind="jobs" group={grp} onPick={setGrp} />
 
       <div className="card mb-4 space-y-3 p-4">
         <input className="input" placeholder={t("직업, 학과, 과목으로 검색 (예: 로봇, 간호학과, 정보)")} value={q} onChange={(e) => setQ(e.target.value)} aria-label={t("직업 검색")} />
@@ -92,6 +98,8 @@ export default function JobsPage() {
         </div>
       </div>
 
+      <h2 className="mb-1 text-lg font-bold text-slate-900">{t("마이로드 심화 직업 {n}개", { n: JOBS.length })}</h2>
+      <p className="mb-2 text-sm text-slate-500">{t("하루 흐름, 경남 정보, 자주 묻는 질문, 진로 로드맵까지 마이로드가 자세히 정리한 직업이에요. 흥미 탐색 결과와 맞는 정도도 알려 드려요.")}</p>
       <div className="mb-2 flex flex-wrap items-center justify-between gap-2 text-sm text-slate-500">
         <span>{t("{n}개 직업", { n: list.length })}</span>
         {ready && (() => {
@@ -112,6 +120,8 @@ export default function JobsPage() {
         ))}
       </div>
       {list.length === 0 && <p className="py-10 text-center text-sm text-slate-500">{t("조건에 맞는 직업이 없어요. 필터를 바꿔 보세요.")}</p>}
+
+      <CnDirectory kind="jobs" q={q} group={grp} onGroup={setGrp} />
 
       <NextStep href="/path" label={t("길 잇기")} hint={t("찜한 직업까지 가는 길(학과·고교 과목)을 확인해 보세요")} />
     </div>

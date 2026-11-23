@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Search } from "lucide-react";
@@ -13,13 +13,29 @@ import { useLang, useT } from "@/lib/i18n";
 const POPULAR = ["컴퓨터공학과", "미적분Ⅱ", "의예과", "인공지능 수학", "로봇", "생명과학", "경영학과", "항공", "간호", "마이스터고"];
 type Cat = "all" | "majors" | "subjects" | "jobs" | "schools";
 
-export function searchAll(q: string, extra: string[] = []) {
+// 커리어넷 공식 직업·학과(마이로드 심화와 이어지지 않은 것) 목록: 검색할 때만 불러옴
+export type CnDir = { jobs: { s: number; n: string; f: string; w: string; o: string | null }[]; majors: { s: number; n: string; g: string; a: string; o: string | null }[] };
+let cnDirP: Promise<CnDir> | null = null;
+export const loadCnDir = () => (cnDirP ??= import("@/data/careernet/directory.json").then((m) => m.default as unknown as CnDir));
+export function useCnDir(active: boolean) {
+  const [d, setD] = useState<CnDir | null>(null);
+  useEffect(() => { if (active && !d) loadCnDir().then(setD).catch(() => {}); }, [active, d]);
+  return d;
+}
+
+export function searchAll(q: string, extra: string[] = [], cn: CnDir | null = null) {
   const terms = [q.toLowerCase(), ...extra];
   const has = (...s: string[]) => { const txt = s.join(" ").toLowerCase(); return terms.some((x) => txt.includes(x)); };
   return {
-    majors: MAJORS.filter((m) => has(m.name, m.desc, ...m.core, ...m.rec, ...m.careers)).map((m) => ({ href: `/majors/${m.id}`, t: m.name, s: `핵심: ${m.core.slice(0, 3).join(", ")}` })),
+    majors: [
+      ...MAJORS.filter((m) => has(m.name, m.desc, ...m.core, ...m.rec, ...m.careers)).map((m) => ({ href: `/majors/${m.id}`, t: m.name, s: `핵심: ${m.core.slice(0, 3).join(", ")}` })),
+      ...(cn?.majors ?? []).filter((m) => !m.o && has(m.n, m.a)).map((m) => ({ href: `/majors/cn/${m.s}`, t: m.n, s: `${m.g} · 커리어넷` })),
+    ],
     subjects: SUBJECTS.filter((s) => has(s.name, s.desc)).map((s) => ({ href: `/subjects#${encodeURIComponent(s.name)}`, t: s.name, s: `${s.group} · ${s.cat} · ${s.credits}학점 · ${s.eval}` })),
-    jobs: JOBS.filter((j) => has(j.name, j.summary, ...j.majors, ...j.hsSubjects)).map((j) => ({ href: `/jobs/${j.id}`, t: `${j.emoji} ${j.name}`, s: j.summary })),
+    jobs: [
+      ...JOBS.filter((j) => has(j.name, j.summary, ...j.majors, ...j.hsSubjects)).map((j) => ({ href: `/jobs/${j.id}`, t: `${j.emoji} ${j.name}`, s: j.summary })),
+      ...(cn?.jobs ?? []).filter((j) => !j.o && has(j.n, j.w, j.f)).map((j) => ({ href: `/jobs/cn/${j.s}`, t: j.n, s: j.w })),
+    ],
     schools: GN_SCHOOLS.filter((s) => has(s.name, s.region, s.addr, ...s.depts.map((d) => d.name))).map((s) => ({ href: `/schools#${s.id}`, t: s.name, s: `${s.region} · ${KIND_INFO[s.kind].name}${s.depts.length ? ` · ${s.depts.map((d) => d.name).slice(0, 3).join(", ")}` : ""}` })),
   };
 }
@@ -30,6 +46,7 @@ export function LiveSearch() {
   const { lang, dict } = useLang();
   const [q, setQ] = useState("");
   const [cat, setCat] = useState<Cat>("all");
+  const cn = useCnDir(q.trim().length > 0);
   const r = useMemo(() => {
     const qq = q.trim();
     if (!qq) return null;
@@ -39,8 +56,8 @@ export function LiveSearch() {
       const lq = qq.toLowerCase();
       for (const [ko, en] of Object.entries(dict)) if (ko.length <= 20 && en.toLowerCase().includes(lq)) extra.push(ko.toLowerCase());
     }
-    return searchAll(qq, extra);
-  }, [q, lang, dict]);
+    return searchAll(qq, extra, cn);
+  }, [q, lang, dict, cn]);
   const LABEL: Record<Exclude<Cat, "all">, string> = { majors: "대학 학과", subjects: "교과목", jobs: "직업", schools: "경남 고교" };
   const total = r ? r.majors.length + r.subjects.length + r.jobs.length + r.schools.length : 0;
   return (

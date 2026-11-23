@@ -26,8 +26,8 @@ export const JOURNEY: Record<Stage, Step[]> = {
 };
 
 export const EXPLORE: NavItem[] = [
-  { href: "/jobs", label: "직업 백과", icon: Briefcase, desc: `${STATS.jobs}개 직업 · 경남 주력산업 직업 포함` },
-  { href: "/majors", label: "학과 백과", icon: GraduationCap, desc: `학과 가이드 ${STATS.majors}개 · 전국 학과·개설 대학 탐색` },
+  { href: "/jobs", label: "직업 백과", icon: Briefcase, desc: `${STATS.jobsAll}개 직업 · 심화 ${STATS.jobs}개 + 커리어넷 공식` },
+  { href: "/majors", label: "학과 백과", icon: GraduationCap, desc: `${STATS.majorsAll}개 학과 · 심화 ${STATS.majors}개 + 전국 개설 대학` },
   { href: "/subjects", label: "과목 백과", icon: BookOpen, desc: `2022 개정 ${STATS.subjects}과목 · 위계도 · 평가` },
   { href: "/schools", label: "경남 고교 찾기", icon: MapPinned, desc: `경남 ${STATS.schools}개 고교 지도 · 거리 · 학과` },
   { href: "/middle", label: "경남 중학교 정보", icon: School, desc: "우리 중학교 급식·학사일정·가까운 고교" },
