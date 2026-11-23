@@ -17,11 +17,13 @@ import { JOB_DETAILS } from "@/data/jobDetails";
 import type { JobDeep } from "@/data/deep/types";
 import { Faq, JobDeepMain, JobDeepWork, JobFuture } from "@/components/Deep";
 import { KeepKo } from "@/components/KeepKo";
+import { CareerNetJob } from "@/components/CareerNet";
+import type { CnJob } from "@/data/careernet";
 import { useEnData, useLang, useT } from "@/lib/i18n";
 import { useNames } from "@/i18n/names";
 import { Award, Building2, Star, TrendingUp } from "lucide-react";
 
-export function JobDetail({ id, deep: deepKo, deepEn }: { id: string; deep?: JobDeep; deepEn?: JobDeep }) {
+export function JobDetail({ id, deep: deepKo, deepEn, cn }: { id: string; deep?: JobDeep; deepEn?: JobDeep; cn?: CnJob & { fetchedAt: string } }) {
   const ko = JOB_MAP[id];
   const t = useT();
   const { lang } = useLang();
@@ -163,6 +165,7 @@ export function JobDetail({ id, deep: deepKo, deepEn }: { id: string; deep?: Job
 
       <JobDeepWork d={deep} />
       <JobFuture d={deep} />
+      {cn && <CareerNetJob d={cn} ourName={ko.name} />}
 
       {(job.gn || inds.length > 0) && (
         <div className="card border-emerald-200 bg-emerald-50">

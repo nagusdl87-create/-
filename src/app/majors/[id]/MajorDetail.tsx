@@ -20,8 +20,10 @@ import { Videos } from "@/components/Videos";
 import { toggleIn, useStore } from "@/lib/store";
 import { useEnData, useLang, useT } from "@/lib/i18n";
 import { useNames } from "@/i18n/names";
+import { CareerNetMajor } from "@/components/CareerNet";
+import type { CnMajor } from "@/data/careernet";
 
-export function MajorDetail({ id, deep: deepKo, deepEn }: { id: string; deep?: MajorDeep; deepEn?: MajorDeep }) {
+export function MajorDetail({ id, deep: deepKo, deepEn, cn }: { id: string; deep?: MajorDeep; deepEn?: MajorDeep; cn?: CnMajor & { fetchedAt: string } }) {
   const m = MAJOR_MAP[id];
   const t = useT();
   const { subject: subjectLabel, job: jobLabel, majorById } = useNames();
@@ -48,7 +50,7 @@ export function MajorDetail({ id, deep: deepKo, deepEn }: { id: string; deep?: M
       className={`inline-flex items-center gap-1 rounded-lg border px-2.5 py-1.5 text-sm font-semibold ${core ? "border-amber-200 bg-amber-50 text-amber-900" : "border-sky-200 bg-sky-50 text-sky-900"}`}
     >
       {core ? "★" : "☆"} {subjectLabel(name)}
-      {SUBJECT_MAP[name]?.suneung && <span className="text-[11px] text-rose-600">{t("수능")}</span>}
+      {SUBJECT_MAP[name]?.suneung && <span className="text-[11px] text-rose-700">{t("수능")}</span>}
       {placed.has(name) && <span className="text-[11px] text-emerald-600">{t("✓담음")}</span>}
     </Link>
   );
@@ -77,6 +79,7 @@ export function MajorDetail({ id, deep: deepKo, deepEn }: { id: string; deep?: M
       </div>
 
       <MajorDeepMain d={deep} />
+      {cn && <CareerNetMajor d={cn} />}
 
       <div className="card">
         <h2 className="font-bold">{t("고등학교에서 들으면 좋은 과목")}</h2>

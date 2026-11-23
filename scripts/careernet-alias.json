@@ -45,6 +45,10 @@
     "ai": null,
     "data-science": null,
     "naval": "조선공학과",
-    "semiconductor": "반도체학과"
+    "semiconductor": "반도체학과",
+    "astronomy": "천문학과",
+    "software": "소프트웨어공학과",
+    "pharmacy": "약학부",
+    "youth": "청소년지도학과"
   }
 }
