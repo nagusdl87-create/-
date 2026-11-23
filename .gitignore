@@ -18,3 +18,4 @@ public/data/neis/meal/
 .claude/worktrees/
 # 나이스 학사일정(매일 빌드 때 생성)
 public/data/neis/schedule/
+.content-gen/
