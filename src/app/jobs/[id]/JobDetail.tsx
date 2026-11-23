@@ -10,7 +10,7 @@ import { isTestComplete, jobMatch, riasecScores } from "@/lib/match";
 import { FavButton, useJobsEn } from "@/components/JobCard";
 import { PathFlow } from "@/components/PathFlow";
 import { MAJORS } from "@/data/majors";
-import { jobVideos } from "@/data/videos";
+import { jobVideos, jobRelatedVideos } from "@/data/videos";
 import { Videos } from "@/components/Videos";
 import { GN_INDUSTRIES } from "@/data/gn";
 import { JOB_DETAILS } from "@/data/jobDetails";
@@ -116,7 +116,11 @@ export function JobDetail({ id, deep: deepKo, deepEn, cn }: { id: string; deep?:
 
       <div className="card">
         <h2 className="mb-3 font-bold">{t("직업인 영상")}</h2>
-        <Videos videos={jobVideos(job.id)} query={ko.name} label={job.name} />
+        {jobVideos(job.id).length > 0 || !jobRelatedVideos(job.id) ? (
+          <Videos videos={jobVideos(job.id)} query={ko.name} label={job.name} />
+        ) : (
+          <Videos videos={jobRelatedVideos(job.id)!.videos} query={ko.name} label={job.name} note={t("이 직업을 직접 소개한 영상은 아직 없어요. 같은 분야 직업의 영상을 대신 보여 드려요.")} />
+        )}
       </div>
 
       <JobDeepMain d={deep} tasks={job.tasks} ms={job.msActions} />

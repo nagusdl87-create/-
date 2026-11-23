@@ -136,6 +136,8 @@ export const JOBS: Record<string, string> = {
   "공식 채널에서 ‘{query}’ 관련 직업인 인터뷰·현장 영상을 찾아볼 수 있어요.":
     "You can find interviews and on-site videos about ‘{query}’ on official channels.",
   "{label}에서 찾기": "Search on {label}",
+  "이 직업을 직접 소개한 영상은 아직 없어요. 같은 분야 직업의 영상을 대신 보여 드려요.":
+    "There is no video that introduces this job directly yet, so we show videos of jobs in the same field instead.",
   "한국고용정보원 직업진로동영상": "KEIS Job & Career Videos",
   "한국고용정보원(고용24)": "KEIS (Work24)",
   "커리어넷 직업·학과 영상": "CareerNet job & major videos",

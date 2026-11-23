@@ -6,13 +6,14 @@ import { videoSearchLinks, type Video } from "@/data/videos";
 import { useT } from "@/lib/i18n";
 
 // query: 영상 검색어(공식 채널이 한국어라 한국어 이름 그대로), label: 화면에 보일 이름(없으면 query). 영상 제목·채널명은 원어 그대로(data-keep-ko).
-export function Videos({ videos, query, label }: { videos: Video[]; query: string; label?: string }) {
+export function Videos({ videos, query, label, note }: { videos: Video[]; query: string; label?: string; note?: string }) {
   const t = useT();
   const [i, setI] = useState(0);
   const [play, setPlay] = useState<string | null>(null);
   const v = videos[i];
   return (
     <div>
+      {v && note && <p className="mb-2 rounded-xl bg-slate-50 p-3 text-sm text-slate-600">{note}</p>}
       {v ? (
         <>
           <div className="aspect-video overflow-hidden rounded-2xl bg-slate-900">

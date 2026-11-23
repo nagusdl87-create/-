@@ -21,6 +21,9 @@ const CHANNELS = [
   { handle: "@KEISwork2011", name: "한국고용정보원 직업진로동영상", bonus: 0.5, only: null },
   { handle: "@worknet_keis", name: "한국고용정보원", bonus: 0.2, only: null },
   { handle: "@교육부", name: "교육부", bonus: 0.4, only: /직업탐구|별일|직업인|진로/ },
+  // 커리어넷(한국직업능력연구원): 핸들이 틀려 다른 채널이 걸리지 않도록 채널 이름을 확인한 경우만 쓴다(expect). 없으면 건너뜀
+  { handle: "@careernet", name: "커리어넷", bonus: 0.3, only: /직업|진로|커리어|인터뷰|현장/, expect: /커리어넷|careernet|한국직업능력/i },
+  { handle: "@career_net", name: "커리어넷", bonus: 0.3, only: /직업|진로|커리어|인터뷰|현장/, expect: /커리어넷|careernet|한국직업능력/i },
 ];
 
 // 제목 매칭 키워드 (공백 없이 비교)
@@ -97,7 +100,9 @@ const cnJobList = readJ("../src/data/careernet/jobs.json")?.jobs ?? [];
 const cnMajorList = readJ("../src/data/careernet/majors.json")?.majors ?? [];
 for (const g of readJ("../src/data/gen/jobs.json") ?? []) {
   const c = cnJobList.find((x) => x.seq === +g.id.slice(3));
-  JOB_KW[g.id] = [g.name, ...(c?.rel ? c.rel.split(/,\s*/) : [])].filter((k) => k && k.length >= 2).slice(0, 5);
+  // 이름이 길어 제목과 안 맞는 경우를 위해 "및"·가운뎃점·괄호로 나눈 이름도 키워드로 쓴다
+  const parts = g.name.split(/\s*(?:및|ㆍ|·|\(|\)|,)\s*/).filter((p) => p.length >= 3);
+  JOB_KW[g.id] = [...new Set([g.name, ...(c?.rel ? c.rel.split(/,\s*/) : []), ...parts])].filter((k) => k && k.length >= 2).slice(0, 8);
 }
 for (const g of readJ("../src/data/gen/majors.json") ?? []) {
   const c = cnMajorList.find((x) => x.seq === +g.id.slice(3));
@@ -109,9 +114,10 @@ const norm = (t) => t.replace(/\[[^\]]*\]|【[^】]*】|<[^>]*>/g, "").replace(/
 const head = (t) => norm(t.split(/[|｜\-–:_/]/)[0] || t);
 
 async function uploads(ch) {
-  const c = await get("channels", { part: "contentDetails", forHandle: ch.handle });
+  const c = await get("channels", { part: "contentDetails,snippet", forHandle: ch.handle });
   const pl = c.items?.[0]?.contentDetails?.relatedPlaylists?.uploads;
   if (!pl) { console.log("채널 없음:", ch.handle); return []; }
+  if (ch.expect && !ch.expect.test(c.items[0].snippet?.title ?? "")) { console.log("채널 이름이 달라 건너뜀:", ch.handle, c.items[0].snippet?.title); return []; }
   const out = [];
   let token = "";
   for (let i = 0; i < 120; i++) {
@@ -183,6 +189,31 @@ const jobs = Object.fromEntries(Object.entries(JOB_KW).map(([id, kw]) => [id, pi
 const majors = Object.fromEntries(Object.entries(MAJOR_KW).map(([id, kw]) => [id, pick(all, kw, true)]));
 const ok = await filterEmbeddable([...Object.values(jobs), ...Object.values(majors)].flat());
 const clean = (m) => Object.fromEntries(Object.entries(m).map(([k, vs]) => [k, vs.filter((v) => ok.has(v.id)).slice(0, 3).map(({ id, title, channel }) => ({ id, title, channel }))]).filter(([, vs]) => vs.length));
-const out = { asOf: new Date().toISOString().slice(0, 10), source: CHANNELS.map((c) => c.name).join(", "), jobs: clean(jobs), majors: clean(majors) };
+const cleanJobs = clean(jobs);
+// 직접 영상이 없는 직업 → 같은 분야 직업의 영상(이름이 비슷한 직업 먼저). 화면에서 "같은 분야 직업 영상"으로 표시
+const jmap = readJ("../src/data/careernet/job-detail.json")?.map ?? {};
+const seqOf = (id) => (id.startsWith("cn-") ? +id.slice(3) : jmap[id]);
+const cnBySeq = new Map(cnJobList.map((j) => [j.seq, j]));
+const allJobIds = [...Object.keys(JOB_KW)];
+const bigrams = (t) => { const n = norm(t); const r = new Set(); for (let i = 0; i < n.length - 1; i++) r.add(n.slice(i, i + 2)); return r; };
+const sim = (a, b) => { const x = bigrams(a), y = bigrams(b); let c = 0; x.forEach((g) => y.has(g) && c++); return c / Math.max(1, Math.min(x.size, y.size)); };
+const related = {};
+for (const id of allJobIds) {
+  if (cleanJobs[id]?.length) continue;
+  const me = cnBySeq.get(seqOf(id));
+  if (!me) continue;
+  const pool = allJobIds.filter((o) => o !== id && cleanJobs[o]?.length && cnBySeq.get(seqOf(o))?.field === me.field);
+  const pool2 = pool.length ? pool : allJobIds.filter((o) => o !== id && cleanJobs[o]?.length && cnBySeq.get(seqOf(o))?.group === me.group);
+  const ranked = pool2.map((o) => ({ o, s: sim(me.name, cnBySeq.get(seqOf(o)).name) })).sort((a, b) => b.s - a.s);
+  const seen = new Set();
+  const vids = [];
+  for (const { o } of ranked) {
+    const v = cleanJobs[o][0];
+    if (v && !seen.has(v.id)) { seen.add(v.id); vids.push(v); }
+    if (vids.length >= 2) break;
+  }
+  if (vids.length) related[id] = { field: me.field, videos: vids };
+}
+const out = { asOf: new Date().toISOString().slice(0, 10), source: CHANNELS.map((c) => c.name).join(", "), jobs: cleanJobs, jobsRelated: related, majors: clean(majors) };
 writeFileSync(new URL("../src/data/videos-auto.json", import.meta.url), JSON.stringify(out, null, 1) + "\n");
-console.log(`직업 ${Object.keys(out.jobs).length}/${Object.keys(JOB_KW).length}, 학과 ${Object.keys(out.majors).length}/${Object.keys(MAJOR_KW).length}`);
+console.log(`직업 직접 ${Object.keys(out.jobs).length}/${Object.keys(JOB_KW).length} + 같은 분야 ${Object.keys(related).length}, 학과 ${Object.keys(out.majors).length}/${Object.keys(MAJOR_KW).length}`);

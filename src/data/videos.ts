@@ -45,12 +45,19 @@ export const videoSearchLinks = (q: string) => [
 
 // 빌드 때 YouTube Data API로 공식 채널 업로드 목록에서 자동 매칭한 영상 (scripts/fetch-videos.mjs)
 import AUTO from "./videos-auto.json";
-const auto = AUTO as { jobs: Record<string, Video[]>; majors: Record<string, Video[]> };
+const auto = AUTO as { jobs: Record<string, Video[]>; majors: Record<string, Video[]>; jobsRelated?: Record<string, { field: string; videos: Video[] }> };
 const merge = (a: Video[] = [], b: Video[] = []) => {
   const seen = new Set<string>();
   return [...a, ...b].filter((v) => !seen.has(v.id) && seen.add(v.id)).slice(0, 4);
 };
 export const jobVideos = (id: string) => merge(JOB_VIDEOS[id], auto.jobs[id]);
 export const majorVideos = (id: string) => merge(MAJOR_VIDEOS[id], auto.majors[id]);
+// 직접 소개 영상이 없는 직업: 같은 분야(커리어넷 직업 분류) 직업의 영상. 화면에서 "같은 분야 직업 영상"이라고 밝혀서 보여 준다
+export const jobRelatedVideos = (id: string): { field: string; videos: Video[] } | null => {
+  const r = auto.jobsRelated?.[id];
+  return r && r.videos.length ? r : null;
+};
 // 학과 영상이 없을 때: 관련 직업 영상 (직업마다 1개씩)
-export const relatedJobVideos = (jobIds: string[]) => merge([], jobIds.map((j) => jobVideos(j)[0]).filter((v): v is Video => !!v));
+// (관련 직업에 직접 영상이 없으면 그 직업의 같은 분야 영상으로 한 번 더 찾는다)
+export const relatedJobVideos = (jobIds: string[]) =>
+  merge([], jobIds.map((j) => jobVideos(j)[0] ?? jobRelatedVideos(j)?.videos[0]).filter((v): v is Video => !!v));
