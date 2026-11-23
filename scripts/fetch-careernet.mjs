@@ -58,15 +58,17 @@ for (const o of OUR_JOBS) {
 console.log("이어진 직업", Object.keys(jobMap).length, "/", OUR_JOBS.length, "· 못 찾음:", OUR_JOBS.filter((o) => !jobMap[o.id]).map((o) => o.name).join(", "));
 
 // ── 3. 직업 상세(전체). 상세 이름이 목록 이름과 다르면 저장하지 않는다
-const list = (arr, k) => (arr ?? []).map((x) => strip(x[k])).filter(Boolean);
+// 응답 배열에 빈 칸(null)이 섞여 올 때가 있어 걸러 낸다
+const A = (a) => (Array.isArray(a) ? a : []).filter((x) => x && typeof x === "object");
+const list = (arr, k) => A(arr).map((x) => strip(x[k])).filter(Boolean);
 const jobDetail = {};
 let jobMiss = 0;
 for (const j of jobs) {
   let d;
   try { d = await getJSON(`${B}/front/openapi/job.json?apiKey=${KEY}&seq=${j.seq}`); } catch { jobMiss++; continue; }
-  const b = d.baseInfo ?? {};
+  const b = d?.baseInfo ?? {};
   if (!b.job_nm || norm(b.job_nm) !== norm(j.name)) { jobMiss++; continue; }
-  const edu = d.eduChart?.[0];
+  const edu = A(d.eduChart)[0];
   jobDetail[j.seq] = {
     seq: j.seq, name: strip(b.job_nm), updated: strip(b.edit_dt),
     work: list(d.workList, "work"),
@@ -77,10 +79,10 @@ for (const j of jobs) {
     curriculum: list(d.jobReadyList?.curriculum, "curriculum"),
     certificate: list(d.jobReadyList?.certificate, "certificate"),
     training: list(d.jobReadyList?.training, "training"),
-    majors: (d.departList ?? []).map((x) => strip(x.depart_name ?? x.major_nm ?? x.depart)).filter(Boolean),
-    certs: (d.certiList ?? []).map((x) => strip(x.certi ?? x.certi_name)).filter(Boolean),
+    majors: A(d.departList).map((x) => strip(x.depart_name ?? x.major_nm ?? x.depart)).filter(Boolean),
+    certs: A(d.certiList).map((x) => strip(x.certi ?? x.certi_name)).filter(Boolean),
     forecast: list(d.forecastList, "forecast"),
-    orgs: (d.jobRelOrgList ?? []).map((x) => ({ name: strip(x.rel_org), url: strip(x.rel_org_url) })).filter((x) => x.name),
+    orgs: A(d.jobRelOrgList).map((x) => ({ name: strip(x.rel_org), url: strip(x.rel_org_url) })).filter((x) => x.name),
     wage: strip(b.wage), wageNote: strip(b.wage_source), satisfaction: b.satisfication ?? null, satisfactionNote: strip(b.satisfi_source),
     wlb: strip(b.wlb), social: strip(b.social),
     edu: edu ? { labels: strip(edu.chart_name).split(","), values: strip(edu.chart_data).split(",").map(Number), source: strip(edu.source) } : null,
@@ -119,16 +121,16 @@ for (const mm of majors) {
   try { d = await getJSON(`${B}/openapi/getOpenApi?apiKey=${KEY}&svcType=api&svcCode=MAJOR_VIEW&contentType=json&gubun=univ_list&majorSeq=${mm.seq}`); } catch { majorMiss++; continue; }
   const c = d.dataSearch?.content?.[0] ?? {};
   if (!c.major || norm(c.major) !== norm(mm.name)) { majorMiss++; continue; }
-  const subj = (c.relate_subject_2022 ?? []).map((x) => ({ kind: strip(x.subject_name), names: strip(x.subject_description) })).filter((x) => x.names);
+  const subj = A(c.relate_subject_2022).map((x) => ({ kind: strip(x.subject_name), names: strip(x.subject_description) })).filter((x) => x.names);
   majorDetail[mm.seq] = {
     seq: mm.seq, name: strip(c.major), summary: strip(c.summary), interest: strip(c.interest), property: strip(c.property),
     salary: strip(c.salary), employment: strip(c.employment),
     jobs: strip(c.job), qualifications: strip(c.qualifications),
     subjects2022: subj,
-    fields: (c.enter_field ?? []).map((x) => ({ name: strip(x.gradeuate), desc: strip(x.description) })).filter((x) => x.name),
-    activities: (c.career_act ?? []).map((x) => ({ name: strip(x.act_name), desc: strip(x.act_description) })).filter((x) => x.name),
-    mainSubjects: (c.main_subject ?? []).map((x) => ({ name: strip(x.SBJECT_NM), desc: strip(x.SBJECT_SUMRY) })).filter((x) => x.name).slice(0, 12),
-    univCount: (c.university ?? []).length,
+    fields: A(c.enter_field).map((x) => ({ name: strip(x.gradeuate), desc: strip(x.description) })).filter((x) => x.name),
+    activities: A(c.career_act).map((x) => ({ name: strip(x.act_name), desc: strip(x.act_description) })).filter((x) => x.name),
+    mainSubjects: A(c.main_subject).map((x) => ({ name: strip(x.SBJECT_NM), desc: strip(x.SBJECT_SUMRY) })).filter((x) => x.name).slice(0, 12),
+    univCount: A(c.university).length,
   };
   await sleep(120);
 }
