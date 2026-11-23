@@ -6,6 +6,7 @@ on:
   workflow_dispatch:
 permissions:
   contents: write
+  actions: write
 jobs:
   sync:
     runs-on: ubuntu-latest
@@ -25,3 +26,7 @@ jobs:
           if git diff --cached --quiet; then echo "바뀐 것 없음"; exit 0; fi
           git commit -m "자료: 커리어넷 직업·학과 정보 갱신"
           git push
+          # 봇 커밋은 배포를 자동으로 부르지 않아서 직접 배포를 시작한다
+          gh workflow run firebase-hosting-merge.yml --ref main
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
