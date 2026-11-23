@@ -226,6 +226,12 @@ export const CREDITS: Record<string, string> = {
     "Enter your school's designated subjects and choice groups (choose N) for each semester, and the 192-credit planner works like real course registration. One person can enter it and share it with friends or students by link or file.",
   "공유받은 편제표:": "Shared curriculum table:",
   "이 편제표로 설계하기": "Plan with this table",
+  "경남 학교 편제표 불러오기": "Load a Gyeongnam school's curriculum table",
+  "학교가 누리집에 공개한 편성표를 옮긴 거예요. 학교 사정으로 바뀔 수 있으니 꼭 학교 공지로 다시 확인하세요.":
+    "This is copied from the table the school published on its website. It may change, so please check again with the school's announcements.",
+  "학교 선택": "Select a school",
+  "학교를 골라요": "Choose a school",
+  "출처 문서 보기": "View source document",
   "편집해서 쓰기": "Edit and use",
   "학교 이름": "School name",
   "예) ○○고등학교": "e.g., ○○ High School",

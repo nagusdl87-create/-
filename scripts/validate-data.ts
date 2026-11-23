@@ -6,6 +6,7 @@ import { JOB_DETAILS } from "../src/data/jobDetails";
 import { MAJOR_DETAILS } from "../src/data/majorDetails";
 import { JOB_DEEP, MAJOR_DEEP } from "../src/data/deep";
 import { SAMPLE_CURRICULUM, SEM_KEYS } from "../src/data/curriculum";
+import { SCHOOL_CURRICULA } from "../src/data/curricula";
 import { GN_INDUSTRIES, GN_SCHOOLS, EXPERIENCE_SCHOOLS, GENERAL_WITH_VOC } from "../src/data/gn";
 import { readdirSync } from "node:fs";
 import { join } from "node:path";
@@ -19,6 +20,31 @@ const names = new Set(GN_SCHOOLS.map((s) => s.name));
 GN_INDUSTRIES.forEach((i) => { i.schools.forEach((s) => names.has(s) || errs.push(`학교 없음: ${s}`)); i.jobs.forEach((j) => JOB_MAP[j] || errs.push(`직업 없음: ${j}`)); });
 [...EXPERIENCE_SCHOOLS, ...GENERAL_WITH_VOC.map((g) => g.school)].forEach((s) => names.has(s) || errs.push(`학교 없음: ${s}`));
 SEM_KEYS.forEach((s) => { const c = SAMPLE_CURRICULUM.sems[s]; [...c.fixed, ...c.groups.flatMap((g) => g.options)].forEach((i) => subj(i.name, "예시편제표:" + s)); });
+// 실제 학교 편제표: 학교 이름·출처·학점 합계(교과 174)·선택군 학점 통일·과목 이름 검사
+SCHOOL_CURRICULA.forEach(({ id, curriculum: c, source }) => {
+  const w = "편제표:" + id;
+  names.has(c.school) || errs.push(`${w}: 경남 고교 목록에 없는 학교 ${c.school}`);
+  (source.url.startsWith("https://www.gne.go.kr/") && source.doc && source.year) || errs.push(`${w}: 출처 정보 부족`);
+  const gids = new Set<string>(); let sum = 0;
+  // 학교가 실제로 쓰는 과목 이름이 우리 과목 목록에 없을 수 있어요(예: 학교 자체 과목) → 오류가 아니라 안내만
+  const chk = (n: string, where: string) => { SUBJECT_MAP[n] || console.log(`안내) 과목 목록에 없는 이름: ${n} (${w}:${where})`); };
+  SEM_KEYS.forEach((s) => {
+    const sm = c.sems[s];
+    let t = sm.fixed.reduce((a, i) => a + i.credits, 0);
+    sm.fixed.forEach((i) => chk(i.name, s));
+    sm.groups.forEach((gr) => {
+      gids.has(gr.id) && errs.push(`${w}: 선택군 id 중복 ${gr.id}`); gids.add(gr.id);
+      gr.pick >= 1 && gr.pick <= gr.options.length || errs.push(`${w}: ${gr.id} 고를 수 범위`);
+      new Set(gr.options.map((o) => o.credits)).size === 1 || errs.push(`${w}: ${gr.id} 선택군 학점이 서로 다름`);
+      new Set(gr.options.map((o) => o.name)).size === gr.options.length || errs.push(`${w}: ${gr.id} 과목 중복`);
+      gr.options.forEach((o) => chk(o.name, gr.id));
+      t += gr.pick * gr.options[0].credits;
+    });
+    t > 0 && t <= 32 || errs.push(`${w}: ${s} 학기 학점 이상 ${t}`);
+    sum += t;
+  });
+  sum === 174 || errs.push(`${w}: 교과 학점 합계 ${sum} (174 아님)`);
+});
 const ids = JOBS.map((j) => j.id); ids.forEach((id, i) => ids.indexOf(id) !== i && errs.push("중복 직업 " + id));
 // 자격·전망 보강(JOB_DETAILS)은 처음부터 쓴 직업만. cn- 직업은 같은 페이지의 커리어넷 공식 정보가 그 역할을 한다
 JOBS.filter((j) => !j.id.startsWith("cn-")).forEach((j) => JOB_DETAILS[j.id] || errs.push(`직업 상세 없음: ${j.id}`));

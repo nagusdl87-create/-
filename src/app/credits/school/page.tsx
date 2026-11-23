@@ -11,6 +11,7 @@ import {
   curriculumCredits, decodeCurriculum, emptyCurriculum, encodeCurriculum, parseCurriculum, SAMPLE_CURRICULUM, SEM_KEYS,
   type CurrGroup, type CurrItem, type SchoolCurriculum,
 } from "@/data/curriculum";
+import { SCHOOL_CURRICULA } from "@/data/curricula";
 import { PageHead } from "@/components/ui";
 import { useT } from "@/lib/i18n";
 import { useLabels } from "@/lib/subjectLabel";
@@ -25,6 +26,7 @@ export default function SchoolCurriculumPage() {
   const [incoming, setIncoming] = useState<SchoolCurriculum | null>(null);
   const [sem, setSem] = useState<Sem>("2-1");
   const [msg, setMsg] = useState("");
+  const [official, setOfficial] = useState("");
   const fileRef = useRef<HTMLInputElement>(null);
   const t = useT();
 
@@ -76,6 +78,28 @@ export default function SchoolCurriculumPage() {
           </div>
         </div>
       )}
+
+      <div className="card mb-4">
+        <h2 className="font-bold">{t("경남 학교 편제표 불러오기")}</h2>
+        <p className="mt-1 text-xs text-slate-500">{t("학교가 누리집에 공개한 편성표를 옮긴 거예요. 학교 사정으로 바뀔 수 있으니 꼭 학교 공지로 다시 확인하세요.")}</p>
+        <div className="mt-2 flex flex-wrap items-center gap-2">
+          <select className="input max-w-xs" aria-label={t("학교 선택")} value={official} onChange={(e) => setOfficial(e.target.value)}>
+            <option value="">{t("학교를 골라요")}</option>
+            {SCHOOL_CURRICULA.map((x) => <option key={x.id} value={x.id} data-keep-ko>{x.curriculum.school} · {x.source.year}</option>)}
+          </select>
+          {(() => {
+            const o = SCHOOL_CURRICULA.find((x) => x.id === official);
+            if (!o) return null;
+            return (
+              <>
+                <button className="btn-primary" onClick={() => apply(o.curriculum)}>{t("이 편제표로 설계하기")}</button>
+                <button className="btn-ghost" onClick={() => setDraft(clone(o.curriculum))}>{t("편집해서 쓰기")}</button>
+                <a className="text-xs text-brand-600 underline" href={o.source.url} target="_blank" rel="noopener noreferrer">{t("출처 문서 보기")}</a>
+              </>
+            );
+          })()}
+        </div>
+      </div>
 
       <div className="card mb-4 grid gap-3 sm:grid-cols-3">
         <div>
