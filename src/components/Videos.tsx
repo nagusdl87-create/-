@@ -2,7 +2,8 @@
 
 import { useState } from "react";
 import { PlayCircle, ExternalLink, Play } from "lucide-react";
-import { videoSearchLinks, type Video } from "@/data/videos";
+import type { Video } from "@/data/videos";
+import { videoSearchLinks } from "@/data/videos-links";
 import { useT } from "@/lib/i18n";
 
 // query: 영상 검색어(공식 채널이 한국어라 한국어 이름 그대로), label: 화면에 보일 이름(없으면 query). 영상 제목·채널명은 원어 그대로(data-keep-ko).

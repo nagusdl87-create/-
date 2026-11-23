@@ -1,6 +1,6 @@
 // 영어 자료: src/data/highschools.ts (HS_TYPES, HS_QUIZ). 영어 모드에서만 불러온다.
 import type { HsType } from "@/data/highschools";
-import type { HsTypeId } from "@/data/jobs";
+import type { HsTypeId } from "@/data/jobs-core";
 
 type HsTypeEn = Pick<HsType, "name" | "oneLine" | "goodFor" | "curriculum" | "admission" | "afterGrad" | "consider" | "features" | "student" | "caution" | "signature" | "strategy">;
 

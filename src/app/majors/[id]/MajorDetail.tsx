@@ -8,14 +8,13 @@ import { Faq, MajorDeepMain } from "@/components/Deep";
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { MAJOR_MAP, MAJORS } from "@/data/majors";
+import type { Major } from "@/data/majors-core";
 import { SUBJECT_MAP, TRACKS } from "@/data/subjects";
-import { JOB_MAP } from "@/data/jobs";
 import { OFFICIAL } from "@/data/gn";
 import { MAJOR_MATCH } from "@/data/majorMatch";
 import { UniversityList } from "@/components/UniversityList";
 import { useUniv } from "@/lib/univ";
-import { majorVideoSet } from "@/data/videos";
+import type { MajorVideoKind, Video } from "@/data/videos";
 import { Videos } from "@/components/Videos";
 import { toggleIn, useStore } from "@/lib/store";
 import { useEnData, useLang, useT } from "@/lib/i18n";
@@ -23,8 +22,15 @@ import { useNames } from "@/i18n/names";
 import { CareerNetMajor } from "@/components/CareerNet";
 import type { CnMajor } from "@/data/careernet";
 
-export function MajorDetail({ id, deep: deepKo, deepEn, cn }: { id: string; deep?: MajorDeep; deepEn?: MajorDeep; cn?: CnMajor & { fetchedAt: string } }) {
-  const m = MAJOR_MAP[id];
+export type MajorCtx = {
+  major: Major;
+  similar: { id: string; name: string }[];
+  jobs: { id: string; name: string; emoji: string }[];
+  vset: { kind: MajorVideoKind; videos: Video[] };
+};
+
+export function MajorDetail({ id, deep: deepKo, deepEn, cn, ctx }: { id: string; deep?: MajorDeep; deepEn?: MajorDeep; cn?: CnMajor & { fetchedAt: string }; ctx: MajorCtx }) {
+  const m = ctx.major;
   const t = useT();
   const { subject: subjectLabel, job: jobLabel, majorById } = useNames();
   const majorName = majorById(m.id, m.name);
@@ -41,8 +47,8 @@ export function MajorDetail({ id, deep: deepKo, deepEn, cn }: { id: string; deep
   const on = state.favMajors.includes(m.id);
   const more = MAJOR_DETAILS[m.id];
   const moreEn = enD?.MAJOR_DETAILS_EN[m.id];
-  const similar = MAJORS.filter((x) => x.track === m.track && x.id !== m.id).slice(0, 6);
-  const vset = majorVideoSet(m, MAJORS);
+  const similar = ctx.similar;
+  const vset = ctx.vset;
   const placed = new Set(Object.values(state.credits.plan).flat().map((e) => e.split("|")[0]));
 
   const Subj = ({ name, core }: { name: string; core?: boolean }) => (
@@ -194,7 +200,7 @@ export function MajorDetail({ id, deep: deepKo, deepEn, cn }: { id: string; deep
           <div className="mt-2 flex flex-wrap gap-1.5">{(e?.careers ?? m.careers).map((c) => <span key={c} className="chip">{c}</span>)}</div>
           <div className="mt-3 text-xs font-semibold text-slate-500">{t("관련 직업")}</div>
           <div className="mt-1 flex flex-wrap gap-1.5">
-            {m.jobs.map((j) => JOB_MAP[j] && <Link key={j} href={`/jobs/${j}`} className="chip hover:border-brand-300">{JOB_MAP[j].emoji} {jobLabel(JOB_MAP[j].name)}</Link>)}
+            {ctx.jobs.map((j) => <Link key={j.id} href={`/jobs/${j.id}`} className="chip hover:border-brand-300">{j.emoji} {jobLabel(j.name)}</Link>)}
           </div>
         </div>
       </div>

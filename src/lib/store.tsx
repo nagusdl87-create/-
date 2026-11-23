@@ -3,7 +3,7 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
 import { useMounted } from "@/lib/useMounted";
 import type { ValueId } from "@/data/riasec";
-import type { HsTypeId } from "@/data/jobs";
+import type { HsTypeId } from "@/data/jobs-core";
 import type { TrackId } from "@/data/subjects";
 import { DEFAULT_TASKS, TERMS, type Stage, type Term } from "@/data/plan";
 import type { SchoolCurriculum } from "@/data/curriculum";

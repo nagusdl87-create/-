@@ -1,5 +1,5 @@
 // 영어 자료: 직업 목록·요약 (src/data/jobs.ts와 같은 id). 영어 모드에서만 useEnData로 불러온다.
-import type { FieldId } from "@/data/jobs";
+import type { FieldId } from "@/data/jobs-core";
 import { JOBS_EN_GEN } from "./jobs.gen.en";
 
 export type JobEn = { name: string; summary: string; tasks: string[]; msActions: string[]; gn?: string };

@@ -1,6 +1,6 @@
 "use client";
 
-import type { Job } from "@/data/jobs";
+import type { Job } from "@/data/jobs-core";
 import { useEnData, useT } from "@/lib/i18n";
 
 export function PathFlow({ job, compact = false }: { job: Job; compact?: boolean }) {

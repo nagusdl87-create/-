@@ -2,15 +2,14 @@
 
 import Link from "next/link";
 import { useEffect, useMemo } from "react";
-import { FIELDS, JOBS, JOB_MAP } from "@/data/jobs";
+import { FIELDS, type Job } from "@/data/jobs-core";
 import { HS_MAP } from "@/data/highschools";
 import { RIASEC, VALUES } from "@/data/riasec";
 import { useStore } from "@/lib/store";
 import { isTestComplete, jobMatch, riasecScores } from "@/lib/match";
 import { FavButton, useJobsEn } from "@/components/JobCard";
 import { PathFlow } from "@/components/PathFlow";
-import { MAJORS } from "@/data/majors";
-import { jobVideos, jobRelatedVideos } from "@/data/videos";
+import type { Video } from "@/data/videos";
 import { Videos } from "@/components/Videos";
 import { GN_INDUSTRIES } from "@/data/gn";
 import { JOB_DETAILS } from "@/data/jobDetails";
@@ -23,8 +22,16 @@ import { useEnData, useLang, useT } from "@/lib/i18n";
 import { useNames } from "@/i18n/names";
 import { Award, Building2, Star, TrendingUp } from "lucide-react";
 
-export function JobDetail({ id, deep: deepKo, deepEn, cn }: { id: string; deep?: JobDeep; deepEn?: JobDeep; cn?: CnJob & { fetchedAt: string } }) {
-  const ko = JOB_MAP[id];
+export type JobCtx = {
+  job: Job;
+  majors: { id: string; name: string }[];
+  similar: { id: string; name: string; emoji: string }[];
+  videos: Video[];
+  related: { field: string; videos: Video[] } | null;
+};
+
+export function JobDetail({ id, deep: deepKo, deepEn, cn, ctx }: { id: string; deep?: JobDeep; deepEn?: JobDeep; cn?: CnJob & { fetchedAt: string }; ctx: JobCtx }) {
+  const ko = ctx.job;
   const t = useT();
   const { lang } = useLang();
   const en = useJobsEn();
@@ -64,9 +71,9 @@ export function JobDetail({ id, deep: deepKo, deepEn, cn }: { id: string; deep?:
   const tested = ready && isTestComplete(state.answers);
   const score = tested ? jobMatch(ko, riasecScores(state.answers), state.values) : null;
   const more = (lang === "en" ? detEn?.JOB_DETAILS_EN[ko.id] : undefined) ?? JOB_DETAILS[ko.id];
-  const majors = MAJORS.filter((m) => m.jobs.includes(ko.id));
+  const majors = ctx.majors;
   const inds = GN_INDUSTRIES.filter((i) => i.jobs.includes(ko.id));
-  const similar = JOBS.filter((j) => j.id !== ko.id && (j.field === ko.field || j.riasec[0] === ko.riasec[0])).slice(0, 4);
+  const similar = ctx.similar;
   const sep = isEn ? ", " : "·";
   const more1 = t("더 자세한 직업 정보(전망, 임금, 직업인 인터뷰)는 {link}에서 확인할 수 있어요.").split("{link}");
 
@@ -116,10 +123,10 @@ export function JobDetail({ id, deep: deepKo, deepEn, cn }: { id: string; deep?:
 
       <div className="card">
         <h2 className="mb-3 font-bold">{t("직업인 영상")}</h2>
-        {jobVideos(job.id).length > 0 || !jobRelatedVideos(job.id) ? (
-          <Videos videos={jobVideos(job.id)} query={ko.name} label={job.name} />
+        {ctx.videos.length > 0 || !ctx.related ? (
+          <Videos videos={ctx.videos} query={ko.name} label={job.name} />
         ) : (
-          <Videos videos={jobRelatedVideos(job.id)!.videos} query={ko.name} label={job.name} note={t("이 직업을 직접 소개한 영상은 아직 없어요. 같은 분야 직업의 영상을 대신 보여 드려요.")} />
+          <Videos videos={ctx.related!.videos} query={ko.name} label={job.name} note={t("이 직업을 직접 소개한 영상은 아직 없어요. 같은 분야 직업의 영상을 대신 보여 드려요.")} />
         )}
       </div>
 

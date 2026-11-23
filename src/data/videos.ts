@@ -37,11 +37,7 @@ export const MAJOR_VIDEOS: Record<string, Video[]> = {
   nursing: [{ id: "3tt2-No2IkA", title: "간호학과", channel: "한국고용정보원 직업진로동영상" }],
 };
 
-export const videoSearchLinks = (q: string) => [
-  { label: "한국고용정보원 직업진로동영상", url: `https://www.youtube.com/@KEISwork2011/search?query=${encodeURIComponent(q)}` },
-  { label: "한국고용정보원(고용24)", url: `https://www.youtube.com/@worknet_keis/search?query=${encodeURIComponent(q)}` },
-  { label: "커리어넷 직업·학과 영상", url: "https://www.career.go.kr/" },
-];
+export { videoSearchLinks } from "./videos-links";
 
 // 빌드 때 YouTube Data API로 공식 채널 업로드 목록에서 자동 매칭한 영상 (scripts/fetch-videos.mjs)
 import AUTO from "./videos-auto.json";

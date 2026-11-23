@@ -3,7 +3,7 @@
 import { Heart } from "lucide-react";
 
 import Link from "next/link";
-import { FIELDS, type Job } from "@/data/jobs";
+import { FIELDS, type Job } from "@/data/jobs-core";
 import { RIASEC } from "@/data/riasec";
 import { useStore } from "@/lib/store";
 import { FIELD_HUE } from "@/lib/colors";
