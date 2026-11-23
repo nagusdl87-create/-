@@ -4,8 +4,8 @@ import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Search } from "lucide-react";
-import { JOBS } from "@/data/jobs";
-import { MAJORS } from "@/data/majors";
+import { CORE_JOBS, type Job } from "@/data/jobs-core";
+import { CORE_MAJORS, type Major } from "@/data/majors-core";
 import { SUBJECTS } from "@/data/subjects";
 import { GN_SCHOOLS, KIND_INFO } from "@/data/gn";
 import { useLang, useT } from "@/lib/i18n";
@@ -23,7 +23,19 @@ export function useCnDir(active: boolean) {
   return d;
 }
 
-export function searchAll(q: string, extra: string[] = [], cn: CnDir | null = null) {
+// 직업·학과 백과 전체(557·503개)는 검색어를 입력할 때만 불러온다(첫 화면 가볍게). 불러오기 전에는 처음부터 쓴 직업·학과로 찾는다
+type Full = { jobs: Job[]; majors: Major[] };
+const CORE_FULL: Full = { jobs: CORE_JOBS, majors: CORE_MAJORS };
+let fullP: Promise<Full> | null = null;
+const loadFull = () => (fullP ??= Promise.all([import("@/data/jobs"), import("@/data/majors")]).then(([j, m]) => ({ jobs: j.JOBS, majors: m.MAJORS })));
+export function useFullLists(active: boolean): Full {
+  const [d, setD] = useState<Full | null>(null);
+  useEffect(() => { if (active && !d) loadFull().then(setD).catch(() => {}); }, [active, d]);
+  return d ?? CORE_FULL;
+}
+
+export function searchAll(q: string, extra: string[] = [], cn: CnDir | null = null, full: Full = CORE_FULL) {
+  const JOBS = full.jobs, MAJORS = full.majors;
   const terms = [q.toLowerCase(), ...extra];
   const has = (...s: string[]) => { const txt = s.join(" ").toLowerCase(); return terms.some((x) => txt.includes(x)); };
   return {
@@ -47,6 +59,7 @@ export function LiveSearch() {
   const [q, setQ] = useState("");
   const [cat, setCat] = useState<Cat>("all");
   const cn = useCnDir(q.trim().length > 0);
+  const full = useFullLists(q.trim().length > 0);
   const r = useMemo(() => {
     const qq = q.trim();
     if (!qq) return null;
@@ -56,8 +69,8 @@ export function LiveSearch() {
       const lq = qq.toLowerCase();
       for (const [ko, en] of Object.entries(dict)) if (ko.length <= 20 && en.toLowerCase().includes(lq)) extra.push(ko.toLowerCase());
     }
-    return searchAll(qq, extra, cn);
-  }, [q, lang, dict, cn]);
+    return searchAll(qq, extra, cn, full);
+  }, [q, lang, dict, cn, full]);
   const LABEL: Record<Exclude<Cat, "all">, string> = { majors: "대학 학과", subjects: "교과목", jobs: "직업", schools: "경남 고교" };
   const total = r ? r.majors.length + r.subjects.length + r.jobs.length + r.schools.length : 0;
   return (

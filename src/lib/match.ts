@@ -1,5 +1,5 @@
 import { QUESTIONS, RIASEC_ORDER, type RiasecKey } from "@/data/riasec";
-import { JOBS, type HsTypeId, type Job } from "@/data/jobs";
+import type { HsTypeId, Job } from "@/data/jobs-core";
 import { HS_QUIZ, HS_TYPES } from "@/data/highschools";
 import type { AppState } from "./store";
 import { TERMS_BY_STAGE } from "@/data/plan";
@@ -47,11 +47,6 @@ export function jobMatch(job: Job, scores: Scores, values: string[]): number {
   const overlap = job.values.filter((v) => values.includes(v)).length;
   const valueBonus = values.length ? (overlap / Math.min(3, job.values.length)) * 100 : interest;
   return Math.round(interest * 0.8 + valueBonus * 0.2);
-}
-
-export function rankedJobs(state: AppState) {
-  const scores = riasecScores(state.answers);
-  return JOBS.map((j) => ({ job: j, score: jobMatch(j, scores, state.values) })).sort((a, b) => b.score - a.score);
 }
 
 export function hsQuizResult(hsQuiz: Record<number, number>, favorites: Job[]) {

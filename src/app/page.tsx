@@ -4,19 +4,21 @@
 // 큰 검색 + 학년 버튼 → 색 아이콘 바로가기 → 왼쪽 콘텐츠(경남 산업 직업·분야별 직업·인기 학과) + 오른쪽 정보판(고입 D-day·급식·핵심 숫자)
 // 그라데이션 배경·기울어진 목업 카드·숫자 띠는 쓰지 않는다. 조회 수 자료가 없으므로 '인기 순위'처럼 꾸미지 않는다.
 import Link from "next/link";
+import { useEffect, useState } from "react";
 import { MySchoolMeal, MySchoolSchedule } from "@/components/Neis";
 import { BackupReminder } from "@/components/Backup";
 import { EnglishHome } from "@/components/English";
 import { ArrowRight, BookOpen, Calculator, CalendarClock, Check, ChevronRight, Compass, GraduationCap, LayoutGrid, MapPinned, Percent, Briefcase, type LucideIcon } from "lucide-react";
 import { useStore } from "@/lib/store";
-import { isTestComplete, progress, rankedJobs, riasecScores, topTypes } from "@/lib/match";
+import { isTestComplete, progress, riasecScores, topTypes } from "@/lib/match";
+import type { Job } from "@/data/jobs-core";
 import { analyze } from "@/lib/credits";
 import { EXPLORE, JOURNEY, TOOLS, type NavItem } from "@/lib/journey";
 import { RIASEC, RIASEC_ORDER } from "@/data/riasec";
 import { TERMS_BY_STAGE, type Stage } from "@/data/plan";
 import { dday, GN_SCHOOLS, upcomingSchedule } from "@/data/gn";
-import { FIELDS, JOBS, type FieldId } from "@/data/jobs";
-import { MAJOR_MAP } from "@/data/majors";
+import { CORE_JOBS, type FieldId } from "@/data/jobs-core";
+import { CORE_MAJOR_MAP as MAJOR_MAP } from "@/data/majors-core";
 import { LiveSearch } from "@/components/LiveSearch";
 import { CN_SUMMARY, JOB_GROUP_EMOJI } from "@/data/careernet-summary";
 import { CreditCard } from "@/components/Credit";
@@ -43,7 +45,7 @@ const FIELD_TONE: Record<FieldId, string> = {
   law: "bg-violet-50", art: "bg-coral-50", media: "bg-sun-100", sports: "bg-lime-50", life: "bg-amber-50", env: "bg-emerald-50",
 };
 
-const GN_JOBS = JOBS.filter((j) => j.gn);
+const GN_JOBS = CORE_JOBS.filter((j) => j.gn);
 const POPULAR_MAJORS = ["cs", "medicine", "ai", "semiconductor", "business", "biology"];
 
 /** 둥근 흰 판(정보판·콘텐츠 묶음) */
@@ -261,12 +263,35 @@ function AllMenus() {
   );
 }
 
+/** 흥미 탐색을 마친 학생의 추천 직업 3개(직업 자료 전체는 이때만 불러옴) */
+function useRecs(state: Parameters<typeof progress>[0], tested: boolean) {
+  const [recs, setRecs] = useState<{ job: Job; score: number }[]>([]);
+  useEffect(() => {
+    if (!tested) return setRecs([]);
+    let on = true;
+    import("@/lib/match-rank").then((m) => on && setRecs(m.rankedJobs(state).slice(0, 3)));
+    return () => { on = false; };
+  }, [state, tested]);
+  return recs;
+}
+
+/** 찜한 학과 중 처음부터 쓴 56개 밖의 학과가 있을 때만 학과 자료 전체를 불러와 이름을 찾는다 */
+function useMajorNames(ids: string[]) {
+  const need = ids.some((id) => !MAJOR_MAP[id]);
+  const [full, setFull] = useState<Record<string, { name: string }> | null>(null);
+  useEffect(() => { if (need && !full) import("@/data/majors").then((m) => setFull(m.MAJOR_MAP)); }, [need, full]);
+  return (id: string) => MAJOR_MAP[id]?.name ?? full?.[id]?.name;
+}
+
 export default function Home() {
   const { state, ready, update } = useStore();
   const t = useT();
   const { lang } = useLang();
   const stage = state.profile.stage;
   const p = progress(state);
+  // 훅은 아래의 조기 반환보다 먼저 부른다
+  const recs = useRecs(state, ready && isTestComplete(state.answers));
+  const majorName = useMajorNames(state.favMajors);
 
   if (!ready) return <div className="h-96" />;
 
@@ -333,7 +358,6 @@ export default function Home() {
   const termList = TERMS_BY_STAGE[stage];
   const term = termList.find((x) => x.id === state.currentTerm) ?? termList[0];
   const termTasks = state.tasks[term.id] ?? [];
-  const recs = tested ? rankedJobs(state).slice(0, 3) : [];
   const credit = analyze(state.credits.plan, state.credits.track);
   const favSchools = state.favSchools.map((id) => GN_SCHOOLS.find((s) => s.id === id)).filter(Boolean);
   const allDone = p.doneCount === 5;
@@ -450,7 +474,7 @@ export default function Home() {
                 </ul>
                 <div className="mt-3 flex flex-wrap gap-1.5">
                   {state.favMajors.length ? (
-                    state.favMajors.map((id) => MAJOR_MAP[id] && <Link key={id} href={`/majors/${id}`} className="chip">{t(MAJOR_MAP[id].name)}</Link>)
+                    state.favMajors.map((id) => majorName(id) && <Link key={id} href={`/majors/${id}`} className="chip">{t(majorName(id)!)}</Link>)
                   ) : (
                     <Link href="/majors" className="text-sm font-medium text-brand-700">{t("관심 학과 찾아보기 →")}</Link>
                   )}
