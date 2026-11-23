@@ -58,3 +58,7 @@ save("jobs-deep.json", jobDeep);
 save("majors.json", majors);
 save("majors-deep.json", majorDeep);
 console.log("심화 글 반영", `직업 ${jobs.length}개`, `학과 ${majors.length}개`);
+
+// 목록 화면이 어떤 직업·학과를 "심화"로 보여 줄지는 색인(directory.json·summary.json)이 정하므로 반영 직후 색인도 다시 만든다
+import { execFileSync } from "node:child_process";
+execFileSync(process.execPath, ["scripts/build-careernet-index.mjs"], { stdio: "inherit" });
