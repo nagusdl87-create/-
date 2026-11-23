@@ -3,6 +3,7 @@ import { FIELDS, JOBS, type FieldId } from "@/data/jobs";
 import { SUBJECTS_EN } from "./subjects.en";
 import { FIELDS_EN, JOBS_EN } from "./jobs.en";
 import { MAJOR_NAME_EN, MAJORS_EN } from "./majors.en";
+import { EXTRA_MAJOR_NAMES_GEN } from "./majors.gen.en";
 import { MAJORS } from "@/data/majors";
 import { RIASEC, VALUES } from "@/data/riasec";
 import { RIASEC_EN, VALUES_EN, STRENGTHS_EN } from "./riasec.en";
@@ -11,6 +12,7 @@ import { TASKS_EN } from "./plan.en";
 
 // 직업 화면의 '관련 학과'에 나오지만 학과 백과(56개)에는 없는 학과·안내 문구
 const EXTRA_MAJORS: Record<string, string> = {
+  ...EXTRA_MAJOR_NAMES_GEN,
   정보통신공학과: "Information and Communication Engineering", 사이버보안학과: "Cyber Security", 산업공학과: "Industrial Engineering",
   경영정보학과: "Management Information Systems", 게임공학과: "Game Engineering", 게임콘텐츠학과: "Game Content", 디지털콘텐츠학과: "Digital Content",
   전자공학과: "Electronic Engineering", 메카트로닉스공학과: "Mechatronics Engineering", 자동차공학과: "Automotive Engineering", 전기공학과: "Electrical Engineering",

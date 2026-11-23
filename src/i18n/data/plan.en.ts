@@ -62,6 +62,8 @@ export const TASKS_EN: Record<string, string> = {
 
 // 과목 이름(한국어) → 영어. 다른 영어 자료(포트폴리오·미래 신산업)에서도 함께 쓴다.
 export const SUBJECT_NAMES: Record<string, string> = {
+  "미술사": "Art History",
+  "한국사1": "Korean History 1",
   "국어": "Korean",
   "수학": "Math",
   "영어": "English",

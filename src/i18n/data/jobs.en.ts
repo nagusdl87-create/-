@@ -1,5 +1,6 @@
 // 영어 자료: 직업 목록·요약 (src/data/jobs.ts와 같은 id). 영어 모드에서만 useEnData로 불러온다.
 import type { FieldId } from "@/data/jobs";
+import { JOBS_EN_GEN } from "./jobs.gen.en";
 
 export type JobEn = { name: string; summary: string; tasks: string[]; msActions: string[]; gn?: string };
 
@@ -19,6 +20,7 @@ export const FIELDS_EN: Record<FieldId, string> = {
 };
 
 export const JOBS_EN: Record<string, JobEn> = {
+  ...JOBS_EN_GEN,
   "ai-engineer": {
     name: "AI Developer",
     summary: "Designs and builds AI models and services that learn from data and make their own decisions.",

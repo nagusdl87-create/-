@@ -1,10 +1,12 @@
 // 학과 목록 영어 자료 (src/data/majors.ts와 같은 id). 영어 모드에서만 useEnData로 불러온다.
 // name·desc·univ(대학 교과목)·careers(진출 분야)는 원본과 같은 순서로 번역.
 import type { TrackId } from "@/data/subjects";
+import { MAJORS_EN_GEN } from "./majors.gen.en";
 
 export type MajorEn = { name: string; desc: string; univ: string[]; careers: string[] };
 
 export const MAJORS_EN: Record<string, MajorEn> = {
+  ...MAJORS_EN_GEN,
   // 인문
   korean: { name: "Korean Language and Literature", desc: "Study the structure of the Korean language and Korean literature in depth.", univ: ["Introduction to Korean Linguistics", "History of Classical Literature", "Theory of the Modern Novel", "Korean Grammar"], careers: ["Publishing and media", "Education", "Content planning", "Public institutions"] },
   english: { name: "English Language and Literature", desc: "Learn the structure of English and the literature and culture of English-speaking countries.", univ: ["Introduction to English Linguistics", "British and American Novels", "English Phonetics", "Basics of Interpreting and Translation"], careers: ["Interpreting and translation", "Trade and foreign companies", "Education", "Tourism"] },
