@@ -1,0 +1,27 @@
+# 커리어넷 Open API 자료를 주 1회 받아 src/data/careernet/ 에 저장(바뀐 것이 있을 때만 커밋)
+name: 커리어넷 자료 갱신
+on:
+  schedule:
+    - cron: "37 18 * * 0"   # 매주 월요일 03:37 KST
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: node scripts/fetch-careernet.mjs
+        env:
+          CAREERNET_API_KEY: ${{ secrets.CAREERNET_API_KEY }}
+      - name: 바뀐 자료 커밋
+        run: |
+          git config user.name "myroad-bot"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add src/data/careernet
+          if git diff --cached --quiet; then echo "바뀐 것 없음"; exit 0; fi
+          git commit -m "자료: 커리어넷 직업·학과 정보 갱신"
+          git push
