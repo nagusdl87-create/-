@@ -1,6 +1,6 @@
 // 커리어넷 Open API → src/data/careernet/*.json (주 1회, GitHub Actions에서 실행해 저장소에 커밋)
-// - 직업백과(새 API): 목록 jobs.json(전체 552여 개, 요약만) + 우리 직업 백과와 이름이 맞는 직업의 상세 job.json?seq=
-// - 학과정보: 목록 getOpenApi svcCode=MAJOR(대학교) + 우리 학과 백과와 이름이 맞는 학과의 상세 MAJOR_VIEW
+// - 직업백과(새 API): 목록 jobs.json + 모든 직업의 상세 job.json?seq=(job_cd). 우리 직업 백과와 이어지는 것은 map에 기록
+// - 학과정보: 목록 getOpenApi svcCode=MAJOR(대학교) + 모든 학과의 상세 MAJOR_VIEW. 우리 학과 백과와 이어지는 것은 map에 기록
 // 출처: 커리어넷(www.career.go.kr) 오픈API. 키는 GitHub Secrets(CAREERNET_API_KEY)에서만 읽는다.
 import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 
@@ -57,17 +57,18 @@ for (const o of OUR_JOBS) {
 }
 console.log("이어진 직업", Object.keys(jobMap).length, "/", OUR_JOBS.length, "· 못 찾음:", OUR_JOBS.filter((o) => !jobMap[o.id]).map((o) => o.name).join(", "));
 
-// ── 3. 이어진 직업 상세
+// ── 3. 직업 상세(전체). 상세 이름이 목록 이름과 다르면 저장하지 않는다
+const list = (arr, k) => (arr ?? []).map((x) => strip(x[k])).filter(Boolean);
 const jobDetail = {};
-for (const [id, seq] of Object.entries(jobMap)) {
-  const d = await getJSON(`${B}/front/openapi/job.json?apiKey=${KEY}&seq=${seq}`);
+let jobMiss = 0;
+for (const j of jobs) {
+  let d;
+  try { d = await getJSON(`${B}/front/openapi/job.json?apiKey=${KEY}&seq=${j.seq}`); } catch { jobMiss++; continue; }
   const b = d.baseInfo ?? {};
-  const expect = jobs.find((j) => j.seq === seq)?.name;
-  if (!b.job_nm || norm(b.job_nm) !== norm(expect)) { console.log("상세 이름 불일치, 건너뜀:", id, expect, "≠", b.job_nm); delete jobMap[id]; continue; }
-  const list = (arr, k) => (arr ?? []).map((x) => strip(x[k])).filter(Boolean);
+  if (!b.job_nm || norm(b.job_nm) !== norm(j.name)) { jobMiss++; continue; }
   const edu = d.eduChart?.[0];
-  jobDetail[id] = {
-    seq, name: strip(b.job_nm), updated: strip(b.edit_dt),
+  jobDetail[j.seq] = {
+    seq: j.seq, name: strip(b.job_nm), updated: strip(b.edit_dt),
     work: list(d.workList, "work"),
     aptitude: list(d.aptitudeList, "aptitude"),
     interest: list(d.interestList, "interest"),
@@ -84,8 +85,11 @@ for (const [id, seq] of Object.entries(jobMap)) {
     wlb: strip(b.wlb), social: strip(b.social),
     edu: edu ? { labels: strip(edu.chart_name).split(","), values: strip(edu.chart_data).split(",").map(Number), source: strip(edu.source) } : null,
   };
-  await sleep(150);
+  await sleep(120);
 }
+for (const [id, seq] of Object.entries(jobMap)) if (!jobDetail[seq]) delete jobMap[id];
+console.log("직업 상세", Object.keys(jobDetail).length, "· 못 받음", jobMiss);
+if (Object.keys(jobDetail).length < jobs.length * 0.8) throw new Error("직업 상세를 너무 적게 받았어요 — 저장하지 않음");
 
 // ── 4. 학과 목록(대학교)
 const majors = [];
@@ -109,14 +113,15 @@ for (const o of OUR_MAJORS) {
 }
 console.log("이어진 학과", Object.keys(majorMap).length, "/", OUR_MAJORS.length, "· 못 찾음:", OUR_MAJORS.filter((o) => !majorMap[o.id]).map((o) => o.name).join(", "));
 const majorDetail = {};
-for (const [id, seq] of Object.entries(majorMap)) {
-  const d = await getJSON(`${B}/openapi/getOpenApi?apiKey=${KEY}&svcType=api&svcCode=MAJOR_VIEW&contentType=json&gubun=univ_list&majorSeq=${seq}`);
+let majorMiss = 0;
+for (const mm of majors) {
+  let d;
+  try { d = await getJSON(`${B}/openapi/getOpenApi?apiKey=${KEY}&svcType=api&svcCode=MAJOR_VIEW&contentType=json&gubun=univ_list&majorSeq=${mm.seq}`); } catch { majorMiss++; continue; }
   const c = d.dataSearch?.content?.[0] ?? {};
-  const mexp = majors.find((m) => m.seq === seq)?.name;
-  if (!c.major || norm(c.major) !== norm(mexp)) { console.log("학과 상세 이름 불일치, 건너뜀:", id, mexp, "≠", c.major); delete majorMap[id]; continue; }
+  if (!c.major || norm(c.major) !== norm(mm.name)) { majorMiss++; continue; }
   const subj = (c.relate_subject_2022 ?? []).map((x) => ({ kind: strip(x.subject_name), names: strip(x.subject_description) })).filter((x) => x.names);
-  majorDetail[id] = {
-    seq, name: strip(c.major), summary: strip(c.summary), interest: strip(c.interest), property: strip(c.property),
+  majorDetail[mm.seq] = {
+    seq: mm.seq, name: strip(c.major), summary: strip(c.summary), interest: strip(c.interest), property: strip(c.property),
     salary: strip(c.salary), employment: strip(c.employment),
     jobs: strip(c.job), qualifications: strip(c.qualifications),
     subjects2022: subj,
@@ -125,8 +130,11 @@ for (const [id, seq] of Object.entries(majorMap)) {
     mainSubjects: (c.main_subject ?? []).map((x) => ({ name: strip(x.SBJECT_NM), desc: strip(x.SBJECT_SUMRY) })).filter((x) => x.name).slice(0, 12),
     univCount: (c.university ?? []).length,
   };
-  await sleep(150);
+  await sleep(120);
 }
+for (const [id, seq] of Object.entries(majorMap)) if (!majorDetail[seq]) delete majorMap[id];
+console.log("학과 상세", Object.keys(majorDetail).length, "· 못 받음", majorMiss);
+if (Object.keys(majorDetail).length < majors.length * 0.8) throw new Error("학과 상세를 너무 적게 받았어요 — 저장하지 않음");
 
 const meta = { source: "커리어넷(www.career.go.kr) 오픈API", fetchedAt: new Date().toISOString().slice(0, 10) };
 const save = (f, o) => writeFileSync(`${OUT}/${f}`, JSON.stringify(o, null, 0) + "\n");
