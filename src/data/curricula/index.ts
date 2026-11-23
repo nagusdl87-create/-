@@ -6,6 +6,7 @@
 //  - 학교 자료가 바뀌면 달라질 수 있으니 반드시 학교 공지로 다시 확인하세요(화면에도 안내).
 import type { Sem } from "@/lib/store";
 import type { CurrGroup, CurrItem, SchoolCurriculum, SemCurr } from "../curriculum";
+import { XLSX_CURRICULA } from "./xlsx-schools";
 
 export type CurriculumSource = {
   /** 출처 게시글 주소 (경상남도교육청 고교학점제 누리집) */
@@ -235,6 +236,7 @@ const GOSEONG = build(
 );
 
 export const SCHOOL_CURRICULA: SchoolCurriculumEntry[] = [
+  ...XLSX_CURRICULA, // 엑셀 편성표에서 옮긴 학교들 (xlsx-schools.ts)
   {
     id: "gosung",
     curriculum: GOSEONG,
