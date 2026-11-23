@@ -18,6 +18,7 @@ import { dday, GN_SCHOOLS, upcomingSchedule } from "@/data/gn";
 import { FIELDS, JOBS, type FieldId } from "@/data/jobs";
 import { MAJOR_MAP } from "@/data/majors";
 import { LiveSearch } from "@/components/LiveSearch";
+import { CN_SUMMARY, JOB_GROUP_EMOJI } from "@/data/careernet-summary";
 import { CreditCard } from "@/components/Credit";
 import { CREDIT_RULES } from "@/data/subjects";
 import { useLang, useT } from "@/lib/i18n";
@@ -157,19 +158,21 @@ function GnJobs({ limit = 5 }: { limit?: number }) {
 }
 
 /** 분야별 직업(옆으로 넘겨 보기) */
+// 분야 카드 바탕색(직업 백과와 같은 커리어넷 직업분류 10개 분야)
+const GROUP_TONE = ["bg-sky-50", "bg-coral-50", "bg-slate-100", "bg-emerald-50", "bg-violet-50", "bg-amber-50", "bg-rose-50", "bg-indigo-50", "bg-sun-100", "bg-lime-50"];
+
 function FieldCards() {
   const t = useT();
-  const count = (f: FieldId) => JOBS.filter((j) => j.field === f).length;
   return (
-    <Panel title={t("분야별 직업 둘러보기")} more={{ href: "/jobs", label: t("전체") }}>
+    <Panel title={t("분야별 직업 둘러보기")} more={{ href: "/jobs", label: t("전체 {n}개", { n: CN_SUMMARY.jobs.total }) }}>
       <ul className="-mx-1 flex snap-x gap-2 overflow-x-auto px-1 pb-1">
-        {(Object.keys(FIELDS) as FieldId[]).map((f) => (
-          <li key={f} className="shrink-0 snap-start">
-            <Link href={`/jobs#field=${f}`} className={`flex h-28 w-28 flex-col justify-between rounded-2xl p-3 transition hover:-translate-y-0.5 ${FIELD_TONE[f]}`}>
-              <span className="text-3xl" aria-hidden>{FIELDS[f].emoji}</span>
+        {Object.entries(CN_SUMMARY.jobs.groups).map(([g, n], i) => (
+          <li key={g} className="shrink-0 snap-start">
+            <Link href={`/jobs#group=${encodeURIComponent(g)}`} className={`flex h-32 w-32 flex-col justify-between rounded-2xl p-3 transition hover:-translate-y-0.5 ${GROUP_TONE[i % GROUP_TONE.length]}`}>
+              <span className="text-3xl" aria-hidden>{JOB_GROUP_EMOJI[g] ?? "💼"}</span>
               <span>
-                <span className="block text-sm font-bold leading-tight text-slate-900">{t(FIELDS[f].name)}</span>
-                <span className="block text-xs text-slate-600">{t("{n}개 직업", { n: count(f) })}</span>
+                <span className="line-clamp-2 block text-sm font-bold leading-tight text-slate-900" data-keep-ko>{g}</span>
+                <span className="block text-xs text-slate-600">{t("{n}개 직업", { n })}</span>
               </span>
             </Link>
           </li>

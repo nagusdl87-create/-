@@ -202,4 +202,5 @@ export const JOBS: Record<string, string> = {
   "대학에서 배우는 주요 과목": "Main university courses",
   "💼 커리어넷 공식 직업": "💼 CareerNet official jobs",
   "🎓 커리어넷 공식 학과": "🎓 CareerNet official majors",
+  "{n}개 학과": "{n} majors",
 };

@@ -32,28 +32,29 @@ const short = (s, n = 70) => (s.length > n ? s.slice(0, n - 1) + "…" : s);
 
 // ── 직업
 const jobDir = jobs.filter((j) => jd.detail[j.seq]).map((j) => ({ s: j.seq, n: j.name, g: j.group, f: j.field, w: short(j.work), o: jobOur[j.seq] ?? null }));
-const ourUnlinked = OUR_JOBS.filter((o) => !jd.map[o.id]);
+// 전체 = 마이로드 심화(우리 직업 전부) + 우리와 이어지지 않은 커리어넷 직업. 분야 개수도 같은 기준으로 센다
 const jobGroups = {};
-for (const j of jobDir) jobGroups[j.g] = (jobGroups[j.g] ?? 0) + 1;
-for (const o of ourUnlinked) { const g = JOB_GROUP_FALLBACK[o.id]; if (g) jobGroups[g] = (jobGroups[g] ?? 0) + 1; }
-const jobTotal = jobDir.length + ourUnlinked.length;
+const groupOf = (o) => (jd.map[o.id] ? jobs.find((j) => j.seq === jd.map[o.id])?.group : JOB_GROUP_FALLBACK[o.id]);
+for (const o of OUR_JOBS) { const g = groupOf(o); if (g) jobGroups[g] = (jobGroups[g] ?? 0) + 1; }
+for (const j of jobDir) if (!j.o) jobGroups[j.g] = (jobGroups[j.g] ?? 0) + 1;
+const jobTotal = OUR_JOBS.length + jobDir.filter((j) => !j.o).length;
 
 // ── 학과
 const majorDir = majors.filter((m) => md.detail[m.seq]).map((m) => ({ s: m.seq, n: m.name, g: m.field, a: short(m.alias, 60), o: majorOur[m.seq] ?? null }));
-const ourMajorUnlinked = OUR_MAJORS.filter((o) => !md.map[o.id]);
 const majorGroups = {};
-for (const m of majorDir) majorGroups[m.g] = (majorGroups[m.g] ?? 0) + 1;
-for (const o of ourMajorUnlinked) { const g = TRACK_TO_FIELD[o.track]; if (g) majorGroups[g] = (majorGroups[g] ?? 0) + 1; }
-const majorTotal = majorDir.length + ourMajorUnlinked.length;
+const mGroupOf = (o) => (md.map[o.id] ? majors.find((m) => m.seq === md.map[o.id])?.field : TRACK_TO_FIELD[o.track]);
+for (const o of OUR_MAJORS) { const g = mGroupOf(o); if (g) majorGroups[g] = (majorGroups[g] ?? 0) + 1; }
+for (const m of majorDir) if (!m.o) majorGroups[m.g] = (majorGroups[m.g] ?? 0) + 1;
+const majorTotal = OUR_MAJORS.length + majorDir.filter((m) => !m.o).length;
 
 const order = (o) => Object.fromEntries(Object.entries(o).sort((a, b) => b[1] - a[1]));
 const summary = {
   fetchedAt: jd.fetchedAt,
   jobs: { total: jobTotal, deep: OUR_JOBS.length, careernet: jobDir.length, linked: Object.keys(jd.map).length, groups: order(jobGroups) },
   majors: { total: majorTotal, deep: OUR_MAJORS.length, careernet: majorDir.length, linked: Object.keys(md.map).length, groups: order(majorGroups) },
-  ourJobGroups: Object.fromEntries(OUR_JOBS.map((o) => [o.id, jd.map[o.id] ? jobs.find((j) => j.seq === jd.map[o.id])?.group : JOB_GROUP_FALLBACK[o.id]])),
-  ourMajorGroups: Object.fromEntries(OUR_MAJORS.map((o) => [o.id, md.map[o.id] ? majors.find((m) => m.seq === md.map[o.id])?.field : TRACK_TO_FIELD[o.track]])),
+  ourJobGroups: Object.fromEntries(OUR_JOBS.map((o) => [o.id, groupOf(o)])),
+  ourMajorGroups: Object.fromEntries(OUR_MAJORS.map((o) => [o.id, mGroupOf(o)])),
 };
 writeFileSync(`${D}/summary.json`, JSON.stringify(summary, null, 1) + "\n");
 writeFileSync(`${D}/directory.json`, JSON.stringify({ fetchedAt: jd.fetchedAt, jobs: jobDir, majors: majorDir }) + "\n");
-console.log("색인", `직업 ${jobTotal}개(심화 ${OUR_JOBS.length} + 커리어넷만 ${jobDir.length - Object.keys(jd.map).length})`, `학과 ${majorTotal}개`);
+console.log("색인", `직업 ${jobTotal}개(심화 ${OUR_JOBS.length} + 커리어넷 ${jobTotal - OUR_JOBS.length})`, `학과 ${majorTotal}개(심화 ${OUR_MAJORS.length} + 커리어넷 ${majorTotal - OUR_MAJORS.length})`);

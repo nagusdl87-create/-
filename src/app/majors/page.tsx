@@ -2,8 +2,8 @@
 
 import { Heart } from "lucide-react";
 
-import { useMemo, useState } from "react";
-import { CnDirectory, CnStats } from "@/components/CnDirectory";
+import { useEffect, useMemo, useState } from "react";
+import { CnMajorCard, GroupChips, useCnRows } from "@/components/CnDirectory";
 import { CN_SUMMARY } from "@/data/careernet-summary";
 import Link from "next/link";
 import { toggleIn, useStore } from "@/lib/store";
@@ -24,7 +24,9 @@ export default function MajorsPage() {
   const [view, setView] = useState<"guide" | "national">("guide");
   const [q, setQ] = useState("");
   const [track, setTrack] = useState<TrackId | "all" | "fav">("all");
-  const [grp, setGrp] = useState<string | null>(null); // 커리어넷 계열
+  const [grp, setGrp] = useState<string | null>(null); // 계열(커리어넷 기준) — 503개 모두 같은 분류
+  const [limit, setLimit] = useState(60);
+  const cn = useCnRows();
   const list = useMemo(
     () =>
       MAJORS.filter((m) => {
@@ -38,6 +40,13 @@ export default function MajorsPage() {
       }),
     [q, track, state.favMajors, en, grp]
   );
+  const cnList = useMemo(() => {
+    if (track !== "all") return [];
+    const kw = q.trim().toLowerCase();
+    return cn.majors.filter((x) => (!grp || x.g === grp) && (!kw || `${x.n} ${x.a}`.toLowerCase().includes(kw)));
+  }, [cn.majors, q, grp, track]);
+  const total = list.length + cnList.length;
+  useEffect(() => setLimit(60), [q, grp, track]);
   const hs = state.profile.stage === "hs";
 
   return (
@@ -56,7 +65,6 @@ export default function MajorsPage() {
         </button>
       </div>
       {view === "national" ? <NationalMajors /> : <>
-      <CnStats kind="majors" group={grp} onPick={setGrp} />
       <div className="card mb-4 space-y-2 p-4">
         <input className="input" placeholder={t("학과·과목·진로 검색 (예: 반도체, 간호, 미적분Ⅱ)")} value={q} onChange={(e) => setQ(e.target.value)} aria-label={t("학과 검색")} />
         <div className="flex flex-wrap gap-1.5">
@@ -70,20 +78,14 @@ export default function MajorsPage() {
             );
           })}
         </div>
-        <div className="-mx-1 flex gap-1.5 overflow-x-auto px-1 pb-1">
-          <button className={`chip shrink-0 ${track === "all" ? "chip-on" : ""}`} onClick={() => setTrack("all")}>{t("전체")} {MAJORS.length}</button>
-          <button className={`chip shrink-0 ${track === "fav" ? "chip-on" : ""}`} onClick={() => setTrack("fav")}>❤️ {t("찜")} {ready ? state.favMajors.length : 0}</button>
-          {(Object.keys(TRACKS) as TrackId[]).map((k) => (
-            <button key={k} className={`chip shrink-0 ${track === k ? "chip-on" : ""}`} onClick={() => setTrack(k)}>
-              {TRACKS[k].emoji} {en?.TRACK_EN[k].name ?? TRACKS[k].name} {MAJORS.filter((m) => m.track === k).length}
-            </button>
-          ))}
+        <GroupChips kind="majors" group={grp} onPick={setGrp} />
+        <div className="flex flex-wrap gap-1.5">
+          <button className={`chip ${track === "fav" ? "chip-on" : ""}`} aria-pressed={track === "fav"} onClick={() => setTrack(track === "fav" ? "all" : "fav")}>❤️ {t("찜")} {ready ? state.favMajors.length : 0}</button>
         </div>
       </div>
-      <h2 className="mb-1 text-lg font-bold text-slate-900">{t("마이로드 심화 학과 {n}개", { n: MAJORS.length })}</h2>
-      <p className="mb-3 text-sm text-slate-500">{t("핵심·권장 과목, 대학 생활, 진로까지 마이로드가 자세히 정리한 학과예요.")}</p>
-      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-        {list.map((m) => {
+      <p className="mb-2 text-sm text-slate-500">{t("{n}개 학과", { n: total })}{!cn.ready && " …"}</p>
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3 [&>*]:min-w-0">
+        {list.slice(0, limit).map((m) => {
           const on = state.favMajors.includes(m.id);
           const e = en?.MAJORS_EN[m.id];
           return (
@@ -115,9 +117,14 @@ export default function MajorsPage() {
             </Link>
           );
         })}
+        {cnList.slice(0, Math.max(0, limit - list.length)).map((x) => <CnMajorCard key={x.s} x={x} />)}
       </div>
-      {list.length === 0 && <p className="py-10 text-center text-sm text-slate-500">{t("조건에 맞는 학과가 없어요.")}</p>}
-      <CnDirectory kind="majors" q={q} group={grp} onGroup={setGrp} />
+      {total === 0 && <p className="py-10 text-center text-sm text-slate-500">{t("조건에 맞는 학과가 없어요.")}</p>}
+      {total > limit && (
+        <div className="mt-4 text-center">
+          <button type="button" className="btn-ghost" onClick={() => setLimit((n) => n + 90)}>{t("더 보기 ({n}개 남음)", { n: total - limit })}</button>
+        </div>
+      )}
       <p className="mt-6 text-xs text-slate-400">
         {t("핵심·권장 과목은 일반적인 안내예요. 대학·학과별 권장과목은 대학마다 다르므로 각 대학 발표 자료와")}{" "}
         <a className="underline" href="https://www.adiga.kr/" target="_blank" rel="noreferrer">{t("대입정보포털 어디가")}</a>{t("에서 꼭 확인하세요.")}

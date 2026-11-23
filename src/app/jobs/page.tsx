@@ -8,7 +8,7 @@ import { isTestComplete, rankedJobs } from "@/lib/match";
 import { JobCard, useJobsEn } from "@/components/JobCard";
 import { useT } from "@/lib/i18n";
 import { NextStep, PageHead } from "@/components/ui";
-import { CnDirectory, CnStats } from "@/components/CnDirectory";
+import { CnJobCard, GroupChips, useCnRows } from "@/components/CnDirectory";
 import { CN_SUMMARY } from "@/data/careernet-summary";
 
 type Sort = "match" | "name";
@@ -20,13 +20,19 @@ export default function JobsPage() {
   const [field, setField] = useState<FieldId | "all" | "fav">("all");
   const [type, setType] = useState<RiasecKey | "all">("all");
   const [sort, setSort] = useState<Sort>("match");
-  const [grp, setGrp] = useState<string | null>(null); // 커리어넷 직업분류(대분류)
+  const [grp, setGrp] = useState<string | null>(null); // 직업 분야(커리어넷 직업분류 대분류) — 556개 모두 같은 분류
+  const [limit, setLimit] = useState(60);
   const t = useT();
-  // 홈의 분야 카드에서 /jobs#field=it 처럼 들어오면 그 분야로 거르기
+  const cn = useCnRows();
+  // 홈의 분야 카드에서 /jobs#group=분야 처럼 들어오면 그 분야로 거르기(예전 #field= 주소도 받음)
   useEffect(() => {
-    const f = window.location.hash.match(/field=(\w+)/)?.[1];
+    const h = decodeURIComponent(window.location.hash);
+    const g = h.match(/group=([^&]+)/)?.[1];
+    if (g && g in CN_SUMMARY.jobs.groups) setGrp(g);
+    const f = h.match(/field=(\w+)/)?.[1];
     if (f && f in FIELDS) setField(f as FieldId);
   }, []);
+  useEffect(() => setLimit(60), [q, grp, field, type]);
   const en = useJobsEn();
 
   const list = useMemo(() => {
@@ -48,6 +54,13 @@ export default function JobsPage() {
     if (sort === "name" || !tested) r = [...r].sort((a, b) => nm(a.job.id, a.job.name).localeCompare(nm(b.job.id, b.job.name), en ? "en" : "ko"));
     return r;
   }, [state, tested, q, field, type, sort, en, grp]);
+  // 아직 심화 내용을 채우는 중인 커리어넷 직업(같은 목록에 이어서 보여 줌). 찜·흥미 유형 거르기 중에는 빠짐
+  const cnList = useMemo(() => {
+    if (field !== "all" || type !== "all") return [];
+    const kw = q.trim().toLowerCase();
+    return cn.jobs.filter((x) => (!grp || x.g === grp) && (!kw || `${x.n} ${x.f} ${x.w}`.toLowerCase().includes(kw)));
+  }, [cn.jobs, q, grp, field, type]);
+  const total = list.length + cnList.length;
 
   return (
     <div>
@@ -61,25 +74,14 @@ export default function JobsPage() {
         }
       />
 
-      <CnStats kind="jobs" group={grp} onPick={setGrp} />
-
       <div className="card mb-4 space-y-3 p-4">
         <input className="input" placeholder={t("직업, 학과, 과목으로 검색 (예: 로봇, 간호학과, 정보)")} value={q} onChange={(e) => setQ(e.target.value)} aria-label={t("직업 검색")} />
-        <div className="-mx-1 flex gap-1.5 overflow-x-auto px-1 pb-1">
-          <button className={`chip shrink-0 ${field === "all" ? "chip-on" : ""}`} onClick={() => setField("all")}>
-            {t("전체")}
-          </button>
-          <button className={`chip shrink-0 ${field === "fav" ? "chip-on" : ""}`} onClick={() => setField("fav")}>
-            ❤️ {t("찜")} {ready ? state.favorites.length : 0}
-          </button>
-          {(Object.keys(FIELDS) as FieldId[]).map((f) => (
-            <button key={f} className={`chip shrink-0 ${field === f ? "chip-on" : ""}`} onClick={() => setField(f)}>
-              {FIELDS[f].emoji} {en?.FIELDS_EN[f] ?? FIELDS[f].name}
-            </button>
-          ))}
-        </div>
+        <GroupChips kind="jobs" group={grp} onPick={setGrp} />
         <div className="flex flex-wrap items-center justify-between gap-2">
           <div className="flex flex-wrap gap-1.5">
+            <button className={`chip ${field === "fav" ? "chip-on" : ""}`} aria-pressed={field === "fav"} onClick={() => setField(field === "fav" ? "all" : "fav")}>
+              ❤️ {t("찜")} {ready ? state.favorites.length : 0}
+            </button>
             <button className={`chip ${type === "all" ? "chip-on" : ""}`} onClick={() => setType("all")}>
               {t("모든 유형")}
             </button>
@@ -98,10 +100,8 @@ export default function JobsPage() {
         </div>
       </div>
 
-      <h2 className="mb-1 text-lg font-bold text-slate-900">{t("마이로드 심화 직업 {n}개", { n: JOBS.length })}</h2>
-      <p className="mb-2 text-sm text-slate-500">{t("하루 흐름, 경남 정보, 자주 묻는 질문, 진로 로드맵까지 마이로드가 자세히 정리한 직업이에요. 흥미 탐색 결과와 맞는 정도도 알려 드려요.")}</p>
       <div className="mb-2 flex flex-wrap items-center justify-between gap-2 text-sm text-slate-500">
-        <span>{t("{n}개 직업", { n: list.length })}</span>
+        <span>{t("{n}개 직업", { n: total })}{!cn.ready && " …"}</span>
         {ready && (() => {
           let v: string[] = [];
           try { v = JSON.parse(state.portfolio["viewed.jobs"] ?? "[]"); } catch {}
@@ -114,14 +114,18 @@ export default function JobsPage() {
           );
         })()}
       </div>
-      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-        {list.map(({ job, score }) => (
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3 [&>*]:min-w-0">
+        {list.slice(0, limit).map(({ job, score }) => (
           <JobCard key={job.id} job={job} score={score} />
         ))}
+        {cnList.slice(0, Math.max(0, limit - list.length)).map((x) => <CnJobCard key={x.s} x={x} />)}
       </div>
-      {list.length === 0 && <p className="py-10 text-center text-sm text-slate-500">{t("조건에 맞는 직업이 없어요. 필터를 바꿔 보세요.")}</p>}
-
-      <CnDirectory kind="jobs" q={q} group={grp} onGroup={setGrp} />
+      {total === 0 && <p className="py-10 text-center text-sm text-slate-500">{t("조건에 맞는 직업이 없어요. 필터를 바꿔 보세요.")}</p>}
+      {total > limit && (
+        <div className="mt-4 text-center">
+          <button type="button" className="btn-ghost" onClick={() => setLimit((n) => n + 90)}>{t("더 보기 ({n}개 남음)", { n: total - limit })}</button>
+        </div>
+      )}
 
       <NextStep href="/path" label={t("길 잇기")} hint={t("찜한 직업까지 가는 길(학과·고교 과목)을 확인해 보세요")} />
     </div>
