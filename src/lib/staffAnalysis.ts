@@ -5,8 +5,8 @@ import type { AppState } from "@/lib/store";
 import { isTestComplete, progress, riasecScores, topTypes } from "@/lib/match";
 import { analyze } from "@/lib/credits";
 import { RIASEC } from "@/data/riasec";
-import { FIELDS, JOB_MAP } from "@/data/jobs";
-import { MAJOR_MAP } from "@/data/majors";
+import { FIELDS } from "@/data/jobs-core";
+import type { Catalog } from "./catalog";
 import { TRACKS } from "@/data/subjects";
 
 export type Analysis = {
@@ -23,7 +23,9 @@ const shorten = (s: string, n: number) => {
   return x.length > n ? x.slice(0, n - 1) + "…" : x;
 };
 
-export function analyzeStudent(s: AppState): Analysis {
+type Maps = Pick<Catalog, "JOB_MAP" | "MAJOR_MAP">;
+
+export function analyzeStudent(s: AppState, { JOB_MAP, MAJOR_MAP }: Maps): Analysis {
   const jobs = s.favorites.map((id) => JOB_MAP[id]).filter(Boolean);
   const majors = s.favMajors.map((id) => MAJOR_MAP[id]).filter(Boolean);
   const tested = isTestComplete(s.answers);
@@ -118,7 +120,7 @@ const eul = (w: string) => {
  * 학생이 쓴 기록에서만 문장을 만든다. 문장마다 근거(어느 기록에서 가져왔는지)를 붙인다.
  * 교사가 직접 관찰·확인한 내용으로 고쳐 써야 하는 초안이다.
  */
-export function draftSetuk(s: AppState): DraftPart[] {
+export function draftSetuk(s: AppState, { JOB_MAP, MAJOR_MAP }: Maps): DraftPart[] {
   const out: DraftPart[] = [];
   const jobs = s.favorites.map((id) => JOB_MAP[id]).filter(Boolean);
   const majors = s.favMajors.map((id) => MAJOR_MAP[id]).filter(Boolean);

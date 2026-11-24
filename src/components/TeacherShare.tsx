@@ -8,8 +8,7 @@ import { ArrowRight, Check, Copy, Download, ShieldCheck, UserRoundCheck } from "
 import { useStore } from "@/lib/store";
 import { buildCard, DEFAULT_ITEMS, encodeCard, NICK_MAX, type ShareItems } from "@/lib/teacherShare";
 import { RIASEC } from "@/data/riasec";
-import { JOB_MAP } from "@/data/jobs";
-import { MAJOR_MAP } from "@/data/majors";
+import { useCatalog } from "@/lib/catalog";
 import { TRACKS } from "@/data/subjects";
 import { useT } from "@/lib/i18n";
 
@@ -25,12 +24,13 @@ const OPTIONS: { key: keyof ShareItems; label: string; hint: string }[] = [
 export function TeacherShareMaker() {
   const { state } = useStore();
   const t = useT();
+  const { JOB_MAP, MAJOR_MAP, full } = useCatalog();
   const [items, setItems] = useState<ShareItems>(DEFAULT_ITEMS);
   const [nick, setNick] = useState("");
   const [agree, setAgree] = useState(false);
   const [msg, setMsg] = useState("");
 
-  const card = useMemo(() => buildCard(state, items, nick), [state, items, nick]);
+  const card = useMemo(() => buildCard(state, items, nick, { JOB_MAP, MAJOR_MAP, full }), [state, items, nick, JOB_MAP, MAJOR_MAP, full]);
   const code = useMemo(() => encodeCard(card), [card]);
 
   const flash = (m: string) => {
@@ -57,8 +57,8 @@ export function TeacherShareMaker() {
     flash(t("파일로 저장했어요."));
   };
 
-  const jobs = (card.jobs ?? []).map((id) => t(JOB_MAP[id].name));
-  const majors = (card.majors ?? []).map((id) => t(MAJOR_MAP[id].name));
+  const jobs = (card.jobs ?? []).filter((id) => JOB_MAP[id]).map((id) => t(JOB_MAP[id].name));
+  const majors = (card.majors ?? []).filter((id) => MAJOR_MAP[id]).map((id) => t(MAJOR_MAP[id].name));
   const preview: [string, string][] = [];
   if (card.nick) preview.push([t("닉네임"), card.nick]);
   if (items.level) preview.push([t("학교급·학년"), [card.stage ? t(card.stage === "ms" ? "중학교" : "고등학교") : "", card.grade ? t("{g}학년", { g: card.grade }) : ""].filter(Boolean).join(" ") || t("미입력")]);

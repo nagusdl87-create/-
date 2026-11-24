@@ -7,7 +7,7 @@ import { CnMajorCard, GroupChips, useCnRows } from "@/components/CnDirectory";
 import { CN_SUMMARY } from "@/data/careernet-summary";
 import Link from "next/link";
 import { toggleIn, useStore } from "@/lib/store";
-import { MAJORS } from "@/data/majors";
+import { MAJORS_LITE, JOB_NAME_MAP } from "@/data/lite-majors";
 import { TRACKS, type TrackId } from "@/data/subjects";
 import { useCatalog } from "@/lib/catalog";
 import { NextStep, PageHead } from "@/components/ui";
@@ -17,7 +17,7 @@ import { useEnData, useT } from "@/lib/i18n";
 import { useNames } from "@/i18n/names";
 
 export default function MajorsPage() {
-  const { JOB_MAP } = useCatalog(); // 관련 직업 이름: 처음엔 51개 직업, 전체는 이어서 불러옴
+  // 관련 직업 이름은 id→이름 표에서 찾는다(직업 전체는 검색어를 입력할 때만 불러옴)
   const { state, update, ready } = useStore();
   const t = useT();
   const { subject: subjectLabel, job: jobLabel } = useNames();
@@ -28,18 +28,21 @@ export default function MajorsPage() {
   const [grp, setGrp] = useState<string | null>(null); // 계열(커리어넷 기준) — 503개 모두 같은 분류
   const [limit, setLimit] = useState(60);
   const cn = useCnRows();
+  // 학과 백과 전체(대학 과목·진출 분야 등)는 검색어를 입력할 때만 불러와 함께 찾는다
+  const full = useCatalog(q.trim().length > 0);
   const list = useMemo(
     () =>
-      MAJORS.filter((m) => {
+      MAJORS_LITE.filter((m) => {
         if (grp && (CN_SUMMARY.ourMajorGroups as Record<string, string | undefined>)[m.id] !== grp) return false;
         if (track === "fav" && !state.favMajors.includes(m.id)) return false;
         if (track !== "all" && track !== "fav" && m.track !== track) return false;
         const e = en?.MAJORS_EN[m.id];
-        const hay = [m.name, m.desc, ...m.univ, ...m.core, ...m.rec, ...m.careers, ...(e ? [e.name, e.desc, ...e.univ, ...e.careers] : [])].join(" ").toLowerCase();
+        const f = full.MAJOR_MAP[m.id];
+        const hay = [m.name, m.desc, ...(f?.univ ?? []), ...m.core, ...(f?.rec ?? []), ...(f?.careers ?? []), ...(f?.core ?? []), ...(e ? [e.name, e.desc, ...e.univ, ...e.careers] : [])].join(" ").toLowerCase();
         if (q.trim() && !hay.includes(q.trim().toLowerCase())) return false;
         return true;
       }),
-    [q, track, state.favMajors, en, grp]
+    [q, track, state.favMajors, en, grp, full]
   );
   const cnList = useMemo(() => {
     if (track !== "all") return [];
@@ -114,7 +117,7 @@ export default function MajorsPage() {
                   <span key={s} className="rounded-md bg-amber-50 px-1.5 py-0.5 text-[11px] font-semibold text-amber-800">★ {subjectLabel(s)}</span>
                 ))}
               </div>
-              <div className="text-xs text-slate-400">{t("관련 직업:")} {m.jobs.map((j) => JOB_MAP[j]?.name).filter((x): x is string => !!x).slice(0, 3).map(jobLabel).join(", ")}</div>
+              <div className="text-xs text-slate-400">{t("관련 직업:")} {m.jobs.map((j) => JOB_NAME_MAP[j]).filter((x): x is string => !!x).slice(0, 3).map(jobLabel).join(", ")}</div>
             </Link>
           );
         })}

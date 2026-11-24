@@ -9,6 +9,7 @@ import { ClipboardCopy, LogIn, Printer, RefreshCw, ShieldCheck, ShieldPlus, User
 import { useCloud } from "@/lib/cloud";
 import { grantAdmin, loadAdmins, loadMembers, loadSharedStudents, revokeAdmin, type AdminRec, type Member, type SharedStudent } from "@/lib/staff";
 import { analyzeStudent, draftSetuk } from "@/lib/staffAnalysis";
+import { useCatalog } from "@/lib/catalog";
 import { ReportBody } from "@/components/ReportBody";
 import { FORMS, type Field } from "@/data/portfolio";
 import type { AppState } from "@/lib/store";
@@ -339,7 +340,8 @@ function readable(raw: string): string {
 
 function AnalysisCard({ s }: { s: AppState }) {
   const t = useT();
-  const a = useMemo(() => analyzeStudent(s), [s]);
+  const { JOB_MAP, MAJOR_MAP } = useCatalog();
+  const a = useMemo(() => analyzeStudent(s, { JOB_MAP, MAJOR_MAP }), [s, JOB_MAP, MAJOR_MAP]);
   return (
     <section className="card" aria-label={t("진로 현황 분석")}>
       <h3 className="font-bold">{t("진로 현황 분석")}</h3>
@@ -387,7 +389,8 @@ function AnalysisCard({ s }: { s: AppState }) {
 
 function SetukCard({ s, name }: { s: AppState; name: string }) {
   const t = useT();
-  const parts = useMemo(() => draftSetuk(s), [s]);
+  const { JOB_MAP, MAJOR_MAP } = useCatalog();
+  const parts = useMemo(() => draftSetuk(s, { JOB_MAP, MAJOR_MAP }), [s, JOB_MAP, MAJOR_MAP]);
   const initial = useMemo(() => parts.map((p) => p.text).join(" "), [parts]);
   const [text, setText] = useState(initial);
   const [done, setDone] = useState(false);

@@ -13,13 +13,14 @@ let cached: Catalog | null = null;
 const load = () =>
   (p ??= Promise.all([import("@/data/jobs"), import("@/data/majors")]).then(([j, m]) => (cached = { JOBS: j.JOBS, JOB_MAP: j.JOB_MAP, MAJORS: m.MAJORS, MAJOR_MAP: m.MAJOR_MAP, full: true })));
 
-export function useCatalog(): Catalog {
+/** active=false면 전체를 불러오지 않는다(이미 불러온 게 있으면 그것을 돌려줌). 검색어를 입력할 때만 전체가 필요한 목록 화면용. */
+export function useCatalog(active = true): Catalog {
   const [c, setC] = useState<Catalog>(cached ?? CORE);
   useEffect(() => {
-    if (c.full) return;
+    if (c.full || !active) return;
     let on = true;
     load().then((x) => on && setC(x)).catch(() => {});
     return () => { on = false; };
-  }, [c.full]);
+  }, [c.full, active]);
   return c;
 }

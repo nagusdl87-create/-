@@ -6,6 +6,7 @@ import { useStore } from "@/lib/store";
 import { QUESTIONS, RIASEC, RIASEC_ORDER, SCALE, STRENGTHS, VALUES, type RiasecKey } from "@/data/riasec";
 import { isTestComplete, riasecScores, topTypes } from "@/lib/match";
 import { rankedJobs } from "@/lib/match-rank";
+import { JOBS_LITE } from "@/data/lite-jobs";
 import { Radar } from "@/components/Radar";
 import { NextStep, PageHead } from "@/components/ui";
 import { useEnData, useT } from "@/lib/i18n";
@@ -234,7 +235,7 @@ function Result({ onRetry }: { onRetry: () => void }) {
   const R = (k: RiasecKey) => ({ ...RIASEC[k], ...(en?.RIASEC_EN[k] ?? {}) });
   const scores = riasecScores(state.answers);
   const [a, b] = topTypes(scores);
-  const recs = rankedJobs(state).slice(0, 4);
+  const recs = rankedJobs(state, JOBS_LITE).slice(0, 4);
   return (
     <div>
       <PageHead step={1} title={t("나의 흥미 탐색 결과")} desc={t("흥미는 경험에 따라 계속 변해요. 학기마다 다시 해 보며 나의 변화를 살펴보세요.")} />

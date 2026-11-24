@@ -8,7 +8,7 @@ import Link from "next/link";
 import { ArrowLeft, CheckSquare, Printer, Square } from "lucide-react";
 import { decodeShare, useStore, type AppState } from "@/lib/store";
 import { isTestComplete, riasecScores, topTypes, hsQuizResult } from "@/lib/match";
-import { rankedJobs } from "@/lib/match-rank";
+import { rankedAllJobs } from "@/lib/match-rank-all";
 import { RIASEC, VALUES } from "@/data/riasec";
 import { JOB_MAP } from "@/data/jobs";
 import { MAJOR_MAP, MAJORS } from "@/data/majors";
@@ -100,7 +100,7 @@ function Sheet({ s }: { s: AppState }) {
   const favJobs = s.favorites.map((id) => JOB_MAP[id]).filter(Boolean);
   const jobs: { job: (typeof favJobs)[number]; tag: string }[] = favJobs.slice(0, 3).map((job) => ({ job, tag: t("찜") }));
   if (jobs.length < 3 && tested) {
-    for (const r of rankedJobs(s)) {
+    for (const r of rankedAllJobs(s)) {
       if (jobs.length >= 3) break;
       if (!jobs.some((x) => x.job.id === r.job.id)) jobs.push({ job: r.job, tag: t("추천 {n}%", { n: r.score }) });
     }

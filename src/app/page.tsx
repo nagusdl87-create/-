@@ -269,7 +269,7 @@ function useRecs(state: Parameters<typeof progress>[0], tested: boolean) {
   useEffect(() => {
     if (!tested) return setRecs([]);
     let on = true;
-    import("@/lib/match-rank").then((m) => on && setRecs(m.rankedJobs(state).slice(0, 3)));
+    import("@/lib/match-rank-all").then((m) => on && setRecs(m.rankedAllJobs(state).slice(0, 3)));
     return () => { on = false; };
   }, [state, tested]);
   return recs;

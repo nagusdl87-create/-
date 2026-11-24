@@ -2,7 +2,9 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { useStore } from "@/lib/store";
-import { FIELDS, JOBS, type FieldId } from "@/data/jobs";
+import { FIELDS, type FieldId } from "@/data/jobs-core";
+import { JOBS_LITE } from "@/data/lite-jobs";
+import { useCatalog } from "@/lib/catalog";
 import { RIASEC, RIASEC_ORDER, type RiasecKey } from "@/data/riasec";
 import { isTestComplete} from "@/lib/match";
 import { rankedJobs } from "@/lib/match-rank";
@@ -35,9 +37,11 @@ export default function JobsPage() {
   }, []);
   useEffect(() => setLimit(60), [q, grp, field, type]);
   const en = useJobsEn();
+  // 목록은 얇은 요약으로 그리고, 직업 백과 전체(과제·관련 학과 등)는 검색어를 입력할 때만 불러와 함께 찾는다
+  const full = useCatalog(q.trim().length > 0);
 
   const list = useMemo(() => {
-    const ranked = tested ? rankedJobs(state) : JOBS.map((job) => ({ job, score: undefined as number | undefined }));
+    const ranked = tested ? rankedJobs(state, JOBS_LITE) : JOBS_LITE.map((job) => ({ job, score: undefined as number | undefined }));
     const kw = q.trim();
     let r = ranked.filter(({ job }) => {
       if (grp && (CN_SUMMARY.ourJobGroups as Record<string, string | undefined>)[job.id] !== grp) return false;
@@ -46,7 +50,8 @@ export default function JobsPage() {
       if (type !== "all" && !job.riasec.slice(0, 2).includes(type)) return false;
       if (kw) {
         const e = en?.JOBS_EN[job.id];
-        const hay = [job.name, job.summary, ...job.majors, ...job.hsSubjects, ...job.tasks, ...(e ? [e.name, e.summary, ...e.tasks] : [])].join(" ");
+        const f = full.JOB_MAP[job.id];
+        const hay = [job.name, job.summary, ...(f?.majors ?? []), ...(f?.hsSubjects ?? []), ...(f?.tasks ?? []), ...(e ? [e.name, e.summary, ...e.tasks] : [])].join(" ");
         if (!hay.toLowerCase().includes(kw.toLowerCase())) return false;
       }
       return true;
@@ -54,7 +59,7 @@ export default function JobsPage() {
     const nm = (id: string, ko: string) => en?.JOBS_EN[id]?.name ?? ko;
     if (sort === "name" || !tested) r = [...r].sort((a, b) => nm(a.job.id, a.job.name).localeCompare(nm(b.job.id, b.job.name), en ? "en" : "ko"));
     return r;
-  }, [state, tested, q, field, type, sort, en, grp]);
+  }, [state, tested, q, field, type, sort, en, grp, full]);
   // 아직 심화 내용을 채우는 중인 커리어넷 직업(같은 목록에 이어서 보여 줌). 찜·흥미 유형 거르기 중에는 빠짐
   const cnList = useMemo(() => {
     if (field !== "all" || type !== "all") return [];
@@ -106,11 +111,11 @@ export default function JobsPage() {
         {ready && (() => {
           let v: string[] = [];
           try { v = JSON.parse(state.portfolio["viewed.jobs"] ?? "[]"); } catch {}
-          const n = JOBS.filter((j) => v.includes(j.id)).length;
+          const n = JOBS_LITE.filter((j) => v.includes(j.id)).length;
           return (
             <span className="flex items-center gap-2">
-              {t("직업 열람 진행률 {n} / {total} ({pct}%)", { n, total: JOBS.length, pct: Math.round((n / JOBS.length) * 100) })}
-              <span className="h-1.5 w-24 overflow-hidden rounded-full bg-slate-200"><span className="block h-full bg-brand-500" style={{ width: `${(n / JOBS.length) * 100}%` }} /></span>
+              {t("직업 열람 진행률 {n} / {total} ({pct}%)", { n, total: JOBS_LITE.length, pct: Math.round((n / JOBS_LITE.length) * 100) })}
+              <span className="h-1.5 w-24 overflow-hidden rounded-full bg-slate-200"><span className="block h-full bg-brand-500" style={{ width: `${(n / JOBS_LITE.length) * 100}%` }} /></span>
             </span>
           );
         })()}

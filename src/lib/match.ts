@@ -35,7 +35,7 @@ export function topTypes(scores: Scores, n = 2): RiasecKey[] {
 
 const POS_W = [3, 2, 1];
 
-export function jobMatch(job: Job, scores: Scores, values: string[]): number {
+export function jobMatch(job: Pick<Job, "riasec" | "values">, scores: Scores, values: string[]): number {
   let wsum = 0;
   let acc = 0;
   job.riasec.forEach((k, i) => {

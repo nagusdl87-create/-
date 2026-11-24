@@ -6,8 +6,7 @@ import type { AppState } from "./store";
 import { isTestComplete, progress, riasecScores, topTypes } from "./match";
 import { analyze } from "./credits";
 import { RIASEC_ORDER, type RiasecKey } from "@/data/riasec";
-import { JOB_MAP } from "@/data/jobs";
-import { MAJOR_MAP } from "@/data/majors";
+import type { Catalog } from "./catalog";
 import { TRACKS, type TrackId } from "@/data/subjects";
 
 export const TEACHER_PREFIX = "MRT1.";
@@ -40,7 +39,10 @@ export type TeacherCard = {
 
 export const NICK_MAX = 20;
 
-export function buildCard(s: AppState, items: ShareItems, nick: string): TeacherCard {
+// 직업·학과 전체는 크기가 커서 불러오지 않는다. 아이디 모양만 확인하고, 이름은 화면에서 찾을 때 없는 것을 건너뛴다.
+const ID_OK = /^[w-]{1,80}$/;
+
+export function buildCard(s: AppState, items: ShareItems, nick: string, cat?: Pick<Catalog, "JOB_MAP" | "MAJOR_MAP" | "full">): TeacherCard {
   const c: TeacherCard = {};
   const n = nick.replace(/\s+/g, " ").trim().slice(0, NICK_MAX);
   if (n) c.nick = n;
@@ -50,8 +52,8 @@ export function buildCard(s: AppState, items: ShareItems, nick: string): Teacher
   }
   if (items.riasec && isTestComplete(s.answers)) c.riasec = topTypes(riasecScores(s.answers), 2);
   if (items.favs) {
-    c.jobs = s.favorites.filter((id) => JOB_MAP[id]).slice(0, 30);
-    c.majors = s.favMajors.filter((id) => MAJOR_MAP[id]).slice(0, 30);
+    c.jobs = s.favorites.filter((id) => (cat?.full ? !!cat.JOB_MAP[id] : ID_OK.test(id))).slice(0, 30);
+    c.majors = s.favMajors.filter((id) => (cat?.full ? !!cat.MAJOR_MAP[id] : ID_OK.test(id))).slice(0, 30);
   }
   if (items.logs) {
     c.logs = s.logs.length;
@@ -102,8 +104,8 @@ export function decodeCard(raw: string): TeacherCard | null {
       const r = o.riasec.filter((k): k is RiasecKey => typeof k === "string" && (RIASEC_ORDER as string[]).includes(k)).slice(0, 2);
       if (r.length) c.riasec = r;
     }
-    if (Array.isArray(o.jobs)) c.jobs = o.jobs.filter((id): id is string => typeof id === "string" && !!JOB_MAP[id]).slice(0, 30);
-    if (Array.isArray(o.majors)) c.majors = o.majors.filter((id): id is string => typeof id === "string" && !!MAJOR_MAP[id]).slice(0, 30);
+    if (Array.isArray(o.jobs)) c.jobs = o.jobs.filter((id): id is string => typeof id === "string" && ID_OK.test(id)).slice(0, 30);
+    if (Array.isArray(o.majors)) c.majors = o.majors.filter((id): id is string => typeof id === "string" && ID_OK.test(id)).slice(0, 30);
     const logs = count(o.logs), books = count(o.books), done = count(o.done);
     if (logs !== undefined) c.logs = logs;
     if (books !== undefined) c.books = books;

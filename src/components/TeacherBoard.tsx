@@ -12,8 +12,7 @@ import { decodeShare, encodeShare, initialState, SEMS, type AppState, type Book,
 import { isTestComplete, progress, riasecScores, topTypes } from "@/lib/match";
 import { analyze } from "@/lib/credits";
 import { RIASEC, RIASEC_ORDER, type RiasecKey } from "@/data/riasec";
-import { JOB_MAP } from "@/data/jobs";
-import { MAJOR_MAP } from "@/data/majors";
+import { useCatalog, type Catalog } from "@/lib/catalog";
 import { GN_SCHOOLS } from "@/data/gn";
 import { TRACKS, type TrackId } from "@/data/subjects";
 import type { Term } from "@/data/plan";
@@ -54,10 +53,12 @@ type Row = {
 
 const STAGE_LABEL = { ms: "중학교", hs: "고등학교", "": "미입력" } as const;
 
-function toRowFromCard(st: Student, c: TeacherCard, i: number, t: TFn): Row {
+type Maps = Pick<Catalog, "JOB_MAP" | "MAJOR_MAP">;
+
+function toRowFromCard(st: Student, c: TeacherCard, i: number, t: TFn, { JOB_MAP, MAJOR_MAP }: Maps): Row {
   const top = c.riasec ?? [];
-  const jobs = (c.jobs ?? []).map((id) => t(JOB_MAP[id].name));
-  const majors = (c.majors ?? []).map((id) => t(MAJOR_MAP[id].name));
+  const jobs = (c.jobs ?? []).filter((id) => JOB_MAP[id]).map((id) => t(JOB_MAP[id].name));
+  const majors = (c.majors ?? []).filter((id) => MAJOR_MAP[id]).map((id) => t(MAJOR_MAP[id].name));
   const k = c.credits;
   return {
     key: st.key, code: st.code, source: st.source,
@@ -76,8 +77,9 @@ function toRowFromCard(st: Student, c: TeacherCard, i: number, t: TFn): Row {
   };
 }
 
-function toRow(st: Student, i: number, t: TFn): Row {
-  if (!st.state) return toRowFromCard(st, st.card ?? {}, i, t);
+function toRow(st: Student, i: number, t: TFn, maps: Maps): Row {
+  const { JOB_MAP, MAJOR_MAP } = maps;
+  if (!st.state) return toRowFromCard(st, st.card ?? {}, i, t, maps);
   const s = st.state;
   const tested = isTestComplete(s.answers);
   const planned = Object.values(s.credits.plan).flat().length > 0;
@@ -148,6 +150,7 @@ type Incoming = { state: AppState; source: string; label: string } | { card: Tea
 
 export function TeacherBoard() {
   const t = useT();
+  const { JOB_MAP, MAJOR_MAP } = useCatalog();
   const [students, setStudents] = useState<Student[]>([]);
   const [links, setLinks] = useState("");
   const [msgs, setMsgs] = useState<Msg[]>([]);
@@ -262,7 +265,7 @@ export function TeacherBoard() {
     merge(incoming);
   };
 
-  const rows = useMemo(() => students.map((st, i) => toRow(st, i, t)), [students, t]);
+  const rows = useMemo(() => students.map((st, i) => toRow(st, i, t, { JOB_MAP, MAJOR_MAP })), [students, t, JOB_MAP, MAJOR_MAP]);
   const shown = useMemo(() => {
     const r = rows.filter((x) => stageFilter === "all" || x.stage === stageFilter);
     if (!sort) return r;

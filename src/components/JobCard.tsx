@@ -3,7 +3,8 @@
 import { Heart } from "lucide-react";
 
 import Link from "next/link";
-import { FIELDS, type Job } from "@/data/jobs-core";
+import { FIELDS } from "@/data/jobs-core";
+import type { JobLite } from "@/data/lite-jobs";
 import { RIASEC } from "@/data/riasec";
 import { useStore } from "@/lib/store";
 import { FIELD_HUE } from "@/lib/colors";
@@ -34,7 +35,7 @@ export function FavButton({ id, className = "" }: { id: string; className?: stri
   );
 }
 
-export function JobCard({ job, score }: { job: Job; score?: number }) {
+export function JobCard({ job, score }: { job: JobLite; score?: number }) {
   const t = useT();
   const en = useJobsEn();
   const e = en?.JOBS_EN[job.id];
