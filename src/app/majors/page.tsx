@@ -9,7 +9,7 @@ import Link from "next/link";
 import { toggleIn, useStore } from "@/lib/store";
 import { MAJORS } from "@/data/majors";
 import { TRACKS, type TrackId } from "@/data/subjects";
-import { JOB_MAP } from "@/data/jobs";
+import { useCatalog } from "@/lib/catalog";
 import { NextStep, PageHead } from "@/components/ui";
 import { TRACK_HUE } from "@/lib/colors";
 import { NationalMajors } from "@/components/NationalMajors";
@@ -17,6 +17,7 @@ import { useEnData, useT } from "@/lib/i18n";
 import { useNames } from "@/i18n/names";
 
 export default function MajorsPage() {
+  const { JOB_MAP } = useCatalog(); // 관련 직업 이름: 처음엔 51개 직업, 전체는 이어서 불러옴
   const { state, update, ready } = useStore();
   const t = useT();
   const { subject: subjectLabel, job: jobLabel } = useNames();
