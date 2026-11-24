@@ -17,7 +17,7 @@
 | 양산여자고등학교 | 2026학년도 입학생 | 2026학년도 입학생 3개년 학교교육과정 편성표(양산여고).pdf | https://www.gne.go.kr/h-creditsystem/education/schul/BD_selectSchulBbs.do?q_bbsDocNo=20260616155847776 | 2025학년도 입학생 표와도 대조(같음) |
 
 
-## 엑셀 편성표로 늘린 학교 (65곳: 2026-11-23 30곳 + 2026-11-24 17곳 + 2026-11-24 3차 18곳)
+## 엑셀 편성표로 늘린 학교 (74곳: 2026-11-23 30곳 + 2026-11-24 17곳 + 3차 18곳 + 4차 9곳)
 많은 학교가 PDF 말고 **엑셀(xlsx) 편성표**도 같은 게시글에 올려 두었어요. 게시글의 '미리보기'는 엑셀을 사진이 아니라 **표 글자(HTML)**로 보여 주므로, 이미지 판독 없이 칸 값을 그대로 읽을 수 있어요(내려받기 없음, 공개 문서 뷰어만 사용).
 - 방법: 게시글 → 첨부 '미리보기' 주소(/user/bbs/ND_filePreview.do?q_fileSn=…&q_fileId=…) → 뷰어가 가리키는 문서 번호 → 시트 파일(/synap/result/…/문서번호.files/N.xhtml) 중 '2026학년도 입학생 3개년 교육과정 편성표' 시트의 표를 읽음.
 - 옮기는 규칙: 지정 과목은 학기 칸의 숫자를 학점으로, 선택군은 '표시된 칸 수 = 고르는 수(pick)', 학점은 운영학점. 선택군 소속 과목은 표시가 없는 줄까지 모두 선택지로 넣음. ↔ 칸은 택1 선택군.
@@ -93,6 +93,15 @@
 | 아림고등학교 | 2026학년도 학교교육과정 편성표(아림고).xlsx | https://www.gne.go.kr/h-creditsystem/education/schul/BD_selectSchulBbs.do?q_bbsDocNo=20260303145310691 |
 | 거제제일고등학교 | 2026학년도 학교교육과정 편성표(선택군 알파벳 수정본, 6.12).xlsx | https://www.gne.go.kr/h-creditsystem/education/schul/BD_selectSchulBbs.do?q_bbsDocNo=20260303114224979 |
 | 거제중앙고등학교 | 2026학년도 학교교육과정 편성표(안)(거제중앙고).xlsx | https://www.gne.go.kr/h-creditsystem/education/schul/BD_selectSchulBbs.do?q_bbsDocNo=20260303111332984 |
+| 사천고등학교 | 2026학년도 학교교육과정 편성표(사천고등학교).xlsx | https://www.gne.go.kr/h-creditsystem/education/schul/BD_selectSchulBbs.do?q_bbsDocNo=20260226145032700 |
+| 삼가고등학교 | 2026학년도 전학년 학교교육과정 편성표(보통과)_삼가고.xlsx | https://www.gne.go.kr/h-creditsystem/education/schul/BD_selectSchulBbs.do?q_bbsDocNo=20260225112208583 |
+| 단성고등학교 | (단성고) 2026학년도 학교교육과정 편성표(4종).xlsx | https://www.gne.go.kr/h-creditsystem/education/schul/BD_selectSchulBbs.do?q_bbsDocNo=20260303090050869 |
+| 진교고등학교 | 2026학년도 진교고등학교 학교교육과정 편성표(일반고).xlsx | https://www.gne.go.kr/h-creditsystem/education/schul/BD_selectSchulBbs.do?q_bbsDocNo=20260227153415285 |
+| 통영고등학교 | 2026학년도 학교교육과정 편성표(통영고).xlsx | https://www.gne.go.kr/h-creditsystem/education/schul/BD_selectSchulBbs.do?q_bbsDocNo=20260301101748244 |
+| 마산제일여자고등학교 | 2026학년도 학교교육과정 편성표(마산제일여자고등학교).xlsx | https://www.gne.go.kr/h-creditsystem/education/schul/BD_selectSchulBbs.do?q_bbsDocNo=20260303094036329 |
+| 진영고등학교 | 2026학년도 학교교육과정 편성표(4종)(excel파일)(단위학교 과목개설 추가).xlsx | https://www.gne.go.kr/h-creditsystem/education/schul/BD_selectSchulBbs.do?q_bbsDocNo=20260224143715739 |
+| 마산여자고등학교 | 2026학년도 학교교육과정 편성표.xlsx | https://www.gne.go.kr/h-creditsystem/education/schul/BD_selectSchulBbs.do?q_bbsDocNo=20260224142415347 |
+| 밀양동명고등학교 | 1. 2026학년도 학교교육과정 편성표(서식)(밀양동명고).xlsx | https://www.gne.go.kr/h-creditsystem/education/schul/BD_selectSchulBbs.do?q_bbsDocNo=20260224141637591 |
 
 ### 2026-11-24 추가 작업 메모
 - 접속 확인: 이전 차단은 풀려 있었어요(목록 200 응답, error.html 리다이렉트 없음). 요청은 한 번에 1건, 3초 이상 간격, 총 약 57건만 했어요(목록 1쪽 200건 보기 1건 + 학교당 4건: 게시글 → 미리보기 → 색인 xml → 시트). 차단 신호는 없었어요. 원문은 .content-gen/curricula-raw/(저장소 제외)에 저장해 재요청을 피해요.
@@ -116,6 +125,12 @@
 - 새로 확인한 보류: 창원경일고(선택군I 3-1에 표시 학점 3, 운영학점 4로 달라 칸 수를 확신할 수 없음), 창선고(학점이 섞인 선택군을 나눠 봤지만 표 합계가 175라 174가 아님), 신등고·김해고(엑셀 없이 PDF만 있음).
 - 계속 보류: 사송고(선택군E 2-1 표시값≠운영학점), 동원고(표 합계 175).
 - 아직 요청하지 않은 후보: 진주외고, 사천고, 김해경원고, 밀양고, 삼가고, 창원과학고, 단성고, 진교고, 진서고, 양산남부고, 통영고, 통영여고 등 목록의 나머지 게시글.
+
+### 2026-11-24 4차 추가 작업 메모
+- 접속 확인: 첫 1건(진주외고 게시글) 200 응답, error.html 리다이렉트·429·403 없음. 이후 한 번에 1건, 3초 이상 간격, 총 58건(카운터 count3.txt에 요청 전 기록, 겹침 없음). 차단 신호 없음. 확인일 2026-11-24. 원문은 .content-gen/curricula-raw/에 저장.
+- 새로 등록(9곳, 학기별 합=표의 총 교과 학점 6개 값, 합계 174, 모두 '2026 입학생 3개년(1학년)' 시트): 사천고(29·29·30·29·29·28), 삼가고, 단성고, 진교고, 통영고, 마산제일여고(공동교육과정·증배 묶음은 제외, note에 밝힘), 진영고(30·30·29·29·28·28), 마산여고, 밀양동명고.
+- 새로 확인한 보류: 진주외고·밀양고(엑셀 없이 PDF만 있음), 김해경원고(3-2 합 19≠28: 선택군G 칸에 긴 설명 글이 붙어 열이 밀림), 창원과학고(표 합계 180, 특목고 편제라 174가 아님), 진서고(선택군A(3학점) 2-2 표시값≠운영학점), 양산남부고(선택군E 2-1 표시값≠운영학점), 통영여고(3-1·3-2 합 27≠29: 표의 학생 선택 학점 16과 항목 합 14가 서로 안 맞음).
+- 요청 한도(60건)로 시도하지 못한 후보: 남은 미시도 게시글(예: 김해분성여고, 거창고, 진주제일여고, 마산삼진고 두 번째 글, 합포고, 창원여고, 김해수남고, 진해용원고, 진해여고 등).
 
 ### 이 방식으로 못 옮긴 학교 (사유)
 - **엑셀 없이 PDF·한글 파일만 있는 학교(약 60곳)**: 이미지 판독이 필요해 보류(예: 거창여고는 앞서 PDF로 등록했고, 김해가야고·거창고·통영고·진주제일여고·김해분성여고 등).
