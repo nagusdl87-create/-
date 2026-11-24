@@ -17,7 +17,7 @@
 | 양산여자고등학교 | 2026학년도 입학생 | 2026학년도 입학생 3개년 학교교육과정 편성표(양산여고).pdf | https://www.gne.go.kr/h-creditsystem/education/schul/BD_selectSchulBbs.do?q_bbsDocNo=20260616155847776 | 2025학년도 입학생 표와도 대조(같음) |
 
 
-## 엑셀 편성표로 늘린 학교 (30곳, 2026-11-23 확인)
+## 엑셀 편성표로 늘린 학교 (40곳: 2026-11-23 30곳 + 2026-11-24 10곳)
 많은 학교가 PDF 말고 **엑셀(xlsx) 편성표**도 같은 게시글에 올려 두었어요. 게시글의 '미리보기'는 엑셀을 사진이 아니라 **표 글자(HTML)**로 보여 주므로, 이미지 판독 없이 칸 값을 그대로 읽을 수 있어요(내려받기 없음, 공개 문서 뷰어만 사용).
 - 방법: 게시글 → 첨부 '미리보기' 주소(/user/bbs/ND_filePreview.do?q_fileSn=…&q_fileId=…) → 뷰어가 가리키는 문서 번호 → 시트 파일(/synap/result/…/문서번호.files/N.xhtml) 중 '2026학년도 입학생 3개년 교육과정 편성표' 시트의 표를 읽음.
 - 옮기는 규칙: 지정 과목은 학기 칸의 숫자를 학점으로, 선택군은 '표시된 칸 수 = 고르는 수(pick)', 학점은 운영학점. 선택군 소속 과목은 표시가 없는 줄까지 모두 선택지로 넣음. ↔ 칸은 택1 선택군.
@@ -58,6 +58,23 @@
 | 웅상고등학교 | 2026학년도 학교교육과정 편성표(웅상고).xlsx | https://www.gne.go.kr/h-creditsystem/education/schul/BD_selectSchulBbs.do?q_bbsDocNo=undefined |
 | 창원용호고등학교 | 2026학년도 학교교육과정 편성표(창원용호고).xlsx | https://www.gne.go.kr/h-creditsystem/education/schul/BD_selectSchulBbs.do?q_bbsDocNo=undefined |
 | 함양고등학교 | 2026학년도 학교교육과정 편성표(함양고).xlsx | https://www.gne.go.kr/h-creditsystem/education/schul/BD_selectSchulBbs.do?q_bbsDocNo=undefined |
+| 창원중앙여자고등학교 | 2026학년도 학교교육과정 편성표(창원중앙여고).xlsx | https://www.gne.go.kr/h-creditsystem/education/schul/BD_selectSchulBbs.do?q_bbsDocNo=20260305110803526 |
+| 김해영운고등학교 | 2026학년도 학교교육과정 편성표(김해영운고)(4종).xlsx | https://www.gne.go.kr/h-creditsystem/education/schul/BD_selectSchulBbs.do?q_bbsDocNo=20260305112722903 |
+| 진양고등학교 | 2026학년도 학교교육과정 편성표.xlsx | https://www.gne.go.kr/h-creditsystem/education/schul/BD_selectSchulBbs.do?q_bbsDocNo=20260305131033520 |
+| 안의고등학교 | 2026학년도 학교교육과정 편성표(안의고).xlsx | https://www.gne.go.kr/h-creditsystem/education/schul/BD_selectSchulBbs.do?q_bbsDocNo=20260305151707594 |
+| 효암고등학교 | 2026학년도 학교교육과정 편성표(양산 효암고)(4종)(excel파일).xlsx | https://www.gne.go.kr/h-creditsystem/education/schul/BD_selectSchulBbs.do?q_bbsDocNo=20260305153444880 |
+| 삼천포고등학교 | 2026학년도 학교교육과정 편성표(삼천포고등학교).xlsx | https://www.gne.go.kr/h-creditsystem/education/schul/BD_selectSchulBbs.do?q_bbsDocNo=20260305153953260 |
+| 거창중앙고등학교 | 2026학년도 학교교육과정 편성표(거창중앙고).xlsx | https://www.gne.go.kr/h-creditsystem/education/schul/BD_selectSchulBbs.do?q_bbsDocNo=20260305155112320 |
+| 창원토월고등학교 | 2026학년도 학교교육과정 편성표(4종_창원토월고_변경).xlsx | https://www.gne.go.kr/h-creditsystem/education/schul/BD_selectSchulBbs.do?q_bbsDocNo=20260305160410782 |
+| 김해임호고등학교 | 2026학년도 학교교육과정 편성표(김해임호고)_수정.xlsx | https://www.gne.go.kr/h-creditsystem/education/schul/BD_selectSchulBbs.do?q_bbsDocNo=20260305201700322 |
+| 충렬여자고등학교 | 2026학년도 학교교육과정 편성표(충렬여고).xlsx | https://www.gne.go.kr/h-creditsystem/education/schul/BD_selectSchulBbs.do?q_bbsDocNo=20260309130119212 |
+
+### 2026-11-24 추가 작업 메모
+- 접속 확인: 이전 차단은 풀려 있었어요(목록 200 응답, error.html 리다이렉트 없음). 요청은 한 번에 1건, 3초 이상 간격, 총 약 57건만 했어요(목록 1쪽 200건 보기 1건 + 학교당 4건: 게시글 → 미리보기 → 색인 xml → 시트). 차단 신호는 없었어요. 원문은 .content-gen/curricula-raw/(저장소 제외)에 저장해 재요청을 피해요.
+- 읽는 규칙 보완: 시트는 표(table)가 아니라 div 기반(div.tr / div.td, 병합 칸은 빈 칸)이에요. 헤더는 '과목'(또는 '※과목명…' 안내가 붙은 칸)과 '운영학점', 학기 칸 6개로 찾고, 소계는 '총 교과 편성 학점' 행(또는 '총 교과 이수 학점 소계')으로 찾아요. '음악 ↔ 미술'처럼 과목 칸이 세로로 병합돼 2번째 줄이 빈 경우는 앞 줄 이름을 이어 써요. 선택군 칸에 붙은 안내 글('user:선택 교과(군)…')은 지웠어요.
+- 이번에 등록: 충렬여자고, 김해임호고, 창원토월고, 거창중앙고, 삼천포고, 효암고, 안의고, 진양고, 김해영운고, 창원중앙여고. 모두 학기별 (지정+선택군) 합 = 총 교과 학점 6개 학기 값, 합계 174 일치. 삼천포고(29·29·29·30·30·27)와 김해영운고(29·29·29·29·30·28)는 학기별 값이 29가 아니어도 표의 학기별 값과 같아 등록했어요.
+- 새로 확인한 보류: 용남고(총 교과 학점이 '174~177'처럼 범위이고 '심의 예정' 표시), 창선고(선택군 G 안에 학점 3과 2가 섞임). 선택군 안 학점이 섞인 표는 틀리게 옮기느니 보류해요.
+- 아직 안 한 후보(요청 한도 때문에 시도하지 못함, 같은 방법으로 가능): 거제고, 옥종고, 남해제일고, 창원성민여고, 진해세화여고, 마산중앙고, 김해외국어고, 연초고, 밀양여고, 김해중앙여고, 사송고, 동원고, 야로고, 거제상문고, 하동고, 창원중앙고, 밀성고, 창원경일고, 김해율하고, 의령여고, 칠원고, 증산고, 해성고 등.
 
 ### 이 방식으로 못 옮긴 학교 (사유)
 - **엑셀 없이 PDF·한글 파일만 있는 학교(약 60곳)**: 이미지 판독이 필요해 보류(예: 거창여고는 앞서 PDF로 등록했고, 김해가야고·거창고·통영고·진주제일여고·김해분성여고 등).
