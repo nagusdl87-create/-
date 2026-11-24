@@ -25,6 +25,9 @@ do {
     if (last >= cutoff) continue;
     if (!DRY) {
       await db.doc(`users/${u.uid}`).delete();
+      await db.doc(`shared/${u.uid}`).delete(); // 교사·관리자 공개용 사본
+      await db.doc(`members/${u.uid}`).delete(); // 관리자 지정 후보 목록(이름·이메일)
+      await db.doc(`admins/${u.uid}`).delete();
       await auth.deleteUser(u.uid);
     }
     removed++;
@@ -34,10 +37,12 @@ do {
 
 // 계정은 없는데 남은 기록(예: 계정만 지워진 경우) 정리
 let orphans = 0;
-const snap = await db.collection("users").select().get();
-for (const d of snap.docs) {
-  try { await auth.getUser(d.id); } catch (e) {
-    if (e.code === "auth/user-not-found") { if (!DRY) await d.ref.delete(); orphans++; } else throw e;
+for (const col of ["users", "shared", "members", "admins"]) {
+  const snap = await db.collection(col).select().get();
+  for (const d of snap.docs) {
+    try { await auth.getUser(d.id); } catch (e) {
+      if (e.code === "auth/user-not-found") { if (!DRY) await d.ref.delete(); orphans++; } else throw e;
+    }
   }
 }
 console.log(`${DRY ? "[점검만] " : ""}전체 계정 ${total}, 1년 미접속 삭제 ${removed}, 계정 없는 기록 삭제 ${orphans}`);

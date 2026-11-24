@@ -71,8 +71,16 @@ export const STAFF: Record<string, string> = {
     "Shared items: Google display name, profile (name, school, grade), interest test results, liked jobs, majors and schools, career activity and reading records, plans and goals by semester, portfolio writing, 192-credit plan. Email address, school grades, and the school curriculum table are not put in the shared copy.",
   "철회: 같은 화면에서 언제든 끌 수 있고, 끄면 공개용 사본이 바로 삭제되어 더는 볼 수 없어요. 이미 인쇄하거나 복사해 간 내용은 교사가 직접 안전하게 보관·파기해야 해요.":
     "Withdrawal: you can turn it off any time on the same page. The shared copy is deleted right away and can no longer be seen. Anything a teacher already printed or copied must be stored and destroyed safely by the teacher.",
-  "읽는 사람: 마스터(제작자가 지정한 구글 계정 1개)와, 마스터가 지정한 관리자(교사). 관리자는 읽기만 할 수 있고 기록을 고치거나 다른 관리자를 지정할 수 없어요. 관리자 지정을 위해 로그인한 사용자의 이름·이메일이 별도 목록(members)에 저장돼요.":
-    "Who reads: the master (one Google account set by the creator) and admins (teachers) assigned by the master. Admins can only read; they cannot edit records or assign other admins. To let the master choose admins, the name and email of signed-in users are stored in a separate list (members).",
+  "읽는 사람: 마스터(제작자가 지정한 구글 계정 1개)와, 마스터가 지정한 관리자(교사). 관리자는 읽기만 할 수 있고 기록을 고치거나 다른 관리자를 지정할 수 없어요.":
+    "Who reads: the master (one Google account set by the creator) and admins (teachers) assigned by the master. Admins can only read; they cannot edit records or assign other admins.",
+  "관리자 지정 후보 목록: 마스터가 관리자(교사)를 고를 수 있도록, 이 기능이 켜진 뒤 로그인한 모든 이용자의 이름·이메일이 별도 목록(members)에 저장돼요. 공개 동의와는 상관없이 저장되며, 마스터가 관리자를 고를 때만 쓰고, 계정을 삭제하면 함께 지워져요.":
+    "Admin candidate list: so the master can choose admins (teachers), the name and email of every user who signs in after this feature is on are stored in a separate list (members). This is stored regardless of sharing consent, used only when the master chooses admins, and deleted together with your account.",
+  "보유 기간: 공개용 사본은 공개를 끄거나 계정을 삭제하면 바로 지워지고, 1년 동안 접속하지 않으면 계정과 함께 자동으로 삭제돼요.":
+    "Retention: the shared copy is deleted right away when you turn sharing off or delete your account, and it is deleted automatically with your account after one year without signing in.",
+  "동의하지 않아도 불이익이 없어요: 공개에 동의하지 않아도 이 사이트의 모든 기능을 똑같이 쓸 수 있어요.":
+    "No disadvantage if you do not agree: you can use every feature of this site in the same way without sharing.",
+  "교사의 의무: 열람한 내용은 상담·지도 목적으로만 쓰고, 인쇄물은 안전하게 보관한 뒤 목적이 끝나면 파기해야 해요.":
+    "Teacher duties: use what you view only for counseling and guidance, keep printouts safe, and destroy them when the purpose ends.",
   "교사는 학생이 입력한 기록을 이 기기의 브라우저 안에서만 분석하고, 세특 초안도 같은 방식으로 만들어요. 학생 기록을 외부 AI 서비스로 보내지 않아요. 세특 초안은 학교 기재 요령과 교사의 관찰에 따라 교사가 직접 고쳐 써야 해요.":
     "Teachers analyze records only inside their own browser, and setuk drafts are made the same way. Student records are never sent to an outside AI service. Teachers must rewrite drafts following school writing guidelines and their own observation.",
   "만 14세 이상만 로그인할 수 있어요. 보호자 안내와 학교 지침에 따라 이 기능을 사용해 주세요.": "Only people aged 14 or older can sign in. Please use this feature following guardian guidance and school policy.",
