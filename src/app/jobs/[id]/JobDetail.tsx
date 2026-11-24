@@ -84,13 +84,13 @@ export function JobDetail({ id, deep: deepKo, deepEn, cn, ctx }: { id: string; d
       </Link>
       <div className="card">
         <div className="flex items-start justify-between gap-3">
-          <div className="flex items-center gap-4">
-            <span className="grid h-16 w-16 place-items-center rounded-2xl bg-slate-100 text-4xl">{job.emoji}</span>
-            <div>
+          <div className="flex min-w-0 items-center gap-3 sm:gap-4">
+            <span className="grid h-16 w-16 shrink-0 place-items-center rounded-2xl bg-slate-100 text-3xl sm:text-4xl">{job.emoji}</span>
+            <div className="min-w-0">
               <div className="text-xs font-semibold text-slate-500">
                 {FIELDS[job.field].emoji} {fieldName}
               </div>
-              <h1 className="text-2xl font-extrabold text-slate-900">{job.name}</h1>
+              <h1 className="break-words text-2xl font-extrabold text-slate-900">{job.name}</h1>
               <div className="mt-1 flex flex-wrap gap-1">
                 {job.riasec.map((k) => (
                   <span key={k} className="rounded-md px-1.5 py-0.5 text-[11px] font-bold text-white" style={{ background: RIASEC[k].color }}>
@@ -100,7 +100,7 @@ export function JobDetail({ id, deep: deepKo, deepEn, cn, ctx }: { id: string; d
               </div>
             </div>
           </div>
-          <FavButton id={job.id} className="h-11 w-11 text-xl" />
+          <FavButton id={job.id} className="h-11 w-11 shrink-0 text-xl" />
         </div>
         <p className="mt-4 text-lg font-medium leading-relaxed text-slate-800">{job.summary}</p>
         {deep && <p className="mt-2 leading-relaxed text-slate-600"><KeepKo text={deep.intro} /></p>}

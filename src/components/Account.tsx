@@ -12,7 +12,7 @@ export function AccountButton() {
   const t = useT();
   if (!visible) return null;
   return (
-    <Link href="/account" className="btn-ghost whitespace-nowrap rounded-full px-3 py-2" aria-label={t(user ? "내 계정과 동기화" : "로그인")}>
+    <Link href="/account" className="btn-ghost whitespace-nowrap rounded-full px-2.5 py-2 sm:px-3" aria-label={t(user ? "내 계정과 동기화" : "로그인")}>
       {user ? (status === "error" ? <CloudOff className="h-4 w-4 text-rose-600" aria-hidden /> : <Cloud className="h-4 w-4 text-brand-600" aria-hidden />) : <LogIn className="h-4 w-4" aria-hidden />}
       <span className="hidden sm:inline">{t(user ? "동기화" : "로그인")}</span>
     </Link>

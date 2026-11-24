@@ -76,7 +76,7 @@ export function Nav() {
         {t("본문 바로가기")}
       </a>
       <header className="no-print sticky top-0 z-30 border-b border-slate-200/80 bg-white/95 backdrop-blur">
-        <div className="mx-auto flex h-16 max-w-6xl items-center justify-between gap-4 px-4">
+        <div className="mx-auto flex h-16 max-w-6xl items-center justify-between gap-2 px-3 sm:gap-4 sm:px-4">
           <Link href="/" title={t("마이로드 경남 홈")}>
             <Logo />
           </Link>
@@ -85,7 +85,7 @@ export function Nav() {
             <Dropdown label={t("탐색")} items={EXPLORE} active={activeGroup === "explore"} />
             <Dropdown label={t("도구")} items={TOOLS} active={activeGroup === "tools"} />
           </nav>
-          <div className="flex items-center gap-1 sm:gap-2">
+          <div className="flex items-center gap-0.5 sm:gap-2">
             <form onSubmit={search} className="relative hidden md:block" role="search">
               <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" aria-hidden />
               <input className="input w-56 rounded-full bg-slate-50 py-2 pl-9 lg:w-48 xl:w-56" placeholder={t("직업·학과·과목·학교 검색")} value={q} onChange={(e) => setQ(e.target.value)} aria-label={t("통합 검색")} />

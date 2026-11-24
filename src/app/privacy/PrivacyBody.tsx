@@ -57,7 +57,7 @@ export function PrivacyBody() {
         </ul>
 
         <H n={2}>처리하는 개인정보 항목과 목적 (로그인한 경우)</H>
-        <div className="overflow-x-auto">
+        <div className="overflow-x-auto" tabIndex={0} role="region" aria-label="표 (좌우로 밀어서 보기)">
           <table className="w-full min-w-[480px] border-collapse text-sm">
             <thead><tr><th>구분</th><th>항목</th><th>목적</th></tr></thead>
             <tbody>
@@ -86,7 +86,7 @@ export function PrivacyBody() {
         <p className="mt-2">이용자의 개인정보를 제3자에게 제공하지 않아요. 이용자가 직접 만든 &ldquo;공유 링크&rdquo;는 링크를 받은 사람이 볼 수 있으며, 이는 이용자 본인의 선택이에요.</p>
 
         <H n={6}>처리 위탁 및 국외 이전</H>
-        <div className="overflow-x-auto">
+        <div className="overflow-x-auto" tabIndex={0} role="region" aria-label="표 (좌우로 밀어서 보기)">
           <table className="w-full min-w-[480px] border-collapse text-sm">
             <thead><tr><th>수탁자</th><th>위탁 업무</th><th>이전 국가·방법</th><th>보유 기간</th></tr></thead>
             <tbody>
