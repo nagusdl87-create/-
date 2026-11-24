@@ -4,6 +4,7 @@
 import { loadFirebase } from "@/lib/cloud";
 import { normalizeFull } from "@/lib/studentData";
 import type { AppState } from "@/lib/store";
+import { PAGE_SIZE, pageState, type PageResult } from "@/lib/pager";
 
 export type SharedStudent = { uid: string; who: string; updatedAt: number; state: AppState };
 export type Member = { uid: string; name: string; email: string };
@@ -14,18 +15,24 @@ const ms = (v: unknown) => {
   return t?.toMillis ? t.toMillis() : 0;
 };
 
-export async function loadSharedStudents(): Promise<SharedStudent[]> {
+/** 학생 한 쪽(문서 id 순, 최대 PAGE_SIZE명). after = 이전 쪽의 cursor. 규칙의 limit<=100 안에서 인덱스 없이 동작한다. */
+export async function loadSharedPage(after: string | null): Promise<PageResult<SharedStudent>> {
   const { fs, db } = await loadFirebase();
-  const snap = await fs.getDocs(fs.query(fs.collection(db, "shared"), fs.limit(100)));
-  const out: SharedStudent[] = [];
+  const col = fs.collection(db, "shared");
+  const snap = await fs.getDocs(
+    after
+      ? fs.query(col, fs.orderBy(fs.documentId()), fs.startAfter(after), fs.limit(PAGE_SIZE))
+      : fs.query(col, fs.orderBy(fs.documentId()), fs.limit(PAGE_SIZE)),
+  );
+  const items: SharedStudent[] = [];
   snap.forEach((d) => {
     const v = d.data();
     try {
       const st = normalizeFull(JSON.parse(String(v.data)));
-      if (st) out.push({ uid: d.id, who: typeof v.who === "string" ? v.who : "", updatedAt: ms(v.updatedAt), state: st });
+      if (st) items.push({ uid: d.id, who: typeof v.who === "string" ? v.who : "", updatedAt: ms(v.updatedAt), state: st });
     } catch { /* 깨진 문서는 건너뜀 */ }
   });
-  return out;
+  return { items, ...pageState(snap.docs.map((d) => d.id)) };
 }
 
 export async function loadMembers(): Promise<Member[]> {

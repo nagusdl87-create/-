@@ -7,7 +7,8 @@ import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { ClipboardCopy, LogIn, Printer, RefreshCw, ShieldCheck, ShieldPlus, UserMinus, UserPlus } from "lucide-react";
 import { useCloud } from "@/lib/cloud";
-import { grantAdmin, loadAdmins, loadMembers, loadSharedStudents, revokeAdmin, type AdminRec, type Member, type SharedStudent } from "@/lib/staff";
+import { grantAdmin, loadAdmins, loadMembers, loadSharedPage, revokeAdmin, type AdminRec, type Member, type SharedStudent } from "@/lib/staff";
+import { filterByText, mergePage } from "@/lib/pager";
 import { analyzeStudent, draftSetuk } from "@/lib/staffAnalysis";
 import { useCatalog } from "@/lib/catalog";
 import { ReportBody } from "@/components/ReportBody";
@@ -158,13 +159,24 @@ function StudentViewer() {
   const [err, setErr] = useState("");
   const [extra, setExtra] = useState(false); // 인쇄할 때 분석·세특 초안도 넣기
 
-  const load = async () => {
+  const [cursor, setCursor] = useState<string | null>(null);
+  const [done, setDone] = useState(false);
+  const [q, setQ] = useState("");
+
+  // more=false: 처음부터 다시, more=true: 다음 쪽을 이어 붙이기
+  const load = async (more = false) => {
     setBusy(true);
     setErr("");
     try {
-      const l = await loadSharedStudents();
-      setList(l);
-      setSel((prev) => new Set([...prev].filter((id) => l.some((x) => x.uid === id))));
+      const r = await loadSharedPage(more ? cursor : null);
+      setCursor(r.cursor);
+      setDone(r.done);
+      if (more) {
+        setList((prev) => mergePage(prev ?? [], r.items, (x) => x.uid));
+      } else {
+        setList(r.items);
+        setSel((prev) => new Set([...prev].filter((id) => r.items.some((x) => x.uid === id))));
+      }
     } catch {
       setErr(t("학생 목록을 불러오지 못했어요. 권한과 인터넷 연결을 확인해 주세요."));
     } finally {
@@ -173,6 +185,8 @@ function StudentViewer() {
   };
 
   const chosen = list?.filter((x) => sel.has(x.uid)) ?? [];
+  const shown = list ? filterByText(list, q, (x) => `${studentName(x, t)} ${x.state.profile.school}`) : [];
+  const allShownSelected = shown.length > 0 && shown.every((x) => sel.has(x.uid));
   // 인쇄할 때 아래 학생 모아 보기 표는 숨기고 선택한 학생 기록만 나오게
   useEffect(() => {
     document.body.classList.toggle("print-folio", chosen.length > 0);
@@ -186,21 +200,29 @@ function StudentViewer() {
       <div className="no-print card">
         <div className="flex flex-wrap items-center justify-between gap-2">
           <h2 className="font-bold">{t("공개에 동의한 학생")}</h2>
-          <button className="btn-primary py-2" onClick={load} disabled={busy}><RefreshCw className={`h-4 w-4 ${busy ? "animate-spin" : ""}`} aria-hidden /> {t(list ? "다시 불러오기" : "학생 목록 불러오기")}</button>
+          <button className="btn-primary py-2" onClick={() => load(false)} disabled={busy}><RefreshCw className={`h-4 w-4 ${busy ? "animate-spin" : ""}`} aria-hidden /> {t(list ? "다시 불러오기" : "학생 목록 불러오기")}</button>
         </div>
         {err && <p className="mt-2 text-sm text-rose-600" role="alert">{err}</p>}
         {list && list.length === 0 && <p className="mt-3 text-sm text-slate-500">{t("지금 공개를 켠 학생이 없어요.")}</p>}
         {list && list.length > 0 && (
           <>
+            <label htmlFor="student-q" className="label mt-3">{t("이름 또는 학교로 찾기 (불러온 학생 안에서)")}</label>
+            <input id="student-q" className="input sm:max-w-sm" value={q} onChange={(e) => setQ(e.target.value)} autoComplete="off" />
             <div className="mt-3 flex flex-wrap items-center gap-3 text-sm">
               <label className="flex items-center gap-2 font-semibold">
-                <input type="checkbox" className="h-4 w-4 accent-brand-600" checked={sel.size === list.length} onChange={(e) => setSel(e.target.checked ? new Set(list.map((x) => x.uid)) : new Set())} />
-                {t("전체 선택")}
+                <input
+                  type="checkbox"
+                  className="h-4 w-4 accent-brand-600"
+                  checked={allShownSelected}
+                  onChange={(e) => setSel((p) => { const n = new Set(p); shown.forEach((x) => (e.target.checked ? n.add(x.uid) : n.delete(x.uid))); return n; })}
+                />
+                {q.trim() ? t("보이는 학생 모두 선택") : t("전체 선택")}
               </label>
-              <span className="text-slate-500">{t("{n}명 중 {m}명 선택", { n: list.length, m: sel.size })}</span>
+              <span className="text-slate-500">{t("{n}명 중 {m}명 선택", { n: list.length, m: sel.size })}{!done ? t(" · 더 있을 수 있어요") : ""}</span>
             </div>
             <ul className="mt-2 divide-y divide-slate-100 rounded-xl border border-slate-200 text-sm">
-              {list.map((x) => {
+              {shown.length === 0 && <li className="px-3 py-3 text-slate-500">{t("찾는 학생이 없어요. ‘더 불러오기’를 눌러 다음 학생도 확인해 보세요.")}</li>}
+              {shown.map((x) => {
                 const p = x.state.profile;
                 return (
                   <li key={x.uid}>
@@ -214,6 +236,9 @@ function StudentViewer() {
                 );
               })}
             </ul>
+            {!done && (
+              <button className="btn-ghost mt-2 py-2" onClick={() => load(true)} disabled={busy}>{t("더 불러오기")}</button>
+            )}
             <div className="mt-3 flex flex-wrap items-center gap-3">
               <label className="flex items-center gap-2 text-sm">
                 <input type="checkbox" className="h-4 w-4 accent-brand-600" checked={extra} onChange={(e) => setExtra(e.target.checked)} />
