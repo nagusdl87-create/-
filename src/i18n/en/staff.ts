@@ -62,7 +62,6 @@ export const STAFF: Record<string, string> = {
   "볼 수 있는 사람: 마스터와 마스터가 지정한 관리자(교사). 읽기만 가능해요.": "Who can see: the master and admins (teachers) the master assigned. Read-only.",
   "공개 중에는 내가 고친 내용이 자동으로 반영돼요. 끄면 공개용 사본이 바로 지워져요.": "While sharing is on, your edits are updated automatically. Turning it off deletes the shared copy right away.",
   "위 범위에 동의하고 공개": "Agree to the above and share",
-  "초안: 교사·관리자 열람 기능 문안이에요. 사용자(제작자)와 법적 확인을 거친 뒤에 확정해요.": "Draft: wording for the teacher/admin viewing feature. It will be finalized after review by the site owner and legal check.",
   "12. 교사·관리자의 열람 (선택 동의)": "12. Viewing by teachers and admins (optional consent)",
   "이용자가 계정 화면에서 ‘교사·관리자에게 내 포트폴리오 공개’를 직접 켠 경우에만, 이용자의 기록 사본을 마스터와 관리자(교사)가 읽을 수 있어요. 기본값은 꺼짐이에요.":
     "Only if you turn on ‘Share my portfolio with teachers/admins’ on the account page can the master and admins (teachers) read a copy of your records. It is off by default.",

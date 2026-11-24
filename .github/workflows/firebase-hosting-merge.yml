@@ -33,6 +33,8 @@ jobs:
         env:
           NEIS_API_KEY: ${{ secrets.NEIS_API_KEY }}
       - run: npm run build
+        env:
+          NEXT_PUBLIC_TEACHER_CLOUD: "on" # 교사·관리자 열람 기능 공개(2026-11-24, 개인정보 12항 확인 완료)
       - name: 브라우저 전체 흐름 테스트(e2e, 실패하면 경고만)
         continue-on-error: true
         run: |

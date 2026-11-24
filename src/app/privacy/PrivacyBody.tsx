@@ -13,14 +13,13 @@ function H({ n, children }: { n: number; children: React.ReactNode }) {
   return <h2 className="mt-8 text-lg font-bold text-slate-900">{n}. {children}</h2>;
 }
 
-/** 교사·관리자 열람 기능 안내(초안). 이 기능이 숨겨져 있는 동안에는 보이지 않는다. 게시 전에 사용자·법적 확인이 필요하다. */
+/** 교사·관리자 열람 기능 안내(2026-11-24 사용자 확인 완료). 기능이 꺼져 있는 동안에는 보이지 않는다. */
 function StaffSection() {
   const t = useT();
   const { teacherFeature } = useCloud();
   if (!teacherFeature) return null;
   return (
     <article className="card mt-6 text-[0.95rem] leading-relaxed text-slate-700" aria-labelledby="staff-priv">
-      <p className="rounded-xl bg-amber-50 px-3 py-2 text-sm text-amber-900" role="note">{t("초안: 교사·관리자 열람 기능 문안이에요. 사용자(제작자)와 법적 확인을 거친 뒤에 확정해요.")}</p>
       <h2 id="staff-priv" className="mt-4 text-lg font-bold text-slate-900">{t("12. 교사·관리자의 열람 (선택 동의)")}</h2>
       <ul className="mt-2 list-disc pl-5">
         <li>{t("이용자가 계정 화면에서 ‘교사·관리자에게 내 포트폴리오 공개’를 직접 켠 경우에만, 이용자의 기록 사본을 마스터와 관리자(교사)가 읽을 수 있어요. 기본값은 꺼짐이에요.")}</li>
