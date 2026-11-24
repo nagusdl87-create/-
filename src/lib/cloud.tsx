@@ -7,10 +7,12 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
 import { initialState, useStore, type AppState } from "@/lib/store";
 import { useMounted } from "@/lib/useMounted";
+import { MASTER_EMAIL, TEACHER_CLOUD } from "@/lib/site";
 
 export const LOGIN_PUBLIC = process.env.NEXT_PUBLIC_LOGIN !== "off"; // 2026-11-22 공개(결정 D3=A). 끄려면 빌드 때 NEXT_PUBLIC_LOGIN=off
 const FLAG = "myroad:cloud"; // 이 기기에서 로그인한 적 있음 → 시작할 때 세션 확인
 const PREVIEW = "myroad:login-preview";
+const TPREVIEW = "myroad:teacher-preview"; // 교사 열람 기능 미리보기(?teacher=1)
 
 const firebaseConfig = {
   apiKey: "AIzaSyDXYRvZbU2DgaeU4c7QnIzw00YSkw6cV5o",
@@ -28,7 +30,7 @@ type FB = {
   db: import("firebase/firestore").Firestore;
 };
 let fbPromise: Promise<FB> | null = null;
-function loadFirebase(): Promise<FB> {
+export function loadFirebase(): Promise<FB> {
   if (!fbPromise) {
     fbPromise = (async () => {
       const [{ initializeApp, getApps }, auth, fs] = await Promise.all([import("firebase/app"), import("firebase/auth"), import("firebase/firestore")]);
@@ -50,7 +52,13 @@ const deviceId = () => {
   return d;
 };
 
-export type CloudUser = { uid: string; name: string; email: string };
+export type CloudUser = { uid: string; name: string; email: string; verified: boolean };
+export type StaffRole = "none" | "admin" | "master";
+
+/** 교사·관리자에게 공개할 때 서버에 올리는 사본: 성적·학교 편제표는 뺀다 */
+export function shareSubset(s: AppState): AppState {
+  return { ...s, grades: [], credits: { ...s.credits, curriculum: null } };
+}
 export type SyncStatus = "off" | "loading" | "syncing" | "synced" | "error";
 type Ctx = {
   visible: boolean;
@@ -64,6 +72,13 @@ type Ctx = {
   deleteAccount: () => Promise<void>;
   resolve: (use: "local" | "remote") => Promise<void>;
   enablePreview: () => void;
+  /** 교사·관리자 열람 기능이 보이는지(플래그 또는 미리보기) */
+  teacherFeature: boolean;
+  /** 내 포트폴리오를 교사·관리자에게 공개 중인지 */
+  shareOn: boolean;
+  setShare: (on: boolean) => Promise<void>;
+  /** 마스터(최고 권한자) 또는 관리자(교사) 여부 */
+  role: StaffRole;
 };
 const CloudContext = createContext<Ctx | null>(null);
 const CloudInitialContext = createContext<Ctx | null>(null);
@@ -86,6 +101,12 @@ export function CloudProvider({ children }: { children: React.ReactNode }) {
   const [error, setError] = useState("");
   const [lastSync, setLastSync] = useState<number | null>(null);
   const [conflict, setConflict] = useState<AppState | null>(null);
+  const [teacherFeature, setTeacherFeature] = useState(TEACHER_CLOUD);
+  const [shareOn, setShareOn] = useState(false);
+  const [role, setRole] = useState<StaffRole>("none");
+  const shareRef = useRef(false);
+  const featureRef = useRef(TEACHER_CLOUD);
+  featureRef.current = teacherFeature;
   const lastJson = useRef<string>(""); // 서버와 같은 내용(중복 업로드·되돌림 방지)
   const unsub = useRef<(() => void) | null>(null);
   const stateRef = useRef(state);
@@ -98,14 +119,29 @@ export function CloudProvider({ children }: { children: React.ReactNode }) {
     setVisible(ls.get(PREVIEW) === "1");
   }, []);
 
+  useEffect(() => {
+    if (TEACHER_CLOUD) return;
+    if (new URLSearchParams(window.location.search).get("teacher") === "1") ls.set(TPREVIEW, "1");
+    setTeacherFeature(ls.get(TPREVIEW) === "1");
+  }, []);
+
   const upload = useCallback(async (uid: string, s: AppState) => {
     const { fs, db } = await loadFirebase();
     const json = JSON.stringify(s);
     setStatus("syncing");
     await fs.setDoc(fs.doc(db, "users", uid), { v: 2, data: json, clientAt: Date.now(), device: deviceId(), updatedAt: fs.serverTimestamp() });
+    // 공개를 켠 학생만: 성적·편제표를 뺀 사본을 shared/{uid}에 함께 올린다(끄면 문서가 없다)
+    if (shareRef.current) await writeShared(uid, s);
     lastJson.current = json;
     setLastSync(Date.now());
     setStatus("synced");
+  }, []);
+
+  const writeShared = useCallback(async (uid: string, s: AppState) => {
+    const { fs, db, a } = await loadFirebase();
+    await fs.setDoc(fs.doc(db, "shared", uid), {
+      v: 2, data: JSON.stringify(shareSubset(s)), who: (a.currentUser?.displayName ?? "").slice(0, 80), consentAt: Date.now(), updatedAt: fs.serverTimestamp(),
+    });
   }, []);
 
   // 로그인 직후: 서버 기록과 이 기기 기록을 맞춘다
@@ -120,6 +156,17 @@ export function CloudProvider({ children }: { children: React.ReactNode }) {
     else if (remoteJson === JSON.stringify(local)) { lastJson.current = remoteJson; setStatus("synced"); setLastSync(Date.now()); }
     else if (isEmpty(local)) { lastJson.current = remoteJson; replace(JSON.parse(remoteJson)); setStatus("synced"); setLastSync(Date.now()); }
     else { setConflict(JSON.parse(remoteJson)); setStatus("synced"); }
+    if (featureRef.current) {
+      try {
+        const sh = await fs.getDoc(fs.doc(db, "shared", u.uid));
+        shareRef.current = sh.exists();
+        setShareOn(sh.exists());
+        // 마스터가 관리자를 고를 수 있도록 이름·이메일을 members에 둔다(이 기능이 보일 때만)
+        await fs.setDoc(fs.doc(db, "members", u.uid), { name: u.name.slice(0, 80), email: u.email, at: Date.now() });
+        if (u.verified && u.email === MASTER_EMAIL) setRole("master");
+        else setRole((await fs.getDoc(fs.doc(db, "admins", u.uid))).exists() ? "admin" : "none");
+      } catch { setRole("none"); }
+    }
     // 다른 기기에서 바뀌면 받아 온다
     unsub.current?.();
     unsub.current = fs.onSnapshot(ref, (d) => {
@@ -139,7 +186,7 @@ export function CloudProvider({ children }: { children: React.ReactNode }) {
     loadFirebase().then(({ auth, a }) => {
       off = auth.onAuthStateChanged(a, (fu) => {
         if (fu) {
-          const u = { uid: fu.uid, name: fu.displayName ?? "", email: fu.email ?? "" };
+          const u = { uid: fu.uid, name: fu.displayName ?? "", email: fu.email ?? "", verified: fu.emailVerified };
           setUser(u);
           attach(u).catch((e) => { setStatus("error"); setError(msg(e)); });
         } else { setUser(null); setStatus("off"); ls.del(FLAG); }
@@ -163,7 +210,7 @@ export function CloudProvider({ children }: { children: React.ReactNode }) {
       const { auth, a } = await loadFirebase();
       const cred = await auth.signInWithPopup(a, new auth.GoogleAuthProvider());
       ls.set(FLAG, "1");
-      const u = { uid: cred.user.uid, name: cred.user.displayName ?? "", email: cred.user.email ?? "" };
+      const u = { uid: cred.user.uid, name: cred.user.displayName ?? "", email: cred.user.email ?? "", verified: cred.user.emailVerified };
       setUser(u);
       await attach(u);
     } catch (e) { setError(msg(e)); setStatus(user ? "error" : "off"); }
@@ -175,6 +222,7 @@ export function CloudProvider({ children }: { children: React.ReactNode }) {
     await auth.signOut(a);
     ls.del(FLAG);
     setUser(null); setStatus("off"); setConflict(null); lastJson.current = "";
+    shareRef.current = false; setShareOn(false); setRole("none");
     if (wipeLocal) replace(initialState());
   }, [replace]);
 
@@ -184,6 +232,8 @@ export function CloudProvider({ children }: { children: React.ReactNode }) {
     if (!cu) return;
     unsub.current?.();
     try {
+      await fs.deleteDoc(fs.doc(db, "shared", cu.uid));
+      await fs.deleteDoc(fs.doc(db, "members", cu.uid));
       await fs.deleteDoc(fs.doc(db, "users", cu.uid));
       try { await auth.deleteUser(cu); }
       catch (e) {
@@ -194,8 +244,21 @@ export function CloudProvider({ children }: { children: React.ReactNode }) {
       }
       ls.del(FLAG);
       setUser(null); setStatus("off"); lastJson.current = "";
+      shareRef.current = false; setShareOn(false); setRole("none");
     } catch (e) { setError(msg(e)); }
   }, []);
+
+  // 공개 켜기·끄기. 끄면 shared 문서를 바로 지워서 교사·관리자가 더는 읽을 수 없다.
+  const setShare = useCallback(async (on: boolean) => {
+    if (!user) return;
+    setError("");
+    try {
+      const { fs, db } = await loadFirebase();
+      if (on) { shareRef.current = true; await writeShared(user.uid, stateRef.current); }
+      else { shareRef.current = false; await fs.deleteDoc(fs.doc(db, "shared", user.uid)); }
+      setShareOn(on);
+    } catch (e) { shareRef.current = !on; setError(msg(e)); }
+  }, [user, writeShared]);
 
   const resolve = useCallback(async (use: "local" | "remote") => {
     if (!user || !conflict) return;
@@ -207,8 +270,8 @@ export function CloudProvider({ children }: { children: React.ReactNode }) {
   const enablePreview = useCallback(() => { ls.set(PREVIEW, "1"); setVisible(true); }, []);
 
   const value = useMemo(
-    () => ({ visible, user, status, error, lastSync, conflict, signIn, signOutNow, deleteAccount, resolve, enablePreview }),
-    [visible, user, status, error, lastSync, conflict, signIn, signOutNow, deleteAccount, resolve, enablePreview],
+    () => ({ visible, user, status, error, lastSync, conflict, signIn, signOutNow, deleteAccount, resolve, enablePreview, teacherFeature, shareOn, setShare, role }),
+    [visible, user, status, error, lastSync, conflict, signIn, signOutNow, deleteAccount, resolve, enablePreview, teacherFeature, shareOn, setShare, role],
   );
   // 처음 값(서버 HTML과 같은 값)을 따로 둔다: 컴포넌트가 화면에 붙기 전에 쓴다(src/lib/useMounted.ts 설명 참고)
   const [initial] = useState(() => value);

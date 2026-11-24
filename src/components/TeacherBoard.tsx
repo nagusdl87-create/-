@@ -18,73 +18,19 @@ import { GN_SCHOOLS } from "@/data/gn";
 import { TRACKS, type TrackId } from "@/data/subjects";
 import type { Term } from "@/data/plan";
 import { useT } from "@/lib/i18n";
+import { normalizeFull } from "@/lib/studentData";
+import { decodeCard, extractCodes, type TeacherCard } from "@/lib/teacherShare";
 
 type TFn = (ko: string, vars?: Record<string, string | number>) => string;
 
 /* ---------- 들어온 기록 다듬기 (store.tsx의 sanitize보다 엄격하게: 이상한 파일이 와도 화면이 멈추지 않도록) ---------- */
 
-type Obj = Record<string, unknown>;
-const isObj = (x: unknown): x is Obj => !!x && typeof x === "object" && !Array.isArray(x);
-const str = (x: unknown) => (typeof x === "string" ? x : typeof x === "number" ? String(x) : "");
-const strArr = (x: unknown) => (Array.isArray(x) ? x.filter((v): v is string => typeof v === "string") : []);
-const numMap = (x: unknown) => {
-  const out: Record<number, number> = {};
-  if (isObj(x)) for (const [k, v] of Object.entries(x)) if (typeof v === "number" && Number.isFinite(v)) out[Number(k)] = v;
-  return out;
-};
-function pick<T>(x: unknown, keys: string[], extra?: (o: Obj) => Partial<T>): T[] {
-  if (!Array.isArray(x)) return [];
-  return x.filter(isObj).map((o) => ({ ...Object.fromEntries(keys.map((k) => [k, str(o[k])])), ...(extra?.(o) ?? {}) }) as T);
-}
-
-function normalize(raw: unknown): AppState | null {
-  if (!isObj(raw)) return null;
-  const base = initialState();
-  const p = isObj(raw.profile) ? raw.profile : {};
-  const c = isObj(raw.credits) ? raw.credits : {};
-  const plan = isObj(c.plan) ? c.plan : {};
-  const extra = isObj(c.extra) ? c.extra : {};
-  const tasks = { ...base.tasks };
-  if (isObj(raw.tasks))
-    for (const [k, v] of Object.entries(raw.tasks))
-      if (Array.isArray(v)) tasks[k as Term] = pick<Task>(v, ["id", "text"], (o) => ({ done: o.done === true }));
-  const picks: Record<string, string[]> = {};
-  if (isObj(c.picks)) for (const [k, v] of Object.entries(c.picks)) picks[k] = strArr(v);
-  const track = typeof c.track === "string" && c.track in TRACKS ? (c.track as TrackId) : "";
-  const stage = p.stage === "ms" || p.stage === "hs" ? p.stage : "";
-  const answers = numMap(raw.answers);
-  return {
-    ...base,
-    profile: { name: str(p.name).trim(), school: str(p.school).trim(), grade: str(p.grade), stage: stage || (raw.version !== 2 && Object.keys(answers).length ? "ms" : ""), region: str(p.region), middle: str(p.middle) },
-    answers,
-    values: strArr(raw.values) as AppState["values"],
-    strengths: strArr(raw.strengths),
-    favorites: strArr(raw.favorites),
-    favMajors: strArr(raw.favMajors),
-    favSchools: strArr(raw.favSchools),
-    hsQuiz: numMap(raw.hsQuiz),
-    hsInterest: strArr(raw.hsInterest) as AppState["hsInterest"],
-    tasks,
-    goals: pick<Goal>(raw.goals, ["id", "term", "subject", "text"], (o) => ({ done: o.done === true })),
-    logs: pick<Log>(raw.logs, ["id", "date", "title", "kind", "jobId", "why", "what", "learned", "next"]),
-    books: pick<Book>(raw.books, ["id", "date", "title", "author", "why", "quote", "thought", "link", "next"]),
-    hypothesis: str(raw.hypothesis),
-    credits: {
-      track,
-      plan: Object.fromEntries(SEMS.map((s) => [s, strArr(plan[s])])) as AppState["credits"]["plan"],
-      extra: Object.fromEntries(SEMS.map((s) => [s, strArr(extra[s])])) as AppState["credits"]["extra"],
-      picks,
-      curriculum: null, // 편제표는 모아 보기에 필요 없음(공유 링크 길이도 줄임)
-      school: null, // 학교 개설 과목 선택(D4)도 모아 보기에는 필요 없음
-    },
-    grades: [],
-    portfolio: {},
-  };
-}
+const normalize = normalizeFull;
 
 /* ---------- 학생 한 명 → 표 한 줄 ---------- */
 
-type Student = { key: string; code: string; state: AppState; source: string };
+// state: 백업 파일·예전 공유 링크로 온 전체 기록, card: 학생이 고른 항목만 담은 공유 코드(둘 중 하나)
+type Student = { key: string; code: string; state: AppState | null; card?: TeacherCard; source: string };
 type Row = {
   key: string;
   code: string;
@@ -99,12 +45,39 @@ type Row = {
   schools: string[];
   track: string;
   credits: number; // 교과 + 창체 18, 설계 없으면 0
-  done: number;
+  done: number | null; // 학생이 공유하지 않았으면 null
+  logs: number | null; // 활동·독서 기록 수(공유 안 했으면 null)
+  warn: number | null; // 192학점 진단에서 확인할 점 개수(설계 전·공유 안 함이면 null)
+  shared: boolean; // 공유 코드로 온 기록(고른 항목만 있음)
+  hasReport: boolean;
 };
 
 const STAGE_LABEL = { ms: "중학교", hs: "고등학교", "": "미입력" } as const;
 
+function toRowFromCard(st: Student, c: TeacherCard, i: number, t: TFn): Row {
+  const top = c.riasec ?? [];
+  const jobs = (c.jobs ?? []).map((id) => t(JOB_MAP[id].name));
+  const majors = (c.majors ?? []).map((id) => t(MAJOR_MAP[id].name));
+  const k = c.credits;
+  return {
+    key: st.key, code: st.code, source: st.source,
+    name: c.nick || t("학생 {n}", { n: i + 1 }),
+    school: c.grade ? t("{g}학년", { g: c.grade }) : "-",
+    stage: c.stage ?? "",
+    tested: top.length > 0,
+    top, jobs, majors, schools: [],
+    track: k?.track ? t(TRACKS[k.track].name) : "",
+    credits: k?.planned ? k.total : 0,
+    done: c.done ?? null,
+    logs: c.logs !== undefined ? c.logs + (c.books ?? 0) : null,
+    warn: k?.planned ? k.warn : null,
+    shared: true,
+    hasReport: false,
+  };
+}
+
 function toRow(st: Student, i: number, t: TFn): Row {
+  if (!st.state) return toRowFromCard(st, st.card ?? {}, i, t);
   const s = st.state;
   const tested = isTestComplete(s.answers);
   const planned = Object.values(s.credits.plan).flat().length > 0;
@@ -125,10 +98,14 @@ function toRow(st: Student, i: number, t: TFn): Row {
     track: s.credits.track ? t(TRACKS[s.credits.track].name) : "",
     credits: planned ? a.total + 18 : 0,
     done: progress(s).doneCount,
+    logs: s.logs.length + s.books.length,
+    warn: planned ? a.checks.filter((c) => c.level === "warn").length : null,
+    shared: false,
+    hasReport: true,
   };
 }
 
-type SortKey = "name" | "school" | "stage" | "top" | "jobs" | "majors" | "schools" | "credits" | "done";
+type SortKey = "name" | "school" | "stage" | "top" | "jobs" | "majors" | "schools" | "credits" | "warn" | "logs" | "done";
 const COLS: { key: SortKey; label: string; val: (r: Row) => string | number }[] = [
   { key: "name", label: "이름", val: (r) => r.name },
   { key: "school", label: "학교·학년", val: (r) => r.school },
@@ -138,7 +115,9 @@ const COLS: { key: SortKey; label: string; val: (r: Row) => string | number }[] 
   { key: "majors", label: "관심 학과", val: (r) => r.majors.length },
   { key: "schools", label: "관심 고교", val: (r) => r.schools.length },
   { key: "credits", label: "학점 설계", val: (r) => r.credits },
-  { key: "done", label: "진행 단계", val: (r) => r.done },
+  { key: "warn", label: "학점 진단", val: (r) => r.warn ?? -1 },
+  { key: "logs", label: "활동·독서 기록", val: (r) => r.logs ?? -1 },
+  { key: "done", label: "진행 단계", val: (r) => r.done ?? -1 },
 ];
 
 const topLabel = (r: Row, t: TFn) => (r.tested ? r.top.map((k) => t(RIASEC[k].name)).join(" · ") : t("검사 전"));
@@ -165,7 +144,7 @@ function count(list: string[][]) {
 }
 
 type Msg = { ok: boolean; text: string };
-type Incoming = { state: AppState; source: string; label: string } | { error: string };
+type Incoming = { state: AppState; source: string; label: string } | { card: TeacherCard; code: string; source: string; label: string } | { error: string };
 
 export function TeacherBoard() {
   const t = useT();
@@ -188,13 +167,26 @@ export function TeacherBoard() {
         out.push({ ok: false, text: it.error });
         continue;
       }
+      if ("card" in it) {
+        const c = it.card;
+        if (next.some((s) => s.key === it.code)) {
+          out.push({ ok: false, text: t("{label}: 이미 추가한 기록이라 건너뛰었어요.", { label: it.label }) });
+          continue;
+        }
+        const idx = c.nick ? next.findIndex((s) => s.card && s.card.nick === c.nick && s.card.stage === c.stage && s.card.grade === c.grade) : -1;
+        const st: Student = { key: it.code, code: it.code, state: null, card: c, source: it.source };
+        if (idx >= 0) next[idx] = st;
+        else next.push(st);
+        out.push({ ok: true, text: c.nick ? t("{label}: {name} 학생을 추가했어요.", { label: it.label, name: c.nick }) : t("{label}: 이름 없는 학생을 추가했어요.", { label: it.label }) });
+        continue;
+      }
       const code = encodeShare(it.state);
       if (next.some((s) => s.key === code)) {
         out.push({ ok: false, text: t("{label}: 이미 추가한 기록이라 건너뛰었어요.", { label: it.label }) });
         continue;
       }
       const p = it.state.profile;
-      const idx = p.name ? next.findIndex((s) => s.state.profile.name === p.name && s.state.profile.school === p.school && s.state.profile.grade === p.grade) : -1;
+      const idx = p.name ? next.findIndex((s) => s.state && s.state.profile.name === p.name && s.state.profile.school === p.school && s.state.profile.grade === p.grade) : -1;
       const st: Student = { key: code, code, state: it.state, source: it.source };
       if (idx >= 0) {
         next[idx] = st;
@@ -215,13 +207,21 @@ export function TeacherBoard() {
     lines.forEach((line, i) => {
       if (!line) return;
       const label = t("{n}번째 줄", { n: i + 1 });
+      const cards = extractCodes(line);
+      if (cards.length || line.startsWith("MRT1")) {
+        for (const cc of cards.length ? cards : [line]) {
+          const card = decodeCard(cc);
+          incoming.push(card ? { card, code: cc, source: t("공유 코드"), label } : { error: t("{label}: 공유 코드가 잘렸거나 손상돼서 읽을 수 없어요. 학생에게 코드를 다시 받아 주세요.", { label }) });
+        }
+        return;
+      }
       const code = codeFromLine(line);
-      if (!code) return incoming.push({ error: t("{label}: 마이로드 공유 링크가 아니에요. ‘내 리포트 → 공유 링크 복사’로 만든 주소인지 확인해 주세요.", { label }) });
+      if (!code) return incoming.push({ error: t("{label}: 마이로드 공유 코드나 공유 링크가 아니에요. 학생이 ‘선생님께 공유 코드 만들기’로 만든 코드인지 확인해 주세요.", { label }) });
       const st = normalize(decodeShare(code));
       if (!st) return incoming.push({ error: t("{label}: 링크가 잘렸거나 손상돼서 읽을 수 없어요. 학생에게 링크를 다시 받아 주세요.", { label }) });
       incoming.push({ state: st, source: t("공유 링크"), label });
     });
-    if (!incoming.length) return setMsgs([{ ok: false, text: t("공유 링크를 한 줄에 하나씩 붙여 넣어 주세요.") }]);
+    if (!incoming.length) return setMsgs([{ ok: false, text: t("공유 코드를 한 줄에 하나씩 붙여 넣어 주세요.") }]);
     merge(incoming);
     if (incoming.some((it) => !("error" in it))) setLinks("");
   };
@@ -241,6 +241,14 @@ export function TeacherBoard() {
         text = await f.text();
       } catch {
         incoming.push({ error: t("{label}: 파일을 열 수 없어요.", { label }) });
+        continue;
+      }
+      const codes = extractCodes(text);
+      if (codes.length) {
+        for (const cc of codes) {
+          const card = decodeCard(cc);
+          incoming.push(card ? { card, code: cc, source: t("공유 코드"), label } : { error: t("{label}: 공유 코드가 잘렸거나 손상돼서 읽을 수 없어요. 학생에게 코드를 다시 받아 주세요.", { label }) });
+        }
         continue;
       }
       const p = parseBackup(text);
@@ -275,6 +283,10 @@ export function TeacherBoard() {
       tested: tested.length,
       types,
       maxType: Math.max(1, ...types.map((t) => t.n)),
+      steps: [0, 1, 2, 3, 4, 5].map((n) => ({ n, c: shown.filter((r) => r.done === n).length })),
+      stepsUnknown: shown.filter((r) => r.done === null).length,
+      warned: shown.filter((r) => (r.warn ?? 0) > 0).sort((a, b) => (b.warn ?? 0) - (a.warn ?? 0)),
+      noPlan: shown.filter((r) => r.stage === "hs" && r.warn === null).length,
       jobs: count(shown.map((r) => r.jobs)).slice(0, 5),
       majors: count(shown.map((r) => r.majors)).slice(0, 5),
     };
@@ -284,11 +296,11 @@ export function TeacherBoard() {
     setSort((s) => (s?.key !== key ? { key, dir: 1 } : s.dir === 1 ? { key, dir: -1 } : null));
 
   const downloadCsv = () => {
-    const head = ["번호", "이름", "학교·학년", "학교급", "흥미 유형 1", "흥미 유형 2", "관심 직업", "관심 학과", "관심 고교", "학점 설계 계열", "학점 합계", "진행 단계(5단계 중)", "가져온 방법"].map((h) => t(h));
+    const head = ["번호", "이름", "학교·학년", "학교급", "흥미 유형 1", "흥미 유형 2", "관심 직업", "관심 학과", "관심 고교", "학점 설계 계열", "학점 합계", "학점 진단 확인할 점", "활동·독서 기록 수", "진행 단계(5단계 중)", "가져온 방법"].map((h) => t(h));
     const body = shown.map((r, i) => [
       i + 1, r.name, r.school, t(STAGE_LABEL[r.stage]),
       r.top[0] ? t(RIASEC[r.top[0]].name) : r.tested ? "" : t("검사 전"), r.top[1] ? t(RIASEC[r.top[1]].name) : "",
-      r.jobs.join(" / "), r.majors.join(" / "), r.schools.join(" / "), r.track, r.credits || "", r.done, r.source,
+      r.jobs.join(" / "), r.majors.join(" / "), r.schools.join(" / "), r.track, r.credits || "", r.warn ?? "", r.logs ?? "", r.done ?? "", r.source,
     ]);
     const csv = "﻿" + [head, ...body].map((line) => line.map(csvCell).join(",")).join("\r\n");
     const blob = new Blob([csv], { type: "text/csv;charset=utf-8" });
@@ -320,19 +332,19 @@ export function TeacherBoard() {
       {/* 학생 추가 */}
       <section className="no-print grid gap-4 lg:grid-cols-2" aria-label={t("학생 기록 추가")}>
         <div className="card">
-          <h2 className="flex items-center gap-2 font-bold"><Link2 className="h-4 w-4 text-brand-700" aria-hidden /> {t("공유 링크 붙여 넣기")}</h2>
-          <p className="mt-1 text-sm text-slate-600">{t("학생이 ‘내 리포트 → 공유 링크 복사’로 보낸 주소를 한 줄에 하나씩 붙여 넣어요. 여러 명을 한꺼번에 넣어도 돼요.")}</p>
-          <label htmlFor="teacher-links" className="label mt-3">{t("공유 링크 (한 줄에 하나)")}</label>
+          <h2 className="flex items-center gap-2 font-bold"><Link2 className="h-4 w-4 text-brand-700" aria-hidden /> {t("공유 코드·링크 붙여 넣기")}</h2>
+          <p className="mt-1 text-sm text-slate-600">{t("학생이 ‘선생님께 공유 코드 만들기’로 보낸 코드(MRT1.으로 시작)를 한 줄에 하나씩 붙여 넣어요. ‘내 리포트’의 공유 링크도 되고, 여러 명을 한꺼번에 넣어도 돼요.")}</p>
+          <label htmlFor="teacher-links" className="label mt-3">{t("공유 코드·링크 (한 줄에 하나)")}</label>
           <textarea
             id="teacher-links"
             className="input min-h-[7rem] font-mono text-xs"
             value={links}
             onChange={(e) => setLinks(e.target.value)}
-            placeholder={"https://…/report#d=…\nhttps://…/report#d=…"}
+            placeholder={"MRT1.…\nMRT1.…"}
             spellCheck={false}
           />
           <button className="btn-primary mt-3 w-full sm:w-auto" onClick={addLinks} disabled={!links.trim()}>
-            <Users className="h-4 w-4" aria-hidden /> {t("링크로 학생 추가")}
+            <Users className="h-4 w-4" aria-hidden /> {t("코드·링크로 학생 추가")}
           </button>
         </div>
         <div
@@ -341,18 +353,18 @@ export function TeacherBoard() {
           onDragLeave={() => setDrag(false)}
           onDrop={(e) => { e.preventDefault(); setDrag(false); addFiles(e.dataTransfer.files); }}
         >
-          <h2 className="flex items-center gap-2 font-bold"><FileUp className="h-4 w-4 text-brand-700" aria-hidden /> {t("백업 파일 올리기")}</h2>
-          <p className="mt-1 text-sm text-slate-600">{t("학생이 ‘내 기록 백업’에서 내려받은 myroad-backup-날짜.json 파일을 여러 개 골라 올려요. 이 칸에 끌어다 놓아도 돼요.")}</p>
+          <h2 className="flex items-center gap-2 font-bold"><FileUp className="h-4 w-4 text-brand-700" aria-hidden /> {t("파일 올리기")}</h2>
+          <p className="mt-1 text-sm text-slate-600">{t("학생이 저장한 공유 코드 파일(myroad-share-code.txt)이나 ‘내 기록 백업’의 myroad-backup-날짜.json 파일을 여러 개 골라 올려요. 이 칸에 끌어다 놓아도 돼요.")}</p>
           <button className="btn-ghost mt-3 w-full sm:w-auto" onClick={() => fileRef.current?.click()}>
-            <FileUp className="h-4 w-4" aria-hidden /> {t("백업 파일 고르기")}
+            <FileUp className="h-4 w-4" aria-hidden /> {t("파일 고르기")}
           </button>
           <input
             ref={fileRef}
             type="file"
             multiple
-            accept=".json,application/json"
+            accept=".json,.txt,application/json,text/plain"
             className="hidden"
-            aria-label={t("학생 백업 파일 선택 (여러 개 가능)")}
+            aria-label={t("학생 파일 선택 (여러 개 가능)")}
             onChange={(e) => { addFiles(e.target.files); e.target.value = ""; }}
           />
         </div>
@@ -376,7 +388,7 @@ export function TeacherBoard() {
 
       {students.length === 0 ? (
         <div className="card text-center text-sm text-slate-500">
-          {t("아직 모은 학생이 없어요. 위에서 공유 링크를 붙여 넣거나 백업 파일을 올려 주세요.")}
+          {t("아직 모은 학생이 없어요. 위에서 공유 코드·링크를 붙여 넣거나 파일을 올려 주세요.")}
         </div>
       ) : (
         <>
@@ -428,10 +440,45 @@ export function TeacherBoard() {
             <TopList title={t("많이 고른 학과 TOP 5")} items={summary.majors} />
           </section>
 
+          <section className="grid gap-4 md:grid-cols-2 print:grid-cols-2" aria-label={t("진행률·학점 진단 요약")}>
+            <div className="card">
+              <h2 className="text-sm font-bold text-slate-600">{t("진행 단계 분포")}</h2>
+              <p className="text-xs text-slate-500">{t("진로 설계 5단계 중 마친 단계 수별 학생 수")}</p>
+              <ul className="mt-2 space-y-1">
+                {summary.steps.map(({ n, c }) => (
+                  <li key={n} className="flex items-center gap-2 text-xs">
+                    <span className="w-12 shrink-0 text-slate-700">{t("{n}단계", { n })}</span>
+                    <span className="h-2.5 flex-1 overflow-hidden rounded-full bg-slate-100" aria-hidden>
+                      <span className="block h-full rounded-full bg-brand-500" style={{ width: `${(c / Math.max(1, shown.length)) * 100}%` }} />
+                    </span>
+                    <span className="w-8 shrink-0 text-right font-semibold text-slate-700">{t("{n}명", { n: c })}</span>
+                  </li>
+                ))}
+              </ul>
+              {summary.stepsUnknown > 0 && <p className="mt-2 text-xs text-slate-500">{t("공유하지 않은 학생 {n}명은 빠졌어요.", { n: summary.stepsUnknown })}</p>}
+            </div>
+            <div className="card">
+              <h2 className="text-sm font-bold text-slate-600">{t("192학점 진단에서 확인할 점이 있는 학생")}</h2>
+              {summary.warned.length === 0 ? (
+                <p className="mt-2 text-xs text-slate-500">{t("지금은 없어요. (학점을 설계하고 공유한 학생만 살펴봐요.)")}</p>
+              ) : (
+                <ul className="mt-2 space-y-1 text-sm">
+                  {summary.warned.map((r) => (
+                    <li key={r.key} className="flex items-baseline justify-between gap-2">
+                      <span className="min-w-0 truncate">{r.name}</span>
+                      <span className="shrink-0 text-xs font-semibold text-amber-700">{t("확인할 점 {n}개", { n: r.warn ?? 0 })}</span>
+                    </li>
+                  ))}
+                </ul>
+              )}
+              {summary.noPlan > 0 && <p className="mt-2 text-xs text-slate-500">{t("고등학생 중 학점 설계 전이거나 공유하지 않은 학생 {n}명", { n: summary.noPlan })}</p>}
+            </div>
+          </section>
+
           {/* 표 */}
           <section aria-label={t("학생별 현황")}>
             <div className="relative overflow-x-auto rounded-2xl border border-slate-200 bg-surface print:overflow-visible print:border-0">
-              <table className="w-full min-w-[60rem] text-left text-sm print:min-w-0 print:text-[10px]">
+              <table className="w-full min-w-[72rem] text-left text-sm print:min-w-0 print:text-[10px]">
                 <caption className="sr-only">{t("학생별 진로 현황. 열 제목을 누르면 정렬해요.")}</caption>
                 <thead className="border-b border-slate-200 bg-slate-50 text-xs text-slate-600">
                   <tr>
@@ -465,13 +512,21 @@ export function TeacherBoard() {
                       <td className="px-3 py-2"><span data-keep-ko><ListCell items={r.schools} /></span></td>
                       <td className="whitespace-nowrap px-3 py-2">{creditLabel(r, t)}</td>
                       <td className="whitespace-nowrap px-3 py-2">
-                        <span className="font-semibold">{r.done}</span>/5
-                        <span className="mt-1 block h-1.5 w-14 overflow-hidden rounded-full bg-slate-100" aria-hidden>
-                          <span className="block h-full rounded-full bg-brand-500" style={{ width: `${(r.done / 5) * 100}%` }} />
-                        </span>
+                        {r.warn === null ? <span className="text-slate-400">-</span> : r.warn > 0 ? <span className="font-semibold text-amber-700">{t("확인할 점 {n}개", { n: r.warn })}</span> : <span className="text-emerald-700">{t("이상 없음")}</span>}
+                      </td>
+                      <td className="whitespace-nowrap px-3 py-2">{r.logs === null ? <span className="text-slate-400">-</span> : t("{n}개", { n: r.logs })}</td>
+                      <td className="whitespace-nowrap px-3 py-2">
+                        {r.done === null ? <span className="text-slate-400">-</span> : (
+                          <>
+                            <span className="font-semibold">{r.done}</span>/5
+                            <span className="mt-1 block h-1.5 w-14 overflow-hidden rounded-full bg-slate-100" aria-hidden>
+                              <span className="block h-full rounded-full bg-brand-500" style={{ width: `${(r.done / 5) * 100}%` }} />
+                            </span>
+                          </>
+                        )}
                       </td>
                       <td className="no-print whitespace-nowrap px-3 py-2">
-                        <a
+                        {r.hasReport && <a
                           href={`/report#d=${r.code}`}
                           target="_blank"
                           rel="noopener noreferrer"
@@ -479,7 +534,7 @@ export function TeacherBoard() {
                           aria-label={t("{name} 리포트 새 탭에서 보기", { name: r.name })}
                         >
                           {t("리포트")} <ExternalLink className="h-3.5 w-3.5" aria-hidden />
-                        </a>
+                        </a>}
                         <button className="ml-2 inline-grid h-7 w-7 place-items-center rounded-full text-slate-400 hover:bg-slate-100 hover:text-rose-600" aria-label={t("{name} 빼기", { name: r.name })} onClick={() => remove(r.key)}>
                           <X className="h-3.5 w-3.5" aria-hidden />
                         </button>

@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useState } from "react";
-import { Cloud, CloudOff, LogIn, LogOut, RefreshCw, Trash2, UserRound } from "lucide-react";
+import { Cloud, CloudOff, Eye, LogIn, LogOut, RefreshCw, Trash2, UserRound } from "lucide-react";
 import { LOGIN_PUBLIC, useCloud } from "@/lib/cloud";
 import { useLang, useT } from "@/lib/i18n";
 
@@ -104,6 +104,8 @@ export function AccountPanel() {
         </div>
       )}
 
+      {c.user && c.teacherFeature && <ShareToggle />}
+
       {c.user && (
         <div className="card border-rose-100">
           <h2 className="font-bold text-rose-800">{t("계정 삭제")}</h2>
@@ -118,6 +120,53 @@ export function AccountPanel() {
           )}
         </div>
       )}
+    </div>
+  );
+}
+
+/** 교사·관리자에게 내 포트폴리오 공개: 기본 꺼짐, 켤 때 범위를 확인하고 동의, 언제든 끄면 바로 열람 불가 */
+function ShareToggle() {
+  const c = useCloud();
+  const t = useT();
+  const [ask, setAsk] = useState(false);
+  const [busy, setBusy] = useState(false);
+  const go = async (on: boolean) => { setBusy(true); try { await c.setShare(on); setAsk(false); } finally { setBusy(false); } };
+  return (
+    <div className="card" aria-labelledby="share-title">
+      <div className="flex items-start justify-between gap-3">
+        <div>
+          <h2 id="share-title" className="flex items-center gap-2 font-bold"><Eye className="h-4 w-4 text-brand-700" aria-hidden /> {t("교사·관리자에게 내 포트폴리오 공개")}</h2>
+          <p className="mt-1 text-sm text-slate-600">{c.shareOn ? t("지금 공개 중이에요. 끄면 바로 교사·관리자가 볼 수 없어요.") : t("꺼져 있어요. 켜기 전에는 아무도 내 기록을 볼 수 없어요.")}</p>
+        </div>
+        <button
+          role="switch"
+          aria-checked={c.shareOn}
+          aria-labelledby="share-title"
+          disabled={busy}
+          onClick={() => (c.shareOn ? go(false) : setAsk(true))}
+          className={`relative mt-1 h-7 w-12 shrink-0 rounded-full border transition ${c.shareOn ? "border-accent bg-accent" : "border-slate-300 bg-slate-200"}`}
+        >
+          <span className={`absolute top-0.5 h-5 w-5 rounded-full bg-white shadow transition-all ${c.shareOn ? "left-6" : "left-0.5"}`} />
+        </button>
+      </div>
+      {(ask || c.shareOn) && (
+        <div className="mt-3 rounded-xl bg-slate-50 p-3 text-sm text-slate-700">
+          <p className="font-semibold">{t("공개되는 범위")}</p>
+          <ul className="mt-1 list-disc space-y-0.5 pl-5">
+            <li>{t("보이는 것: 구글 표시 이름, 프로필(이름·학교·학년), 흥미 탐색 결과, 찜한 직업·학과·학교, 진로 활동·독서 기록, 학기별 계획·목표, 포트폴리오에 쓴 글, 192학점 설계")}</li>
+            <li>{t("보이지 않는 것: 이메일 주소, 내신 성적, 학교 편제표")}</li>
+            <li>{t("볼 수 있는 사람: 마스터와 마스터가 지정한 관리자(교사). 읽기만 가능해요.")}</li>
+            <li>{t("공개 중에는 내가 고친 내용이 자동으로 반영돼요. 끄면 공개용 사본이 바로 지워져요.")}</li>
+          </ul>
+        </div>
+      )}
+      {ask && !c.shareOn && (
+        <div className="mt-3 flex flex-wrap gap-2">
+          <button className="btn-primary" disabled={busy} onClick={() => go(true)}>{t("위 범위에 동의하고 공개")}</button>
+          <button className="btn-ghost" disabled={busy} onClick={() => setAsk(false)}>{t("취소")}</button>
+        </div>
+      )}
+      {c.error && <p className="mt-2 text-sm text-rose-600" role="alert">{t(c.error)}</p>}
     </div>
   );
 }

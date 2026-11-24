@@ -1,13 +1,60 @@
 rules_version = '2';
-// 마이로드 경남: 로그인한 학생 본인의 기록 문서(users/{uid})만 읽고 쓸 수 있다. 그 밖의 모든 접근은 거부.
+// 마이로드 경남 보안 규칙
+// - users/{uid}: 학생 본인만 읽고 쓴다(전체 기록, 성적 포함).
+// - shared/{uid}: 학생이 '교사·관리자에게 공개'를 켠 동안만 존재하는 사본(성적·편제표 제외). 본인만 쓰고, 마스터·관리자는 읽기만 한다.
+//   학생이 끄면 문서가 지워져 즉시 열람이 막힌다.
+// - admins/{uid}: 관리자(교사) 목록. 마스터만 쓰고, 마스터와 본인이 읽는다.
+// - members/{uid}: 로그인한 사용자의 이름·이메일(마스터가 관리자를 고를 때만 쓰임). 본인만 쓰고, 마스터와 본인이 읽는다.
+// 마스터 = 구글 계정 nagusdl87@gmail.com (이메일 인증된 토큰). 바꿀 때는 src/lib/site.ts의 MASTER_EMAIL도 함께 고친다.
 service cloud.firestore {
   match /databases/{database}/documents {
+    function signedIn() { return request.auth != null; }
+    function isMaster() {
+      return signedIn()
+        && request.auth.token.email == 'nagusdl87@gmail.com'
+        && request.auth.token.email_verified == true;
+    }
+    function isAdmin() {
+      return signedIn() && exists(/databases/$(database)/documents/admins/$(request.auth.uid));
+    }
+    function isStaff() { return isMaster() || isAdmin(); }
+
     match /users/{uid} {
-      allow read, delete: if request.auth != null && request.auth.uid == uid;
-      allow create, update: if request.auth != null && request.auth.uid == uid
+      allow read, delete: if signedIn() && request.auth.uid == uid;
+      allow create, update: if signedIn() && request.auth.uid == uid
         && request.resource.data.keys().hasOnly(['v', 'data', 'clientAt', 'device', 'updatedAt'])
         && request.resource.data.data is string
         && request.resource.data.data.size() < 800000;
+    }
+
+    match /shared/{uid} {
+      allow get: if signedIn() && (request.auth.uid == uid || isStaff());
+      // 목록 조회는 마스터·관리자만, 한 번에 100명까지
+      allow list: if isStaff() && request.query.limit <= 100;
+      allow delete: if signedIn() && request.auth.uid == uid;
+      allow create, update: if signedIn() && request.auth.uid == uid
+        && request.resource.data.keys().hasOnly(['v', 'data', 'who', 'consentAt', 'updatedAt'])
+        && request.resource.data.data is string
+        && request.resource.data.data.size() < 400000
+        && request.resource.data.who is string
+        && request.resource.data.who.size() < 100;
+    }
+
+    match /admins/{uid} {
+      allow get: if signedIn() && (request.auth.uid == uid || isMaster());
+      allow list: if isMaster();
+      allow create, update: if isMaster()
+        && request.resource.data.keys().hasOnly(['email', 'name', 'by', 'at']);
+      allow delete: if isMaster();
+    }
+
+    match /members/{uid} {
+      allow get: if signedIn() && (request.auth.uid == uid || isMaster());
+      allow list: if isMaster();
+      allow delete: if signedIn() && request.auth.uid == uid;
+      allow create, update: if signedIn() && request.auth.uid == uid
+        && request.resource.data.keys().hasOnly(['name', 'email', 'at'])
+        && request.resource.data.email == request.auth.token.email;
     }
   }
 }

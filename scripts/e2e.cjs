@@ -179,12 +179,25 @@ async function answerDiscover(p) {
     const t = await tc.newPage(); watch(t, 'teacher');
     const code = Buffer.from(JSON.stringify({ p: { name: '테스트', stage: 'ms', grade: '3', school: '', region: '', middle: '' }, a: {}, f: ['ai-engineer'] })).toString('base64url');
     await t.goto(B + '/teacher');
-    await t.getByLabel('공유 링크 (한 줄에 하나)').fill(`${B}/report#d=${code}\nnot-a-link`);
-    await t.getByRole('button', { name: '링크로 학생 추가' }).click(); await t.waitForTimeout(300);
+    await t.getByLabel('공유 코드·링크 (한 줄에 하나)').fill(`${B}/report#d=${code}\nnot-a-link`);
+    await t.getByRole('button', { name: '코드·링크로 학생 추가' }).click(); await t.waitForTimeout(300);
     ck('teacher row added', await t.locator('tbody tr').count() === 1);
     const [csv] = await Promise.all([t.waitForEvent('download'), t.getByRole('button', { name: /CSV 내려받기/ }).click()]);
     ck('teacher csv', csv.suggestedFilename().endsWith('.csv'));
     ck('teacher no storage', await t.evaluate(() => sessionStorage.length === 0));
+    // 학생이 고른 항목만 담는 공유 코드: 만들기 → 선생님 화면에 붙여 넣기
+    await t.goto(B + '/teacher/share'); await t.waitForTimeout(400);
+    await t.getByLabel(/닉네임/).fill('민수');
+    await t.getByLabel('흥미 유형', { exact: false }).first().uncheck();
+    ck('share code hidden before consent', await t.locator('#teacher-code').count() === 0);
+    await t.getByRole('checkbox', { name: /동의해요/ }).check();
+    const shareCode = await t.locator('#teacher-code').inputValue();
+    ck('share code format', shareCode.startsWith('MRT1.') && !shareCode.includes('삼천포'));
+    await t.goto(B + '/teacher'); await t.waitForTimeout(300);
+    await t.getByLabel('공유 코드·링크 (한 줄에 하나)').fill(shareCode);
+    await t.getByRole('button', { name: '코드·링크로 학생 추가' }).click(); await t.waitForTimeout(300);
+    ck('teacher card row', await t.locator('tbody tr', { hasText: '민수' }).count() === 1);
+    ck('teacher no storage 2', await t.evaluate(() => sessionStorage.length === 0 && !Object.keys(localStorage).some((k) => /teacher/i.test(k))));
     // 상담용 한 장 요약: 빈 상태에서도 안내 문구 + A4 1쪽
     await t.goto(B + '/report/summary'); await t.waitForTimeout(400);
     ck('summary placeholder', await t.locator('text=흥미 탐색을 아직 하지 않았어요').count() > 0);
@@ -238,7 +251,7 @@ async function answerDiscover(p) {
   const mc = await b.newContext({ viewport: { width: 390, height: 844 }, deviceScaleFactor: 2 });
   const mp = await mc.newPage(); watch(mp, 'mobile');
   await mp.goto(B); await mp.click('text=고등학생이에요');
-  const routes = ['/', '/discover', '/jobs', '/jobs/shipbuilding', '/jobs/cn/1', '/majors/cn/10001', '/majors', '/majors/medicine', '/path', '/credits', '/credits/school', '/subjects', '/schools', '/highschool', '/admission', '/industry', '/tests', '/resources', '/guide', '/future', '/transition', '/portfolio', '/plan', '/report', '/explore', '/tools', '/account', '/privacy', '/offline', '/teacher', '/report/summary', '/middle', '/search?q=로봇', '/nope'];
+  const routes = ['/', '/discover', '/jobs', '/jobs/shipbuilding', '/jobs/cn/1', '/majors/cn/10001', '/majors', '/majors/medicine', '/path', '/credits', '/credits/school', '/subjects', '/schools', '/highschool', '/admission', '/industry', '/tests', '/resources', '/guide', '/future', '/transition', '/portfolio', '/plan', '/report', '/explore', '/tools', '/account', '/privacy', '/offline', '/teacher', '/teacher/share', '/report/summary', '/middle', '/search?q=로봇', '/nope'];
   for (const r of routes) {
     const res = await mp.goto(B + r); await mp.waitForTimeout(r === '/schools' ? 1200 : 250);
     const ov = await mp.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);

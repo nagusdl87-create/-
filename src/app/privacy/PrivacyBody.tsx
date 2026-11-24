@@ -4,12 +4,35 @@
 import Link from "next/link";
 import { PageHead } from "@/components/ui";
 import { useEnData, useT } from "@/lib/i18n";
+import { useCloud } from "@/lib/cloud";
 
 // 원문: docs/privacy-draft.md (결정 D3=A 반영, 2026-11-22 게시). 바꿀 때는 시행 7일 전 공지.
 const EFFECTIVE = "2026년 11월 22일";
 
 function H({ n, children }: { n: number; children: React.ReactNode }) {
   return <h2 className="mt-8 text-lg font-bold text-slate-900">{n}. {children}</h2>;
+}
+
+/** 교사·관리자 열람 기능 안내(초안). 이 기능이 숨겨져 있는 동안에는 보이지 않는다. 게시 전에 사용자·법적 확인이 필요하다. */
+function StaffSection() {
+  const t = useT();
+  const { teacherFeature } = useCloud();
+  if (!teacherFeature) return null;
+  return (
+    <article className="card mt-6 text-[0.95rem] leading-relaxed text-slate-700" aria-labelledby="staff-priv">
+      <p className="rounded-xl bg-amber-50 px-3 py-2 text-sm text-amber-900" role="note">{t("초안: 교사·관리자 열람 기능 문안이에요. 사용자(제작자)와 법적 확인을 거친 뒤에 확정해요.")}</p>
+      <h2 id="staff-priv" className="mt-4 text-lg font-bold text-slate-900">{t("12. 교사·관리자의 열람 (선택 동의)")}</h2>
+      <ul className="mt-2 list-disc pl-5">
+        <li>{t("이용자가 계정 화면에서 ‘교사·관리자에게 내 포트폴리오 공개’를 직접 켠 경우에만, 이용자의 기록 사본을 마스터와 관리자(교사)가 읽을 수 있어요. 기본값은 꺼짐이에요.")}</li>
+        <li>{t("목적: 진로 상담과 지도, 학생 진로 현황 파악. 그 밖의 목적으로 쓰지 않아요.")}</li>
+        <li>{t("공개되는 항목: 구글 표시 이름, 프로필(이름·학교·학년), 흥미 탐색 결과, 찜한 직업·학과·학교, 진로 활동·독서 기록, 학기별 계획·목표, 포트폴리오에 쓴 글, 192학점 설계. 이메일 주소, 내신 성적, 학교 편제표는 공개용 사본에 넣지 않아요.")}</li>
+        <li>{t("철회: 같은 화면에서 언제든 끌 수 있고, 끄면 공개용 사본이 바로 삭제되어 더는 볼 수 없어요. 이미 인쇄하거나 복사해 간 내용은 교사가 직접 안전하게 보관·파기해야 해요.")}</li>
+        <li>{t("읽는 사람: 마스터(제작자가 지정한 구글 계정 1개)와, 마스터가 지정한 관리자(교사). 관리자는 읽기만 할 수 있고 기록을 고치거나 다른 관리자를 지정할 수 없어요. 관리자 지정을 위해 로그인한 사용자의 이름·이메일이 별도 목록(members)에 저장돼요.")}</li>
+        <li>{t("교사는 학생이 입력한 기록을 이 기기의 브라우저 안에서만 분석하고, 세특 초안도 같은 방식으로 만들어요. 학생 기록을 외부 AI 서비스로 보내지 않아요. 세특 초안은 학교 기재 요령과 교사의 관찰에 따라 교사가 직접 고쳐 써야 해요.")}</li>
+        <li>{t("만 14세 이상만 로그인할 수 있어요. 보호자 안내와 학교 지침에 따라 이 기능을 사용해 주세요.")}</li>
+      </ul>
+    </article>
+  );
 }
 
 export function PrivacyBody() {
@@ -98,6 +121,7 @@ export function PrivacyBody() {
         <H n={11}>시행일</H>
         <p className="mt-2">이 방침은 {EFFECTIVE}부터 적용해요. 내용이 바뀌면 시행 7일 전부터 서비스 화면에 알려요.</p>
       </article>}
+      <StaffSection />
     </div>
   );
 }

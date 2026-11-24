@@ -2,7 +2,7 @@ import type { LucideIcon } from "lucide-react";
 import { STATS } from "@/data/stats";
 import {
   BookMarked, BookOpen, Briefcase, Calculator, ClipboardCheck, Compass, Factory, FolderOpen, GraduationCap,
-  Lightbulb, ListChecks, MapPinned, Percent, Route, School, Target, Backpack, Rocket, HardDriveDownload, Users } from "lucide-react";
+  Lightbulb, ListChecks, MapPinned, Percent, Route, School, Target, Backpack, Rocket, HardDriveDownload, Users, UserRoundCheck } from "lucide-react";
 import type { Stage } from "@/data/plan";
 
 export type NavItem = { href: string; label: string; desc: string; icon: LucideIcon };
@@ -46,5 +46,6 @@ export const TOOLS: NavItem[] = [
   { href: "/transition", label: "고3 진로 전환기", icon: GraduationCap, desc: "수능 이후 10차시 수업 자료" },
   { href: "/guide", label: "진로·학업설계 가이드", icon: BookMarked, desc: "5장 가이드북 (학생·보호자·교사)" },
   { href: "/account", label: "내 기록 백업", icon: HardDriveDownload, desc: "백업 파일 저장 · 불러오기로 이어 쓰기" },
-  { href: "/teacher", label: "선생님 모아 보기", icon: Users, desc: "학생 공유 링크·백업 파일로 학급 현황 보기" },
+  { href: "/teacher", label: "선생님 모아 보기", icon: Users, desc: "학생 공유 코드·파일로 학급 현황 보기" },
+  { href: "/teacher/share", label: "선생님께 공유 코드", icon: UserRoundCheck, desc: "보여 줄 항목만 골라 코드 만들기" },
 ];

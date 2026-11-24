@@ -2,7 +2,7 @@
 // 고유명사 등 한국어를 그대로 두는 곳은 translate="no" 또는 data-keep-ko 속성을 붙이면 세지 않는다.
 const { chromium } = require('playwright');
 const B = process.env.BASE || 'http://localhost:5000';
-const ROUTES = process.argv.slice(2).length ? process.argv.slice(2) : ['/', '/discover', '/jobs', '/jobs/nurse', '/majors', '/majors/naval', '/subjects', '/schools', '/middle', '/highschool', '/admission', '/industry', '/credits', '/credits/school', '/path', '/plan', '/portfolio', '/tests', '/resources', '/guide', '/explore', '/tools', '/future', '/transition', '/report', '/report/summary', '/teacher', '/account', '/privacy', '/offline', '/search?q=nurse'];
+const ROUTES = process.argv.slice(2).length ? process.argv.slice(2) : ['/', '/discover', '/jobs', '/jobs/nurse', '/majors', '/majors/naval', '/subjects', '/schools', '/middle', '/highschool', '/admission', '/industry', '/credits', '/credits/school', '/path', '/plan', '/portfolio', '/tests', '/resources', '/guide', '/explore', '/tools', '/future', '/transition', '/report', '/report/summary', '/teacher', '/teacher/share', '/account', '/privacy', '/offline', '/search?q=nurse'];
 (async () => {
   const b = await chromium.launch(); const ctx = await b.newContext({ viewport: { width: 1280, height: 900 } }); const p = await ctx.newPage();
   const errs = []; p.on('pageerror', (e) => errs.push(e.message.slice(0, 100)));
