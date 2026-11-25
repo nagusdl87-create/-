@@ -12,7 +12,7 @@ export const MASTER_EMAIL = "nagusdl87@gmail.com";
 
 // 학생·선생님 의견 창구. 구글 폼 주소를 넣으면 그 폼으로 열리고, 비어 있으면 제작자에게 메일을 쓰는 창이 열린다.
 // 폼을 만들 때는 이름·학교·연락처를 받지 말고 ‘어느 화면에서 무엇이 어려웠는지’만 묻는 것을 권한다(개인정보 최소화).
-export const FEEDBACK_URL = "";
+export const FEEDBACK_URL = "https://docs.google.com/forms/d/e/1FAIpQLSe0mS3y_UoF-jexl56Bi8WQYn3XUjNls0kdbsXuJsaB7HuuAQ/viewform";
 export const FEEDBACK_MAIL = "nagusdl87@gmail.com";
 export const feedbackHref = (path: string) =>
   FEEDBACK_URL ||
