@@ -13,6 +13,9 @@ import { useEscape } from "@/components/useEscape";
 import { useNeisSubjects } from "@/components/Neis";
 import { OfferCaveat, OfferDiagnosis, SchoolOfferCard } from "@/components/SchoolOffer";
 import { School } from "lucide-react";
+import { ModelPlanPanel } from "@/components/ModelPlan";
+import { FixFirst } from "@/components/FixFirst";
+import { hintsOf, resolveGoal } from "@/lib/modelPlan";
 import { schoolOffer, type SchoolOffer } from "@/lib/schoolSubjects";
 
 export function CreditPlanner({ embedded = false }: { embedded?: boolean }) {
@@ -24,6 +27,7 @@ export function CreditPlanner({ embedded = false }: { embedded?: boolean }) {
   const school = state.credits.school;
   const offer = useMemo(() => schoolOffer(neis, school?.code ?? ""), [neis, school?.code]);
   const { t, sl, tl, fmt } = useLabels();
+  const goal = useMemo(() => resolveGoal(state.credits.goal), [state.credits.goal]);
 
   if (!ready) return <div className="h-96" />;
 
@@ -39,8 +43,8 @@ export function CreditPlanner({ embedded = false }: { embedded?: boolean }) {
   const majorHints = state.favMajors.map((id) => MAJOR_MAP[id]).filter(Boolean);
   // 계열 추천 + 찜한 학과의 핵심·권장 과목을 함께 표시
   const star = (name: string) => {
-    if ((track && TRACKS[track].core.includes(name)) || majorHints.some((m) => m.core.includes(name))) return "core";
-    if ((track && TRACKS[track].rec.includes(name)) || majorHints.some((m) => m.rec.includes(name))) return "rec";
+    if (goal?.core.includes(name) || (track && TRACKS[track].core.includes(name)) || majorHints.some((m) => m.core.includes(name))) return "core";
+    if (goal?.rec.includes(name) || (track && TRACKS[track].rec.includes(name)) || majorHints.some((m) => m.rec.includes(name))) return "rec";
     return null;
   };
 
@@ -53,6 +57,8 @@ export function CreditPlanner({ embedded = false }: { embedded?: boolean }) {
           desc={t("고등학교 3년 동안 들을 과목을 학기별로 담아 보세요. 졸업 기준, 필수 이수 학점, 선수과목 순서, 수능 과목, 계열 적합도를 실시간으로 진단해 드려요.")}
         />
       )}
+
+      <ModelPlanPanel />
 
       <div className="card no-print mb-4">
         <div className="text-sm font-bold">{t("희망 계열 고르기")}</div>
@@ -93,7 +99,7 @@ export function CreditPlanner({ embedded = false }: { embedded?: boolean }) {
           <button className="btn-ghost" onClick={() => setPlan((p) => ({ ...p, ...TEMPLATE_Y1 }))}>
             {t("1학년 공통과목 채우기")}
           </button>
-          <button className="btn-primary" disabled={!track} onClick={() => track && setPlan((p) => autoFill(p, track))}>
+          <button className="btn-primary" disabled={!track} onClick={() => track && setPlan((p) => autoFill(p, track, hintsOf(goal)))}>
             ✨ {t("계열 추천으로 2·3학년 채우기")}
           </button>
           <button className="btn-ghost" onClick={() => window.print()}>
@@ -128,6 +134,8 @@ export function CreditPlanner({ embedded = false }: { embedded?: boolean }) {
           )}
         </div>
       </div>
+
+      <FixFirst />
 
       <SchoolOfferCard data={neis} offer={offer} school={school} onChange={(v) => update((s) => ({ ...s, credits: { ...s.credits, school: v } }))} />
 
@@ -291,7 +299,7 @@ export function CreditPlanner({ embedded = false }: { embedded?: boolean }) {
           sem={adding}
           track={track}
           placed={a.placed}
-          majorSubjects={majorHints.flatMap((m) => [...m.core, ...m.rec])}
+          majorSubjects={[...(goal ? [...goal.core, ...goal.rec] : []), ...majorHints.flatMap((m) => [...m.core, ...m.rec])]}
           offer={offer}
           onClose={() => setAdding(null)}
           onPick={(name) => (cur ? setCurr((c) => ({ extra: { ...c.extra, [adding]: [...(c.extra[adding] ?? []), name] } })) : setPlan((p) => ({ ...p, [adding]: [...p[adding], name] })))}

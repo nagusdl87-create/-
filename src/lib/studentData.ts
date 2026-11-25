@@ -61,6 +61,7 @@ export function normalizeFull(raw: unknown): AppState | null {
       extra: Object.fromEntries(SEMS.map((s) => [s, strArr(extra[s])])) as AppState["credits"]["extra"],
       picks,
       curriculum: null, // 편제표는 모아 보기에 필요 없음(공유 링크 길이도 줄임)
+      goal: null,
       school: null, // 학교 개설 과목 선택(D4)도 모아 보기에는 필요 없음
     },
     grades: [],

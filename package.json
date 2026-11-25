@@ -12,7 +12,8 @@
     "build:schools": "python3 scripts/build-schools.py scripts/raw",
     "deploy": "next build && firebase deploy --only hosting",
     "preview": "next build && npx serve@14.2.4 out -l 3000",
-    "check:stats": "tsx scripts/check-stats.ts"
+    "check:stats": "tsx scripts/check-stats.ts",
+    "check:model": "tsx scripts/model-check.ts"
   },
   "dependencies": {
     "firebase": "13.2.0",

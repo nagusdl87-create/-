@@ -146,27 +146,43 @@ export function analyze(plan: Record<Sem, string[]>, track: TrackId | "") {
   return { total, semTotals, byGroup, areaResults, basic, checks, placed, trackFit };
 }
 
+// 같이 배울 때 앞서 배우는 편이 좋은 과목(필수 선수과목은 아니지만 흐름상 권장)
+const SOFT_AFTER: Record<string, string[]> = { "미적분Ⅰ": ["대수"], "기하": ["대수"], "확률과 통계": [], "문학": ["독서와 작문"] };
+// 자동 배치 때 선호하는 학기 번호(0=1학년 1학기 … 2=2학년 1학기 … 5=3학년 2학기)
+const PREF_SEM: Record<string, number> = { "화법과 언어": 2, "대수": 2, "영어Ⅰ": 2, "독서와 작문": 3, "미적분Ⅰ": 3, "영어Ⅱ": 3, "문학": 4, "확률과 통계": 4, "미적분Ⅱ": 4, "기하": 4 };
+
 // 계열 추천으로 2·3학년 자동 채우기 (선수과목 순서를 지켜 배치)
-export function autoFill(plan: Record<Sem, string[]>, track: TrackId): Record<Sem, string[]> {
+/** 목표(학과·직업)에서 나온 핵심·권장 과목. 계열 추천보다 먼저 배치한다 */
+export type FillHints = { core: string[]; rec: string[] };
+// stage: all=전체, required=체육·필수 교과 부족분만, core=핵심 과목만
+export function autoFill(plan: Record<Sem, string[]>, track: TrackId | "", hints: FillHints = { core: [], rec: [] }, stage: "all" | "required" | "core" = "all"): Record<Sem, string[]> {
   const next: Record<Sem, string[]> = { ...plan, "1-1": plan["1-1"].length ? plan["1-1"] : TEMPLATE_Y1["1-1"], "1-2": plan["1-2"].length ? plan["1-2"] : TEMPLATE_Y1["1-2"] };
   const later: Sem[] = ["2-1", "2-2", "3-1", "3-2"];
   later.forEach((s) => (next[s] = [...(plan[s] ?? [])]));
   const has = (n: string) => SEMS.some((s) => next[s].some((e) => parseEntry(e).name === n));
   const semOf = (n: string) => SEMS.findIndex((s) => next[s].some((e) => parseEntry(e).name === n));
-  const t = TRACKS[track];
+  const t = track ? TRACKS[track] : { core: [] as string[], rec: [] as string[] };
   const base = ["화법과 언어", "독서와 작문", "문학", "대수", "미적분Ⅰ", "확률과 통계", "영어Ⅰ", "영어Ⅱ"];
   const support = ["체육2", "운동과 건강", "진로와 직업", "정보", "기술·가정", "스포츠 생활1"];
-  const wanted = [...base, ...t.core, ...t.rec.slice(0, 4), ...support].filter((n, i, a) => SUBJECT_MAP[n] && a.indexOf(n) === i);
+  const wanted = (stage === "core" ? [...hints.core, ...t.core] : [...base, ...hints.core, ...t.core, ...hints.rec, ...t.rec.slice(0, 4), ...support]).filter((n, i, a) => SUBJECT_MAP[n] && a.indexOf(n) === i);
   const load = (s: Sem) => next[s].reduce((sum, e) => sum + parseEntry(e).credits, 0);
 
-  const place = (name: string, credits?: number, cap = 31) => {
+  const place = (name: string, credits?: number, cap = 31, early = false): boolean => {
     if (has(name) || !SUBJECT_MAP[name]) return false;
-    const pre = SUBJECT_MAP[name].prereq ?? [];
+    const pre = [...(SUBJECT_MAP[name].prereq ?? []), ...(SOFT_AFTER[name] ?? [])];
+    // 선수과목이 아직 없으면(공통과목 제외) 먼저 담는다
+    for (const p of pre) if (SUBJECT_MAP[p] && SUBJECT_MAP[p].cat !== "공통" && !has(p)) place(p, undefined, cap, true);
     const minIdx = Math.max(2, ...pre.map((p) => (has(p) ? semOf(p) + 1 : 2)));
+    // 학기 배치: 자연스러운 흐름(PREF_SEM)이 있으면 그 학기부터, 아니면 학점이 가장 적은 학기
+    const want = PREF_SEM[name];
     const target = later
       .map((s) => ({ s, i: SEMS.indexOf(s) }))
       .filter(({ i }) => i >= minIdx)
-      .sort((a, b) => load(a.s) - load(b.s))[0];
+      .sort((a, b) => early ? a.i - b.i : (want !== undefined ? Math.abs(a.i - want) - Math.abs(b.i - want) || load(a.s) - load(b.s) : load(a.s) - load(b.s)))[0];
+    // 국어·수학·영어 합계 상한(81학점)을 넘기지 않는다
+    const g0 = SUBJECT_MAP[name].group;
+    const basicNow = SEMS.reduce((sum, sm) => sum + next[sm].reduce((x, e) => { const o = parseEntry(e); return x + (o.subject && ["국어", "수학", "영어"].includes(o.subject.group) ? o.credits : 0); }, 0), 0);
+    if (["국어", "수학", "영어"].includes(g0) && basicNow + (credits ?? SUBJECT_MAP[name].credits) > CREDIT_RULES.basicCap) return false;
     if (target && load(target.s) + (credits ?? SUBJECT_MAP[name].credits) <= cap) {
       next[target.s].push(entry(name, credits));
       return true;
@@ -175,11 +191,19 @@ export function autoFill(plan: Record<Sem, string[]>, track: TrackId): Record<Se
   };
   const two = new Set(["체육2", "운동과 건강", "스포츠 생활1", "스포츠 생활2", "스포츠 문화", "미술 창작", "음악 연주와 창작", "미술과 매체", "음악과 미디어", "음악 감상과 비평", "미술 감상과 비평", "진로와 직업"]);
   // 체육은 매 학기: 2·3학년 각 학기에 체육 과목 하나씩 먼저 배치
+  if (stage !== "core") {
   const pe = ["체육2", "운동과 건강", "스포츠 생활1", "스포츠 생활2", "스포츠 문화"].filter((n) => !has(n));
   for (const s of later) {
     if (!next[s].some((e) => parseEntry(e).subject?.group === "체육") && pe.length) next[s].push(entry(pe.shift()!, 2));
   }
-  for (const name of wanted) place(name, two.has(name) ? 2 : undefined);
+  }
+  // 다른 과목의 선수과목이 되는 과목은 앞 학기에 둔다(이어지는 과목이 들어갈 자리를 남김)
+  const needEarly = new Set(wanted.flatMap((n) => SUBJECT_MAP[n]?.prereq ?? []));
+  if (stage !== "required") for (const name of wanted) place(name, two.has(name) ? 2 : undefined, 31, needEarly.has(name));
+
+  // 학기가 가득 차서 못 담은 핵심 과목은 학기당 상한을 조금 넓혀 다시 시도
+  if (stage !== "required") for (const cap of [32, 33]) for (const name of [...hints.core, ...t.core]) place(name, two.has(name) ? 2 : undefined, cap);
+  if (stage === "core") return next;
 
   // 필수 이수 학점이 부족한 교과(군) 채우기
   const fillers: Record<string, string[]> = {
@@ -198,8 +222,10 @@ export function autoFill(plan: Record<Sem, string[]>, track: TrackId): Record<Se
     if (!cand || !place(cand, two.has(cand) ? 2 : undefined, 33)) break;
   }
 
+  if (stage === "required") return next;
+
   // 남은 학점을 계열 권장·일반 선택으로 채워 174학점에 맞추기
-  const extra = [...t.rec, "영어 독해와 작문", "주제 탐구 독서", "사회와 문화", "생명과학", "화학", "물리학", "지구과학", "세계사", "독서 토론과 글쓰기", "실용 통계", "데이터 과학", "인간과 심리", "금융과 경제생활", "매체 의사소통", "언어생활 탐구", "수학과 문화", "세계 문화와 영어", "기후변화와 환경생태", "여행지리", "생애 설계와 자립", "논술"];
+  const extra = [...hints.rec, ...t.rec, "영어 독해와 작문", "주제 탐구 독서", "사회와 문화", "생명과학", "화학", "물리학", "지구과학", "세계사", "독서 토론과 글쓰기", "실용 통계", "데이터 과학", "인간과 심리", "금융과 경제생활", "매체 의사소통", "언어생활 탐구", "수학과 문화", "세계 문화와 영어", "기후변화와 환경생태", "여행지리", "생애 설계와 자립", "논술"];
   for (const cap of [32, 33]) {
     for (const name of extra) {
       const total = analyze(next, track).total;

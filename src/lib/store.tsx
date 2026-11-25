@@ -23,6 +23,8 @@ export type Log = {
 };
 export type Book = { id: string; date: string; title: string; author: string; why: string; quote: string; thought: string; link: string; next: string };
 export type Sem = "1-1" | "1-2" | "2-1" | "2-2" | "3-1" | "3-2";
+/** 192학점 설계의 목표: 희망 학과·직업·계열 (모범안과 추천의 기준) */
+export type CreditGoal = { kind: "major" | "job" | "track"; id: string };
 export type GradeRow = { id: string; sem: Sem; subject: string; credits: number; grade: number; ach: string };
 
 export type AppState = {
@@ -50,6 +52,7 @@ export type AppState = {
     picks: Record<string, string[]>; // 선택군 id → 고른 과목
     extra: Record<Sem, string[]>; // 편제표 외 추가 과목(공동교육과정 등)
     school: { code: string; name: string } | null; // 우리 학교(나이스 개설 과목 비교용, 경남 고교 코드)
+    goal: CreditGoal | null; // 희망 학과·직업·계열(모범안 기준)
   };
   grades: GradeRow[];
   portfolio: Record<string, string>;
@@ -83,7 +86,7 @@ export function initialState(): AppState {
     logs: [],
     books: [],
     hypothesis: "",
-    credits: { track: "", plan: emptyPlan(), curriculum: null, picks: {}, extra: emptyPlan(), school: null },
+    credits: { track: "", plan: emptyPlan(), curriculum: null, picks: {}, extra: emptyPlan(), school: null, goal: null },
     grades: [],
     portfolio: {},
   };
@@ -93,6 +96,12 @@ function cleanSchool(v: unknown): AppState["credits"]["school"] {
   if (!v || typeof v !== "object") return null;
   const { code, name } = v as { code?: unknown; name?: unknown };
   return typeof code === "string" && code && typeof name === "string" ? { code: code.slice(0, 20), name: name.slice(0, 60) } : null;
+}
+
+function cleanGoal(v: unknown): CreditGoal | null {
+  if (!v || typeof v !== "object") return null;
+  const { kind, id } = v as { kind?: unknown; id?: unknown };
+  return (kind === "major" || kind === "job" || kind === "track") && typeof id === "string" && id && id.length <= 60 ? { kind, id } : null;
 }
 
 function sanitize(raw: unknown): AppState {
@@ -112,6 +121,7 @@ function sanitize(raw: unknown): AppState {
       picks: r.credits?.picks ?? {},
       curriculum: r.credits?.curriculum ?? null,
       school: cleanSchool(r.credits?.school),
+      goal: cleanGoal(r.credits?.goal),
     },
     version: 2,
   };
