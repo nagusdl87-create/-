@@ -15,6 +15,7 @@ import { OfferCaveat, OfferDiagnosis, SchoolOfferCard } from "@/components/Schoo
 import { School } from "lucide-react";
 import { ModelPlanPanel } from "@/components/ModelPlan";
 import { FixFirst } from "@/components/FixFirst";
+import { CreditWizard } from "@/components/CreditWizard";
 import { hintsOf, resolveGoal } from "@/lib/modelPlan";
 import { schoolOffer, type SchoolOffer } from "@/lib/schoolSubjects";
 
@@ -58,6 +59,7 @@ export function CreditPlanner({ embedded = false }: { embedded?: boolean }) {
         />
       )}
 
+      <CreditWizard />
       <ModelPlanPanel />
 
       <div className="card no-print mb-4">
@@ -144,7 +146,7 @@ export function CreditPlanner({ embedded = false }: { embedded?: boolean }) {
         <p className="text-sm"><span data-keep-ko>{state.profile.name} {state.profile.school}</span> · {t("희망 계열")} {track ? tl(track) : "-"}</p>
       </div>
 
-      <div className="grid grid-cols-1 gap-4 lg:grid-cols-[1fr_320px] [&>*]:min-w-0">
+      <div id="planner-grid" className="grid scroll-mt-24 grid-cols-1 gap-4 lg:grid-cols-[1fr_320px] [&>*]:min-w-0">
         <div className="grid gap-3 sm:grid-cols-2">
           {SEMS.map((sem) => (
             <div key={sem} className="card p-4">

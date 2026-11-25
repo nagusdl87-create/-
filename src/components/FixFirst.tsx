@@ -40,7 +40,7 @@ export function FixFirst() {
 
   if (top.length === 0) {
     return (
-      <div className="card no-print mb-4 flex items-start gap-3 border-emerald-200 bg-emerald-50" role="status">
+      <div id="fix-first" className="card no-print mb-4 flex scroll-mt-24 items-start gap-3 border-emerald-200 bg-emerald-50" role="status">
         <CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0 text-emerald-600" aria-hidden />
         <div>
           <div className="text-sm font-bold text-emerald-800">{t("큰 문제는 없어요")}</div>
@@ -51,7 +51,7 @@ export function FixFirst() {
   }
 
   return (
-    <section className="card no-print mb-4" aria-labelledby="fix-title">
+    <section id="fix-first" className="card no-print mb-4 scroll-mt-24" aria-labelledby="fix-title">
       <div className="flex items-center gap-2">
         <Wrench className="h-4 w-4 text-brand-600" aria-hidden />
         <h2 id="fix-title" className="text-sm font-extrabold">{t("먼저 이것부터 고쳐요")}</h2>

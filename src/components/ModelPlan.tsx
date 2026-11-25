@@ -65,7 +65,7 @@ export function ModelPlanPanel() {
   };
 
   return (
-    <section className="card no-print mb-4" aria-labelledby="model-title">
+    <section id="model-plan" className="card no-print mb-4 scroll-mt-24" aria-labelledby="model-title">
       <div className="flex items-start gap-3">
         <span className="icon-box shrink-0"><Compass className="h-5 w-5" aria-hidden /></span>
         <div className="min-w-0 flex-1">
@@ -110,7 +110,7 @@ export function ModelPlanPanel() {
           <label className="relative block">
             <span className="sr-only">{t("학과·직업 이름으로 목표 찾기")}</span>
             <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" aria-hidden />
-            <input className="input pl-9" value={q} onChange={(e) => setQ(e.target.value)} placeholder={t("학과·직업 이름으로 찾기 (예: 간호, 컴퓨터, 교사)")} />
+            <input id="model-search" className="input pl-9" value={q} onChange={(e) => setQ(e.target.value)} placeholder={t("학과·직업 이름으로 찾기 (예: 간호, 컴퓨터, 교사)")} />
           </label>
           {found.length > 0 && (
             <ul className="mt-1 divide-y divide-slate-100 overflow-hidden rounded-xl border border-slate-200 bg-surface">

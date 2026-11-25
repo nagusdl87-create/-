@@ -6,7 +6,7 @@ import { CN_EXTRA_JOBS, CN_EXTRA_MAJORS } from "@/data/careernet";
 
 export const dynamic = "force-static";
 
-const PAGES = ["", "discover", "jobs", "majors", "subjects", "schools", "highschool", "admission", "industry", "credits", "credits/school", "path", "plan", "portfolio", "tests", "resources", "guide", "explore", "tools", "future", "transition", "account", "privacy", "middle"];
+const PAGES = ["", "discover", "jobs", "majors", "subjects", "schools", "highschool", "admission", "industry", "help", "credits", "credits/school", "path", "plan", "portfolio", "tests", "resources", "guide", "explore", "tools", "future", "transition", "account", "privacy", "middle"];
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const now = new Date();

@@ -2,7 +2,7 @@ import type { LucideIcon } from "lucide-react";
 import { STATS } from "@/data/stats";
 import {
   BookMarked, BookOpen, Briefcase, Calculator, ClipboardCheck, Compass, Factory, FolderOpen, GraduationCap,
-  Lightbulb, ListChecks, MapPinned, Percent, Route, School, Target, Backpack, Rocket, HardDriveDownload, Users, UserRoundCheck } from "lucide-react";
+  Lightbulb, ListChecks, CircleHelp, MapPinned, Percent, Route, School, Target, Backpack, Rocket, HardDriveDownload, Users, UserRoundCheck } from "lucide-react";
 import type { Stage } from "@/data/plan";
 
 export type NavItem = { href: string; label: string; desc: string; icon: LucideIcon };
@@ -37,6 +37,7 @@ export const EXPLORE: NavItem[] = [
 ];
 
 export const TOOLS: NavItem[] = [
+  { href: "/help", label: "이용 안내", icon: CircleHelp, desc: "처음이라면 여기부터 · 쉬운 사용법·용어 풀이" },
   { href: "/credits", label: "192학점 설계", icon: Calculator, desc: "3개년 과목 설계 · 학교 편제표 · 진단" },
   { href: "/admission#calc", label: "내신 계산기", icon: Percent, desc: "5등급제 학점 가중 평균" },
   { href: "/portfolio", label: "포트폴리오", icon: FolderOpen, desc: "진로활동 · 학업설계서 · 독서" },

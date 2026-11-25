@@ -311,6 +311,9 @@ export default function Home() {
           </h1>
           <LiveSearch />
           <StageButtons />
+          <p className="text-sm text-slate-500">
+            {t("처음이라 어렵다면")} <Link href="/help" className="font-semibold text-brand-700 underline underline-offset-2">{t("이용 안내")}</Link>{t("를 먼저 읽어 보세요. 쉬운 말로 순서대로 알려 드려요.")}
+          </p>
         </section>
 
         <Shortcuts />
@@ -390,6 +393,7 @@ export default function Home() {
             <p className="mt-0.5 text-sm text-slate-500" role="img" aria-label={t("진행 {v}/{m}", { v: p.doneCount, m: 5 })}>
               {t("나의 진로 여정")} · {p.doneCount} / 5
             </p>
+            {p.doneCount < 2 && <p className="mt-0.5 text-sm"><Link href="/help" className="font-semibold text-brand-700 underline underline-offset-2">{t("사용법이 어렵다면 이용 안내")}</Link></p>}
           </div>
           <Link href={allDone ? "/report" : nextStep.href} className="btn-primary rounded-xl px-5">
             {allDone ? t("내 리포트 보기") : t("{step} 이어서 하기", { step: t(nextStep.label) })} <ArrowRight className="h-4 w-4" aria-hidden />
