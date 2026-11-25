@@ -18,4 +18,12 @@ public/data/neis/meal/
 .claude/worktrees/
 # 나이스 학사일정(매일 빌드 때 생성)
 public/data/neis/schedule/
-.content-gen/
+# 내용 생성·편제표 수집 도구는 저장소에 두고(다른 컴퓨터에서도 이어 작업), 내려받은 원문·중간 산출물만 제외
+.content-gen/curricula-raw/
+.content-gen/input/
+.content-gen/output/
+.content-gen/en-input/
+.content-gen/en-output/
+.content-gen/tmp/
+.content-gen/**/*.log
+.content-gen/**/count*.txt

@@ -1,0 +1,125 @@
+
+// ── 이름 변형 ──────────────────────────────────────────────
+// 너무 일반적이라 혼자서는 직업을 가리키지 못하는 조각(및·ㆍ로 나눈 뒤 남는 것)
+const GENERIC_PART = /^(수리원|조작원|제조원|생산직|설치원|운전원|기술자|연구원|종사원|관리원|사무원|정비원|기사|전문가|조립원|노무자|제조|가공원|관련직|판매원|개발자|강사|작가|디자이너)$/;
+// 이름은 다르지만 같은 직업을 가리키는 표기(확실한 것만. 이름은 공백 없이 비교)
+const JOB_ALIAS = {
+  일반의사: ["의사"],
+  "제과사및제빵사": ["제과제빵사", "제빵사", "파티시에"],
+  "철도및지하철기관사": ["기관사", "지하철기관사"],
+  영화시나리오작가: ["시나리오작가"],
+  항공기정비원: ["항공정비사", "항공기정비사"],
+  무용가: ["무용수"],
+  "금융자산운용가(펀드매니저)": ["펀드매니저", "자산운용가"],
+  "금융자산운용가(펀드매니저)": ["펀드매니저", "자산운용가"],
+};
+const NOSPACE = (s) => s.replace(/\s+/g, "");
+export function jobVariants(name) {
+  const out = [name];
+  const noParen = name.replace(/\s*\([^)]*\)\s*/g, "");
+  if (noParen !== name && noParen.length >= 2) out.push(noParen);
+  // "아이티(IT)기술영업원" → "IT기술영업원"
+  const inParen = name.match(/\(([^)]+)\)/);
+  if (inParen && /^[A-Za-z0-9 ]+$/.test(inParen[1])) out.push(name.replace(/[^\s(]*\([^)]*\)/, inParen[1]));
+  const parts = name.split(/\s*(?:및|ㆍ|·|\(|\)|,)\s*/).filter((p) => p.length >= 3 && !GENERIC_PART.test(p));
+  out.push(...parts);
+  // 연구원 ↔ 학자, 공학기술자 ↔ 공학자(영상 제목은 "천문학자", "항공우주공학자"처럼 쓴다)
+  for (const x of [name, noParen]) {
+    const m1 = x.match(/^(.{2,}학)연구원$/);
+    if (m1) out.push(m1[1] + "자");
+    const m2 = x.match(/^(.{2,}공학)기술자$/);
+    if (m2) out.push(m2[1] + "자");
+  }
+  out.push(...(JOB_ALIAS[NOSPACE(name)] ?? []));
+  return [...new Set(out.map((s) => s.trim()).filter((s) => s.length >= 2))];
+}
+
+// ── 제목 정리 ──────────────────────────────────────────────
+export const EXCLUDE = /shorts|쇼츠|채용공고|모집공고|설명회|브리핑|보도|장관|정책|공청회|라이브|LIVE|생중계|진로체험센터|꿀팁|직무분석|직무평가|개요\s*및\s*특성|원자력기구/i;
+export const norm = (t) => t.replace(/\[[^\]]*\]|【[^】]*】|<[^>]*>/g, "").replace(/[^\p{L}\p{N}]/gu, "").toLowerCase();
+const head = (t) => norm(t.split(/[|｜\-–:_/]/)[0] || t);
+// 제목 앞뒤에 붙는 시리즈·연도·회차 표기를 걷어 낸다 ("2018내일을Job아라_앱개발자", "요양보호사 2", "스마트팜 구축가 요약본")
+const NOISE = /내일을\s*(?:잡아라|job\s*아라)|워크\s*앤\s*라이프|work\s*&\s*life|워크넷이\s*만난\s*사람들|직업\s*소개|신직업|굿잡러|vr\s*체험\s*영상|vr체험영상|한국고용정보원|요약본?|본편|\bfinal\b|\bvr\b|직무\s*\d+|\d{4}\s*년?|\d+\s*회/gi;
+const cleanSeg = (s) => norm(s.replace(NOISE, " ").replace(/(?:\s|^)\d+$/, "").replace(/\s편$/, ""));
+const segsOf = (title) => title.split(/[_|｜\-–:\[\]()/,~]/).map(cleanSeg).filter(Boolean);
+
+const stem = (x) => x.replace(/(학과|학부|전공|과)$/, "");
+// 학과 이름 같음: 수학↔수학과, 전기↔전기공학, 생물↔생물학 (두 글자 이상일 때만)
+const sameStem = (a, b) => a === b || (a.length >= 2 && b.length >= 2 && (a + "학" === b || b + "학" === a || a + "공학" === b || b + "공학" === a));
+// 제목에서 학과 이름 후보: "학과정보_수학ㆍ통계학과", "'경영학과' 수업", "국어국문학/문예창작과"
+export function majorParts(title) {
+  const t = title.replace(/\[[^\]]*\]/g, " ");
+  const m = title.match(/학과정보[_\s:\-–]*([^|]+)/);
+  let raw = null;
+  if (m) raw = m[1];
+  else {
+    const q = t.match(/['‘’"“”]([^'‘’"“”]{2,20})['‘’"“”]\s*수업/) || t.match(/[-–]\s*([^-–'‘’"“”]{2,20}?)\s*수업/);
+    if (q) raw = q[1];
+    else if (/(학과|학부|전공|과)$/.test(t.trim()) && t.trim().length <= 25 && !/\s/.test(t.trim().replace(/\//g, ""))) raw = t.trim();
+  }
+  if (!raw) return [];
+  return raw.split(/[ㆍ·,\/]/).map((x) => stem(norm(x.replace(/\([^)]*\)/g, "")))).filter(Boolean);
+}
+
+export function pick(all, kws, isMajor = false) {
+  const scored = [];
+  const kks = kws.map(norm);
+  for (const v of all) {
+    const n = norm(v.title), h = head(v.title);
+    const parts = isMajor ? majorParts(v.title) : [];
+    const segs = [...new Set([...v.title.split(/[_|｜\-–:\[\]()]/).map(norm).filter(Boolean), ...segsOf(v.title)])];
+    let best = 0;
+    kks.forEach((kk, ki) => {
+      if (!kk) return;
+      const w = 1 - ki * 0.05; // 앞쪽 키워드 우선
+      let s = 0;
+      if (h === kk || n === kk) s = 3;
+      else if (segs.includes(kk)) s = 2.5; // "내일을 잡아라_회계사_한국고용정보원"처럼 가운데에 있는 직업명
+      else if (isMajor && parts.some((p) => sameStem(p, stem(kk)))) s = 3 - (parts.length - 1) * 0.3;
+      else if (h.startsWith(kk) || n.startsWith(kk)) s = 2;
+      else if (!isMajor && kk.length >= 4 && n.includes(kk)) s = 1;
+      else if (isMajor && kk.length >= 4 && n.includes(kk) && !/학과정보/.test(v.title)) s = 1;
+      best = Math.max(best, s * w);
+    });
+    if (/Q&A|면세점|브이로그|vlog/i.test(v.title)) best = 0;
+    if (best > 0) scored.push({ v, s: best + v.bonus - Math.min(n.length, 60) / 200 });
+  }
+  scored.sort((a, b) => b.s - a.s);
+  const seen = new Set();
+  return scored.filter(({ v }) => !seen.has(v.id) && seen.add(v.id)).slice(0, 6).map(({ v }) => v);
+}
+
+// 커리어넷 자료(src/data/gen)로 심화 글을 쓴 직업·학과(id: cn-번호)와 기존 직업·학과의 키워드를 만든다
+// R(경로) → JSON 읽기. 반환: { jobKw, majorKw, names }
+export function buildKeywords(R, { rich = true } = {}) {
+  const safe = (p) => { try { return R(p); } catch { return null; } };
+  const cnJobList = safe("../src/data/careernet/jobs.json")?.jobs ?? [];
+  const cnMajorList = safe("../src/data/careernet/majors.json")?.majors ?? [];
+  const jmap = safe("../src/data/careernet/job-detail.json")?.map ?? {};
+  const cnBySeq = new Map(cnJobList.map((j) => [j.seq, j]));
+  const jobKw = { ...BASE_JOB_KW }, majorKw = { ...BASE_MAJOR_KW }, names = {};
+  // 기존(수작업) 직업: 커리어넷의 같은 직업 이름·관련 직업명을 뒤쪽 키워드로 보탠다
+  if (rich) for (const id of Object.keys(BASE_JOB_KW)) {
+    const c = cnBySeq.get(jmap[id]);
+    if (!c) continue;
+    names[id] = c.name;
+    const extra = [...jobVariants(c.name), ...(c.rel ? c.rel.split(/,\s*/) : [])].filter((k) => k && k.length >= 3 && !GENERIC_PART.test(k));
+    jobKw[id] = [...new Set([...BASE_JOB_KW[id], ...extra])].slice(0, 14);
+  }
+  for (const g of safe("../src/data/gen/jobs.json") ?? []) {
+    const c = cnBySeq.get(+g.id.slice(3));
+    names[g.id] = g.name;
+    const base = [g.name, ...(c?.rel ? c.rel.split(/,\s*/) : [])];
+    // 이름 변형은 원래 이름 바로 뒤에, 관련 직업명은 그 다음에
+    const list = rich ? [g.name, ...jobVariants(g.name).slice(1), ...base.slice(1)] : [...base, ...g.name.split(/\s*(?:및|ㆍ|·|\(|\)|,)\s*/).filter((p) => p.length >= 3)];
+    jobKw[g.id] = [...new Set(list)].filter((k) => k && k.length >= 2).slice(0, rich ? 14 : 8);
+  }
+  for (const g of safe("../src/data/gen/majors.json") ?? []) {
+    const c = cnMajorList.find((x) => x.seq === +g.id.slice(3));
+    names[g.id] = g.name;
+    majorKw[g.id] = [g.name, ...(c?.alias ? c.alias.split(/,\s*/).slice(0, 3) : [])].filter((k) => k && k.length >= 2);
+  }
+  for (const k of Object.keys(jobKw)) names[k] ??= k;
+  for (const k of Object.keys(majorKw)) names[k] ??= k;
+  return { jobKw, majorKw, names };
+}

@@ -62,6 +62,10 @@ BASE=http://localhost:5000 node scripts/e2e.cjs   # 전체 흐름 브라우저 �
 5. 확실하지 않은 사실(전형 일정, 대학별 권장과목, 기관 연락처)은 지어내지 말고 공식 링크로 안내한다. 연도별로 바뀌는 값(`ADMISSION_SCHEDULE`, `DATA_AS_OF`)은 매년 갱신한다.
 6. UI 문구는 중·고등학생 눈높이의 존댓말("~해요")로 쓴다. 접근성: 모달은 `role="dialog"` + Esc 닫기(`useEscape`), 탭은 `role="tab"`, 입력에는 라벨.
 
+7. **영어 작업은 마지막에 몰아서 한다**(2026-11-24 사용자 결정). 새 기능은 한국어로 `t()`만 거쳐 두고, 영어 사전·본문 영어판(D9)은 다른 작업이 끝난 뒤에 한다. 단 기존 영어 모드가 깨지지 않게 검증·빌드·e2e는 그대로 돌린다.
+8. 상담 메모 기능은 만들지 않는다(사용자 결정). 교사용 화면은 공개 중이며 개인정보 12항은 사용자가 확인했다. 마스터 계정은 `src/lib/site.ts`의 `MASTER_EMAIL`.
+9. 편제표 수집은 고교학점제 누리집 공개 자료만, 한 번에 1건·3초 이상 간격·한 번 60건 이하, 차단 신호(error.html·429·403)가 나오면 즉시 멈추고 우회하지 않는다(도구 `.content-gen/curricula-tools/`, 기록 `docs/reference/school-curricula.md`).
+
 ## 배포
 
 - `main`에 push → `.github/workflows/firebase-hosting-merge.yml`이 Firebase Hosting(live)에 배포.
