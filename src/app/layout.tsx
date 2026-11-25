@@ -11,6 +11,8 @@ import { ScrollTop } from "@/components/ScrollTop";
 import { OfflineSupport } from "@/components/Offline";
 import { THEME_INIT } from "@/components/ThemeToggle";
 import { Footer } from "@/components/Footer";
+import { WelcomeStrip } from "@/components/WelcomeStrip";
+import { PageHelp } from "@/components/PageHelp";
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
@@ -43,9 +45,11 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <StoreProvider>
           <CloudProvider>
           <Nav />
+          <WelcomeStrip />
           <main id="main" className="mx-auto w-full max-w-6xl px-4 pb-28 pt-8 sm:pb-20 sm:pt-12">{children}</main>
           <Footer />
           <ScrollTop />
+          <PageHelp />
           <OfflineSupport />
           <CloudConflict />
           </CloudProvider>

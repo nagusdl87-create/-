@@ -86,3 +86,43 @@ const { chromium } = require("playwright");
   console.log("errors:", errs.length ? errs : "none");
   await b.close();
 })();
+
+// 첫 방문 띠 · 화면별 ? 도움말 · 낱말 풀이 · 의견 링크 점검
+(async () => {
+  const { chromium } = require("playwright");
+  const B = process.env.BASE || "http://localhost:5000";
+  const b = await chromium.launch();
+  const p = await b.newPage({ viewport: { width: 1200, height: 900 } });
+  const errs = [];
+  p.on("pageerror", (e) => errs.push(e.message));
+  await p.goto(B + "/", { waitUntil: "networkidle" });
+  await p.evaluate(() => localStorage.clear());
+  await p.reload({ waitUntil: "networkidle" });
+  console.log("첫 방문 띠 표시:", await p.getByRole("region", { name: "처음 방문 안내" }).isVisible());
+  await p.getByRole("button", { name: "안내 닫기" }).click();
+  await p.reload({ waitUntil: "networkidle" });
+  console.log("닫은 뒤 다시 안 뜸:", !(await p.getByRole("region", { name: "처음 방문 안내" }).isVisible().catch(() => false)));
+  await p.goto(B + "/credits", { waitUntil: "networkidle" });
+  await p.getByRole("button", { name: "이 화면 사용법" }).first().click();
+  const dlg = p.getByRole("dialog", { name: /192학점 과목 설계/ });
+  console.log("? 도움말(192학점):", await dlg.isVisible());
+  console.log("의견 링크:", (await p.getByRole("link", { name: "어려웠던 점 알려 주기" }).getAttribute("href")).slice(0, 28));
+  await p.keyboard.press("Escape");
+  console.log("Esc로 닫힘:", !(await dlg.isVisible().catch(() => false)));
+  await p.getByRole("button", { name: "편제표", exact: true }).first().click();
+  console.log("낱말 풀이:", await p.getByText("우리 학교가 3년 동안").first().isVisible());
+  await p.setViewportSize({ width: 320, height: 800 });
+  for (const path of ["/", "/credits", "/help"]) {
+    await p.goto(B + path, { waitUntil: "networkidle" });
+    await p.evaluate(() => localStorage.removeItem("myroad:welcome"));
+    await p.reload({ waitUntil: "networkidle" });
+    const o = await p.evaluate(() => ({ sw: document.documentElement.scrollWidth, cw: document.documentElement.clientWidth }));
+    console.log("320px(띠 포함)", path, o.sw <= o.cw + 1 ? "ok" : "넘침 " + o.sw);
+  }
+  await p.getByRole("button", { name: "전체 메뉴 열기" }).click();
+  await p.getByRole("button", { name: "이 화면 사용법" }).click();
+  await p.waitForTimeout(300);
+  console.log("모바일 메뉴 ? 도움말:", await p.getByRole("dialog").first().isVisible());
+  console.log("errors:", errs.length ? errs : "none");
+  await b.close();
+})();

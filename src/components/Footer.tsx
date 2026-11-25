@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { EXPLORE, TOOLS } from "@/lib/journey";
+import { feedbackHref } from "@/lib/site";
 import { Logo } from "./Logo";
 import { CreditLine } from "./Credit";
 import { useT } from "@/lib/i18n";
@@ -64,6 +65,8 @@ export function Footer() {
             {t("마이로드 경남은 진로 탐색을 돕는 참고용 서비스이며 경상남도교육청의 공식 서비스가 아닙니다. 고교 정보는 경상남도교육청 고등학교 입학포털·공공데이터포털·교육정보 개방포털(NEIS)의 공개 자료를 바탕으로 했고, 입학 전형과 교육과정은 바뀔 수 있으니 원서 접수 전 반드시 교육청과 학교의 공식 안내를 확인하세요. 흥미 탐색 결과는 표준화된 심리검사가 아니며, 입력한 내용은 이 기기의 브라우저에만 저장됩니다. 로그인(선택)한 경우에만 본인 기록이 서버에 저장됩니다.")}
           </p>
           <p>
+            <a href={feedbackHref("/")} target="_blank" rel="noreferrer" className="text-slate-300 underline-offset-2 hover:underline">{t("의견 보내기")}</a>
+            <span className="mx-2" aria-hidden>·</span>
             <Link href="/help" className="font-semibold text-slate-200 underline-offset-2 hover:underline">{t("이용 안내")}</Link>
             <span className="mx-2" aria-hidden>·</span>
             <Link href="/privacy" className="font-semibold text-slate-200 underline-offset-2 hover:underline">{t("개인정보 처리 방침")}</Link>

@@ -4,6 +4,8 @@ import { useMemo, useState } from "react";
 import Link from "next/link";
 import { ArrowRight, Calculator, ChevronDown, Compass, GraduationCap, HardDriveDownload, Lightbulb, ListChecks, Route, School, Search } from "lucide-react";
 import { PageHead } from "@/components/ui";
+import { GLOSSARY } from "@/data/glossary";
+import { feedbackHref } from "@/lib/site";
 
 type Step = { href: string; title: string; icon: typeof Compass; what: string; how: string[]; stuck?: string };
 
@@ -48,21 +50,7 @@ const CREDIT_STEPS = [
   { t: "저장하고 선생님과 이야기해요", d: "‘학업설계서 인쇄’로 종이나 PDF로 만들 수 있어요. 설계 내용은 이 기기에 저장돼요. 다른 기기에서도 보려면 ‘내 기록 백업’을 써요." },
 ];
 
-const WORDS: { w: string; d: string }[] = [
-  { w: "고교학점제", d: "고등학생이 자기 진로에 맞춰 과목을 직접 골라 듣고, 학점을 모아 졸업하는 제도예요. 수업을 학기마다 학점으로 세어요." },
-  { w: "학점", d: "과목을 얼마나 오래 배우는지 나타내는 숫자예요. 보통 한 과목이 3~4학점이에요." },
-  { w: "192학점", d: "졸업에 필요한 학점이에요. 교과(국어·수학 같은 수업) 174학점 + 창의적 체험활동 18학점으로 이뤄져요." },
-  { w: "교과와 창체", d: "교과는 국어·수학·영어 같은 수업이고, 창체(창의적 체험활동)는 자율·동아리·진로 활동이에요. 이 사이트의 과목 설계는 교과 174학점을 짜요." },
-  { w: "편제표", d: "우리 학교가 3년 동안 어떤 과목을 몇 학점씩, 어느 학기에 가르치는지 적은 표예요. 학교 누리집이나 고교학점제 누리집에서 볼 수 있어요." },
-  { w: "지정 과목", d: "학교가 정해 둔 과목이에요. 모두가 같이 들어서 내가 고를 수 없어요(잠금 표시)." },
-  { w: "선택군(택N)", d: "‘이 과목들 중에서 N개를 골라요’라는 묶음이에요. 예를 들어 ‘선택군 A 택2’는 여러 과목 중 2개만 고르는 거예요." },
-  { w: "공통·일반선택·진로선택·융합선택", d: "공통은 모두가 듣는 기본 과목, 일반선택은 기초 심화, 진로선택은 내 진로에 맞춘 심화, 융합선택은 여러 분야를 섞은 과목이에요." },
-  { w: "선수과목", d: "먼저 배워야 다음 과목을 따라갈 수 있는 과목이에요. 예: 물리학을 먼저 배우고 역학과 에너지를 들어요." },
-  { w: "핵심·권장 과목", d: "★핵심은 그 학과나 직업에 특히 중요한 과목, ☆권장은 들으면 도움이 되는 과목이에요. 대학마다 다를 수 있어서 학과 페이지의 원문 링크를 꼭 확인해요." },
-  { w: "수능 출제 과목", d: "수능 시험에 나오는 과목이에요. 2028 수능은 국어·수학·영어가 모두 같은 공통 범위로 바뀌어요." },
-  { w: "5등급제 내신", d: "과목 성적을 1~5등급으로 나누는 새 방식이에요(2025년 고1부터). 1등급은 상위 10% 이내예요." },
-  { w: "세특", d: "‘세부능력 및 특기사항’의 줄임말이에요. 선생님이 과목마다 내가 배우고 탐구한 내용을 적어 주는 기록이에요." },
-];
+const WORDS = GLOSSARY;
 
 const FAQ: { q: string; a: string }[] = [
   { q: "로그인해야 쓸 수 있나요?", a: "아니요. 로그인하지 않아도 모든 기능을 쓸 수 있어요. 로그인은 선택이에요." },
@@ -96,7 +84,7 @@ export function HelpBody() {
       <PageHead eyebrow="도움말" title="이용 안내" desc="처음이어도 괜찮아요. 순서대로 따라 하면 돼요. 모르는 말은 아래 ‘어려운 말 풀이’에서 찾아보세요." />
 
       <nav aria-label="이 페이지의 목차" className="no-print mb-6 flex gap-1.5 overflow-x-auto pb-1">
-        {[["start", "처음 시작하기"], ["steps", "단계별로 따라 하기"], ["credits", "192학점 설계 따라 하기"], ["words", "어려운 말 풀이"], ["faq", "자주 묻는 질문"], ["stuck", "막힐 때"]].map(([id, l]) => (
+        {[["start", "처음 시작하기"], ["steps", "단계별로 따라 하기"], ["credits", "192학점 설계 따라 하기"], ["words", "어려운 말 풀이"], ["faq", "자주 묻는 질문"], ["stuck", "막힐 때"], ["feedback", "의견 보내기"]].map(([id, l]) => (
           <a key={id} href={`#${id}`} className="chip shrink-0">{l}</a>
         ))}
       </nav>
@@ -203,6 +191,14 @@ export function HelpBody() {
         <p className="mt-4 rounded-xl bg-brand-50 px-3 py-3 text-sm text-brand-900">
           그래도 모르겠으면 선생님께 이렇게 물어보세요: “제가 되고 싶은 직업은 ○○인데, 이 과목들을 이렇게 골라도 될까요?” 화면의 ‘학업설계서 인쇄’로 만든 종이를 같이 보면서 이야기하면 좋아요.
         </p>
+      </section>
+
+      <section id="feedback" className="card scroll-mt-24" aria-labelledby="h-feedback">
+        <h2 id="h-feedback" className="text-lg font-extrabold">어려웠던 점을 알려 주세요</h2>
+        <p className="mt-1 text-sm text-slate-600">
+          쓰다가 막히거나 이해가 안 된 곳이 있으면 알려 주세요. 어느 화면에서 무엇이 어려웠는지만 쓰면 돼요. <b>이름·학교·연락처는 쓰지 않아도 돼요.</b> 여러분의 의견으로 이 사이트가 더 쉬워져요.
+        </p>
+        <a href={feedbackHref("/help")} target="_blank" rel="noreferrer" className="btn-primary mt-3">의견 보내기</a>
       </section>
     </div>
   );

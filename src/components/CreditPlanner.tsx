@@ -16,6 +16,7 @@ import { School } from "lucide-react";
 import { ModelPlanPanel } from "@/components/ModelPlan";
 import { FixFirst } from "@/components/FixFirst";
 import { CreditWizard } from "@/components/CreditWizard";
+import { Term } from "@/components/Term";
 import { hintsOf, resolveGoal } from "@/lib/modelPlan";
 import { schoolOffer, type SchoolOffer } from "@/lib/schoolSubjects";
 
@@ -468,7 +469,7 @@ function CurriculumSem({
         return (
           <fieldset key={g.id} className={`rounded-xl border p-2 ${full ? "border-emerald-200 bg-emerald-50/50" : "border-amber-200 bg-amber-50/40"}`}>
             <legend className="px-1 text-xs font-bold text-slate-600">
-              {t(g.label)} · {t("택{n}", { n: g.pick })} <span className={full ? "text-emerald-600" : "text-amber-600"}>({chosen.length}/{g.pick})</span>
+              {t(g.label)} · <Term id="선택군">{t("택{n}", { n: g.pick })}</Term> <span className={full ? "text-emerald-600" : "text-amber-600"}>({chosen.length}/{g.pick})</span>
             </legend>
             <div className="flex flex-wrap gap-1">
               {g.options.map((o) => {

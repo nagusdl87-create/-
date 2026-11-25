@@ -9,6 +9,7 @@ import { useStore } from "@/lib/store";
 import { progress } from "@/lib/match";
 import { EXPLORE, JOURNEY, TOOLS, type NavItem } from "@/lib/journey";
 import { Logo } from "./Logo";
+import { HelpButton, openPageHelp } from "./PageHelp";
 import { AccountButton } from "./Account";
 import { ThemeToggle } from "./ThemeToggle";
 import { LangToggle, useT } from "@/lib/i18n";
@@ -90,6 +91,7 @@ export function Nav() {
               <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" aria-hidden />
               <input className="input w-56 rounded-full bg-slate-50 py-2 pl-9 lg:w-48 xl:w-56" placeholder={t("직업·학과·과목·학교 검색")} value={q} onChange={(e) => setQ(e.target.value)} aria-label={t("통합 검색")} />
             </form>
+            <HelpButton className="hidden sm:grid" />
             <LangToggle />
             <ThemeToggle />
             <AccountButton />
@@ -112,6 +114,7 @@ export function Nav() {
                 <X className="h-5 w-5" />
               </button>
             </div>
+            <button type="button" onClick={() => { setOpen(false); setTimeout(openPageHelp, 50); }} className="btn-ghost mb-3 w-full justify-center">{t("이 화면 사용법")}</button>
             <form onSubmit={search} role="search" className="relative mb-5">
               <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" aria-hidden />
               <input className="input rounded-full pl-9" placeholder={t("직업·학과·과목·학교 검색")} value={q} onChange={(e) => setQ(e.target.value)} aria-label={t("통합 검색")} />

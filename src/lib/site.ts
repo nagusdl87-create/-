@@ -9,3 +9,11 @@ export const KAKAO_JS_KEY = "029295f379e1b97e82bcca1bd784e1a6";
 export const TEACHER_CLOUD = process.env.NEXT_PUBLIC_TEACHER_CLOUD === "on";
 // 최고 권한자(마스터) 구글 계정 한 곳. firestore.rules의 isMaster()에도 같은 주소가 있으니 바꿀 때 두 곳을 함께 고친다.
 export const MASTER_EMAIL = "nagusdl87@gmail.com";
+
+// 학생·선생님 의견 창구. 구글 폼 주소를 넣으면 그 폼으로 열리고, 비어 있으면 제작자에게 메일을 쓰는 창이 열린다.
+// 폼을 만들 때는 이름·학교·연락처를 받지 말고 ‘어느 화면에서 무엇이 어려웠는지’만 묻는 것을 권한다(개인정보 최소화).
+export const FEEDBACK_URL = "";
+export const FEEDBACK_MAIL = "nagusdl87@gmail.com";
+export const feedbackHref = (path: string) =>
+  FEEDBACK_URL ||
+  `mailto:${FEEDBACK_MAIL}?subject=${encodeURIComponent("[마이로드 경남 의견] " + path)}&body=${encodeURIComponent("어느 화면에서 무엇이 어려웠나요?\n(이름·학교·연락처는 쓰지 않아도 돼요)\n\n")}`;

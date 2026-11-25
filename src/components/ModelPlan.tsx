@@ -9,6 +9,7 @@ import { autoFill, parseEntry, SEM_LABEL } from "@/lib/credits";
 import { buildModelPicks, buildModelPlan, hintsOf, reasonOf, resolveGoal } from "@/lib/modelPlan";
 import { useLabels } from "@/lib/subjectLabel";
 import { TRACKS, type TrackId } from "@/data/subjects";
+import { Term } from "@/components/Term";
 import { curriculumToPlan } from "@/data/curriculum";
 import { MAJORS_LITE } from "@/data/lite-majors";
 import { JOBS_LITE } from "@/data/lite-jobs";
@@ -149,7 +150,7 @@ export function ModelPlanPanel() {
             <h3 className="text-sm font-extrabold">{t("{label} 모범안", { label: goal.label })}{cur ? ` · ${t("편제표 기준")}` : ""}</h3>
           </div>
           <p className="mt-1 text-xs text-slate-600">
-            <b className="text-amber-600">★ {t("핵심")}</b> {goal.core.length ? goal.core.map(sl).join(", ") : t("계열 핵심 과목으로 짰어요")}
+            <b className="text-amber-600">★ <Term id="핵심권장">{t("핵심")}</Term></b> {goal.core.length ? goal.core.map(sl).join(", ") : t("계열 핵심 과목으로 짰어요")}
             {goal.rec.length > 0 && <> · <b className="text-sky-600">☆ {t("권장")}</b> {goal.rec.map(sl).join(", ")}</>}
           </p>
           <p className="mt-1 text-xs text-slate-500">

@@ -10,6 +10,7 @@ import { analyze } from "@/lib/credits";
 import { buildModelPicks, buildModelPlan, nextFixes, resolveGoal } from "@/lib/modelPlan";
 import { curriculumToPlan } from "@/data/curriculum";
 import { useLabels } from "@/lib/subjectLabel";
+import { Term } from "@/components/Term";
 
 const KEY = "myroad:wizard";
 const goTo = (id: string, focus?: string) => {
@@ -105,7 +106,7 @@ export function CreditWizard() {
             </div>
           </div>
           <p className="mt-2 text-xs text-slate-500">
-            {t("모르는 말이 있나요?")} <Link href="/help#words" className="font-semibold text-brand-700 underline">{t("어려운 말 풀이")}</Link> · <Link href="/help#credits" className="font-semibold text-brand-700 underline">{t("자세한 설명 보기")}</Link>
+            {t("모르는 말을 눌러 보세요:")} <Term id="편제표">{t("편제표")}</Term> · <Term id="선택군">{t("선택군")}</Term> · <Term id="선수과목">{t("선수과목")}</Term> · <Term id="핵심권장">{t("핵심·권장")}</Term> · <Term id="교과·창체">{t("창체")}</Term> · <Link href="/help#credits" className="font-semibold text-brand-700 underline">{t("자세한 설명 보기")}</Link>
           </p>
         </div>
       )}
